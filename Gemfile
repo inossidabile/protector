@@ -1,4 +1,10 @@
 source 'https://rubygems.org'
-
-# Specify your gem's dependencies in protector.gemspec
 gemspec
+
+gem 'rake'
+gem 'pry'
+gem 'rspec'
+gem 'guard'
+gem 'guard-rspec'
+
+gem 'activemodel', '>= 3.2.0'
