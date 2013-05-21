@@ -58,7 +58,7 @@ describe Protector::Adapters::ActiveRecord do
           end
         end
 
-        @dummy.find(1).restrict('!').visible?.should == false
+        @dummy.first.restrict('!').visible?.should == false
 
         @dummy.instance_eval do
           protect do
@@ -66,7 +66,7 @@ describe Protector::Adapters::ActiveRecord do
           end
         end
 
-        @dummy.find(1).restrict('!').visible?.should == true
+        @dummy.first.restrict('!').visible?.should == true
       end
 
       describe "creatability" do
@@ -180,6 +180,23 @@ describe Protector::Adapters::ActiveRecord do
           dummy.assign_attributes(number: 2)
           dummy.restrict('!').updatable?.should == true
         end
+      end
+
+      it "marks destroyability" do
+        @dummy.instance_eval do
+          protect do
+          end
+        end
+
+        @dummy.new.restrict('!').destroyable?.should == false
+
+        @dummy.instance_eval do
+          protect do
+            can :destroy
+          end
+        end
+
+        @dummy.new.restrict('!').destroyable?.should == true
       end
     end
   end
