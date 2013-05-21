@@ -99,5 +99,10 @@ describe Protector::DSL do
       data = @meta.evaluate(nil, [], 'user', 'entry')
       data.updatable?.should == true
     end
+
+    it "marks creatable" do
+      data = @meta.evaluate(nil, [], 'user', 'entry')
+      data.creatable?.should == false
+    end
   end
 end

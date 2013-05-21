@@ -13,11 +13,11 @@ module Protector
           include Protector::DSL::Entry
 
           before_validation(on: :create) do
-            @protector_subject ? creatable? : true
+            @protector_subject && creatable?
           end
 
           before_validation(on: :update) do
-            @protector_subject ? updatable? : true
+            @protector_subject && updatable?
           end
         end
 
@@ -41,11 +41,13 @@ module Protector
         end
 
         def creatable?
-          protector_meta.creatable?(changed)
+          fields = HashWithIndifferentAccess[changed.map{|x| [x, __send__(x)]}]
+          protector_meta.creatable?(fields)
         end
 
         def updatable?
-          protector_meta.updatable?(changed)
+          fields = HashWithIndifferentAccess[changed.map{|x| [x, __send__(x)]}]
+          protector_meta.updatable?(fields)
         end
 
         def destroyable?

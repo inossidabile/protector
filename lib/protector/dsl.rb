@@ -64,27 +64,36 @@ module Protector
         end
 
         def creatable?(fields=false)
-          return false if @access[:create].length > 0
-
-          if fields
-            return false if (@access[:create].keys - fields).length > 0
-          end
-
-          true
+          modifiable? :create, fields
         end
 
         def updatable?(fields=false)
-          return false if @access[:update].length > 0
-
-          if fields
-            return false if (@access[:update].keys - fields).length > 0
-          end
-
-          true
+          modifiable? :update, fields
         end
 
         def destroyable?
           @destroyable
+        end
+
+        private
+
+        def modifiable?(part, fields)
+          return false unless @access[part].length > 0
+
+          if fields
+            return false if (fields.keys - @access[part].keys).length > 0
+
+            fields.each do |k,v|
+              case x = @access[part][k]
+              when Range
+                return false unless x.include?(v)
+              when Proc
+                return false unless x.call(v)
+              end
+            end
+          end
+
+          true
         end
       end
 
