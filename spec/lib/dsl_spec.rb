@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'spec_helpers/boot'
 
 describe Protector::DSL do
   describe Protector::DSL::Base do
@@ -15,6 +15,14 @@ describe Protector::DSL do
       base = @base.new
       base.restrict("universe")
       base.protector_subject.should == "universe"
+    end
+
+    it "forgets protection subject" do
+      base = @base.new
+      base.restrict("universe")
+      base.protector_subject.should == "universe"
+      base.unrestrict
+      base.protector_subject.should == nil
     end
   end
 

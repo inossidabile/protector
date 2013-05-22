@@ -101,7 +101,7 @@ module Protector
         (@blocks ||= []) << block
       end
 
-      def evaluate(model, fields, subject, entry)
+      def evaluate(model, fields, subject, entry=nil)
         Box.new(model, fields, subject, entry, @blocks)
       end
     end
@@ -115,6 +115,11 @@ module Protector
 
       def restrict(subject)
         @protector_subject = subject
+        self
+      end
+
+      def unrestrict
+        @protector_subject = nil
         self
       end
     end

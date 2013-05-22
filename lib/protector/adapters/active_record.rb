@@ -3,6 +3,7 @@ module Protector
     module ActiveRecord
       def self.activate!
         ::ActiveRecord::Base.send :include, Protector::Adapters::ActiveRecord::Base
+        ::ActiveRecord::Relation.send :include, Protector::Adapters::ActiveRecord::Relation
       end
 
       module Base
@@ -12,12 +13,25 @@ module Protector
           include Protector::DSL::Base
           include Protector::DSL::Entry
 
-          before_validation(on: :create) do
-            @protector_subject && creatable?
+          validate(on: :create) do
+            return unless @protector_subject
+            errors[:base] << I18n.t('protector.invalid') unless creatable?
           end
 
-          before_validation(on: :update) do
-            @protector_subject && updatable?
+          validate(on: :update) do
+            return unless @protector_subject
+            errors[:base] << I18n.t('protector.invalid') unless updatable?
+          end
+
+          before_destroy do
+            return true unless @protector_subject
+            destroyable?
+          end
+        end
+
+        module ClassMethods
+          def restrict(subject)
+            all.restrict(subject)
           end
         end
 
@@ -52,6 +66,38 @@ module Protector
 
         def destroyable?
           protector_meta.destroyable?
+        end
+      end
+
+      module Relation
+        extend ActiveSupport::Concern
+
+        included do
+          include Protector::DSL::Base
+
+          alias_method_chain :exec_queries, :protector
+        end
+
+        def protector_meta
+          @klass.protector_meta.evaluate(@klass, @klass.column_names, @protector_subject)
+        end
+
+        def count
+          super || 0
+        end
+
+        def sum
+          super || 0
+        end
+
+        def calculate(*args)
+          return super unless @protector_subject
+          merge(protector_meta.relation).unrestrict.calculate *args
+        end
+
+        def exec_queries_with_protector(*args)
+          return exec_queries_without_protector unless @protector_subject
+          @records = merge(protector_meta.relation).unrestrict.send :exec_queries
         end
       end
     end

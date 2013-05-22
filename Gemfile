@@ -7,4 +7,4 @@ gem 'rspec'
 gem 'guard'
 gem 'guard-rspec'
 
-gem 'activemodel', '>= 3.2.0'
+gem 'activerecord', '>= 3.0'

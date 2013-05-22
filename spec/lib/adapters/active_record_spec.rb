@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'spec_helpers/boot'
 
 describe Protector::Adapters::ActiveRecord do
   before(:all) do
@@ -13,6 +13,7 @@ describe Protector::Adapters::ActiveRecord do
 
     class Dummy < ActiveRecord::Base; end
     Dummy.create! string: 'zomgstring', number: 999, text: 'zomgtext'
+    Dummy.create! string: 'zomgstring', number: 777, text: 'zomgtext'
 
     Protector::Adapters::ActiveRecord.activate!
   end
@@ -28,175 +29,67 @@ describe Protector::Adapters::ActiveRecord do
       @dummy.ancestors.should include(Protector::Adapters::ActiveRecord::Base)
     end
 
-    it "evaluates meta properly" do
-      @dummy.instance_eval do
-        protect do |subject, dummy|
-          subject.should == '!'
-
-          scope { limit(5) }
-
-          can :view
-          can :create
-          can :update
-        end
-      end
-
-      fields = Hash[*%w(id string number text created_at updated_at).map{|x| [x, nil]}.flatten]
-      dummy  = @dummy.new.restrict('!')
-      meta   = dummy.protector_meta
-
-      meta.access[:view].should   == fields
-      meta.access[:create].should == fields
-      meta.access[:update].should == fields
+    it "scopes" do
+      scope = @dummy.restrict('!')
+      scope.should be_an_instance_of ActiveRecord::Relation
+      scope.protector_subject.should == '!'
     end
 
-    describe "marks" do
-      it "visibility" do
-        @dummy.instance_eval do
-          protect do
-            scope { none }
-          end
-        end
+    it_behaves_like "a model"
+  end
 
-        @dummy.first.restrict('!').visible?.should == false
-
-        @dummy.instance_eval do
-          protect do
-            scope { limit(5) }
-          end
-        end
-
-        @dummy.first.restrict('!').visible?.should == true
+  describe Protector::Adapters::ActiveRecord::Relation do
+    before(:all) do
+      @dummy = Class.new(ActiveRecord::Base) do
+        self.table_name = "dummies"
       end
+    end
 
-      describe "creatability" do
-        it "when locked" do
-          @dummy.instance_eval do
-            protect do; end
-          end
+    it "includes" do
+      @dummy.all.ancestors.should include(Protector::Adapters::ActiveRecord::Base)
+    end
 
-          dummy = @dummy.new(string: 'bam', number: 1)
-          dummy.restrict('!').creatable?.should == false
-        end
+    it "saves subject" do
+      @dummy.all.restrict('!').where(number: 999).protector_subject.should == '!'
+    end
 
-        it "by list of fields" do
-          @dummy.instance_eval do
-            protect do
-              can :create, :string
-            end
-          end
-
-          dummy = @dummy.new(string: 'bam', number: 1)
-          dummy.restrict('!').creatable?.should == false
-
-          dummy = @dummy.new(string: 'bam')
-          dummy.restrict('!').creatable?.should == true
-        end
-
-        it "by lambdas" do
-          @dummy.instance_eval do
-            protect do
-              can :create, string: -> (x) { x.length == 5 }
-            end
-          end
-
-          dummy = @dummy.new(string: 'bam')
-          dummy.restrict('!').creatable?.should == false
-
-          dummy = @dummy.new(string: '12345')
-          dummy.restrict('!').creatable?.should == true
-        end
-
-        it "by ranges" do
-          @dummy.instance_eval do
-            protect do
-              can :create, number: 0..2
-            end
-          end
-
-          dummy = @dummy.new(number: 500)
-          dummy.restrict('!').creatable?.should == false
-
-          dummy = @dummy.new(number: 2)
-          dummy.restrict('!').creatable?.should == true
+    context "with null relation" do
+      before(:each) do
+        @dummy.instance_eval do
+          protect{ scope{ none } }
         end
       end
 
-      describe "updatability" do
-        it "when locked" do
-          @dummy.instance_eval do
-            protect do; end
-          end
+      it "counts" do
+        @dummy.all.count.should == 2
+        @dummy.all.restrict('!').count.should == 0
+      end
 
-          dummy = @dummy.first
-          dummy.assign_attributes(string: 'bam', number: 1)
-          dummy.restrict('!').updatable?.should == false
-        end
+      it "fetches" do
+        fetched = @dummy.all.restrict('!').to_a
 
-        it "by list of fields" do
-          @dummy.instance_eval do
-            protect do
-              can :update, :string
-            end
-          end
+        @dummy.all.to_a.length.should == 2
+        fetched.length.should == 0
+      end
+    end
 
-          dummy = @dummy.first
-          dummy.assign_attributes(string: 'bam', number: 1)
-          dummy.restrict('!').updatable?.should == false
-
-          dummy = @dummy.first
-          dummy.assign_attributes(string: 'bam')
-          dummy.restrict('!').updatable?.should == true
-        end
-
-        it "by lambdas" do
-          @dummy.instance_eval do
-            protect do
-              can :update, string: -> (x) { x.length == 5 }
-            end
-          end
-
-          dummy = @dummy.first
-          dummy.assign_attributes(string: 'bam')
-          dummy.restrict('!').updatable?.should == false
-
-          dummy = @dummy.first
-          dummy.assign_attributes(string: '12345')
-          dummy.restrict('!').updatable?.should == true
-        end
-
-        it "by ranges" do
-          @dummy.instance_eval do
-            protect do
-              can :update, number: 0..2
-            end
-          end
-
-          dummy = @dummy.first
-          dummy.assign_attributes(number: 500)
-          dummy.restrict('!').updatable?.should == false
-
-          dummy = @dummy.first
-          dummy.assign_attributes(number: 2)
-          dummy.restrict('!').updatable?.should == true
+    context "with active relation" do
+      before(:each) do
+        @dummy.instance_eval do
+          protect{ scope{ where(number: 999) } }
         end
       end
 
-      it "marks destroyability" do
-        @dummy.instance_eval do
-          protect do
-          end
-        end
+      it "counts" do
+        @dummy.all.count.should == 2
+        @dummy.all.restrict('!').count.should == 1
+      end
 
-        @dummy.new.restrict('!').destroyable?.should == false
+      it "fetches" do
+        fetched = @dummy.all.restrict('!').to_a
 
-        @dummy.instance_eval do
-          protect do
-            can :destroy
-          end
-        end
-
-        @dummy.new.restrict('!').destroyable?.should == true
+        @dummy.all.to_a.length.should == 2
+        fetched.length.should == 1
       end
     end
   end
