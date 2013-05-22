@@ -39,12 +39,24 @@ shared_examples_for "a model" do
     meta.access[:update].should == fields
   end
 
+  describe "association" do
+    context "(has_many)" do
+      it "passes subject" do
+        Dummy.first.restrict('!').fluffies.protector_subject.should == '!'
+      end
+    end
+
+    context "(belongs_to)" do
+      it "passes subject" do
+        Fluffy.first.restrict('!').dummy.protector_subject.should == '!'
+      end
+    end
+  end
+
   describe "visibility" do
     it "marks blocked" do
       @dummy.instance_eval do
-        protect do
-          scope { none }
-        end
+        protect do; scope { none }; end
       end
 
       @dummy.first.restrict('!').visible?.should == false
@@ -52,9 +64,7 @@ shared_examples_for "a model" do
 
     it "marks allowed" do
       @dummy.instance_eval do
-        protect do
-          scope { limit(5) }
-        end
+        protect do; scope { limit(5) }; end
       end
 
       @dummy.first.restrict('!').visible?.should == true

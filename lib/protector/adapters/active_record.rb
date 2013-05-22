@@ -4,6 +4,8 @@ module Protector
       def self.activate!
         ::ActiveRecord::Base.send :include, Protector::Adapters::ActiveRecord::Base
         ::ActiveRecord::Relation.send :include, Protector::Adapters::ActiveRecord::Relation
+        ::ActiveRecord::Associations::SingularAssociation.send :include, Protector::Adapters::ActiveRecord::Association
+        ::ActiveRecord::Associations::CollectionAssociation.send :include, Protector::Adapters::ActiveRecord::Association
       end
 
       module Base
@@ -67,6 +69,12 @@ module Protector
         def destroyable?
           protector_meta.destroyable?
         end
+
+        def association(*args)
+          association = super
+          association.restrict @protector_subject
+          association
+        end
       end
 
       module Relation
@@ -98,6 +106,20 @@ module Protector
         def exec_queries_with_protector(*args)
           return exec_queries_without_protector unless @protector_subject
           @records = merge(protector_meta.relation).unrestrict.send :exec_queries
+        end
+      end
+
+      module Association
+        extend ActiveSupport::Concern
+
+        included do
+          include Protector::DSL::Base
+
+          alias_method_chain :reader, :protector
+        end
+
+        def reader_with_protector
+          reader_without_protector.restrict(@protector_subject)
         end
       end
     end

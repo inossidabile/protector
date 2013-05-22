@@ -4,18 +4,34 @@ describe Protector::Adapters::ActiveRecord do
   before(:all) do
     ActiveRecord::Schema.verbose = false
     ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
+
     ActiveRecord::Migration.create_table :dummies do |t|
-      t.string  :string
-      t.integer :number
-      t.text    :text
+      t.string      :string
+      t.integer     :number
+      t.text        :text
       t.timestamps
     end
 
-    class Dummy < ActiveRecord::Base; end
+    ActiveRecord::Migration.create_table :fluffies do |t|
+      t.string      :string
+      t.belongs_to  :dummy
+      t.timestamps
+    end
+
+    Protector::Adapters::ActiveRecord.activate!
+
+    class Dummy < ActiveRecord::Base
+      protect do; end
+      has_many :fluffies
+    end
     Dummy.create! string: 'zomgstring', number: 999, text: 'zomgtext'
     Dummy.create! string: 'zomgstring', number: 777, text: 'zomgtext'
 
-    Protector::Adapters::ActiveRecord.activate!
+    class Fluffy < ActiveRecord::Base
+      protect do; end
+      belongs_to :dummy
+    end
+    Fluffy.create! string: 'zomgstring', dummy_id: 1
   end
 
   describe Protector::Adapters::ActiveRecord::Base do
@@ -30,8 +46,12 @@ describe Protector::Adapters::ActiveRecord do
     end
 
     it "scopes" do
+      @dummy.instance_eval do
+        protect do; scope{ all }; end
+      end
+
       scope = @dummy.restrict('!')
-      scope.should be_an_instance_of ActiveRecord::Relation
+      scope.should be_a_kind_of ActiveRecord::Relation
       scope.protector_subject.should == '!'
     end
 
@@ -56,7 +76,7 @@ describe Protector::Adapters::ActiveRecord do
     context "with null relation" do
       before(:each) do
         @dummy.instance_eval do
-          protect{ scope{ none } }
+          protect do; scope{ none }; end
         end
       end
 
@@ -76,7 +96,7 @@ describe Protector::Adapters::ActiveRecord do
     context "with active relation" do
       before(:each) do
         @dummy.instance_eval do
-          protect{ scope{ where(number: 999) } }
+          protect do; scope{ where(number: 999) }; end
         end
       end
 
