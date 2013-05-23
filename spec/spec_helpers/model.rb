@@ -100,10 +100,10 @@ shared_examples_for "a model" do
         dummy.restrict('!').creatable?.should == false
       end
 
-      # it "invalidates" do
-      #   dummy = @dummy.new(string: 'bam', number: 1).restrict('!')
-      #   dummy.should invalidate
-      # end
+      it "invalidates" do
+        dummy = @dummy.new(string: 'bam', number: 1).restrict('!')
+        dummy.should invalidate
+      end
     end
 
     context "by list of fields" do
@@ -125,10 +125,10 @@ shared_examples_for "a model" do
         dummy.restrict('!').creatable?.should == true
       end
 
-      # it "invalidates" do
-      #   dummy = @dummy.new(string: 'bam', number: 1).restrict('!')
-      #   dummy.should invalidate
-      # end
+      it "invalidates" do
+        dummy = @dummy.new(string: 'bam', number: 1).restrict('!')
+        dummy.should invalidate
+      end
 
       it "validates" do
         dummy = @dummy.new(string: 'bam').restrict('!')
@@ -155,10 +155,10 @@ shared_examples_for "a model" do
         dummy.restrict('!').creatable?.should == true
       end
 
-      # it "invalidates" do
-      #   dummy = @dummy.new(string: 'bam').restrict('!')
-      #   dummy.should invalidate
-      # end
+      it "invalidates" do
+        dummy = @dummy.new(string: 'bam').restrict('!')
+        dummy.should invalidate
+      end
 
       it "validates" do
         dummy = @dummy.new(string: '12345').restrict('!')
@@ -185,10 +185,10 @@ shared_examples_for "a model" do
         dummy.restrict('!').creatable?.should == true
       end
 
-      # it "invalidates" do
-      #   dummy = @dummy.new(number: 500).restrict('!')
-      #   dummy.should invalidate
-      # end
+      it "invalidates" do
+        dummy = @dummy.new(number: 500).restrict('!')
+        dummy.should invalidate
+      end
 
       it "validates" do
         dummy = @dummy.new(number: 2).restrict('!')
