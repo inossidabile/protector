@@ -28,7 +28,9 @@ describe Protector::Adapters::ActiveRecord do
     Dummy.create! string: 'zomgstring', number: 777, text: 'zomgtext'
 
     class Fluffy < ActiveRecord::Base
-      protect do; end
+      protect do
+        can :view, :dummy_id
+      end
       belongs_to :dummy
     end
     Fluffy.create! string: 'zomgstring', dummy_id: 1

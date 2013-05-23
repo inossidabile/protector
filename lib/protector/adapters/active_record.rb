@@ -35,6 +35,28 @@ module Protector
           def restrict(subject)
             all.restrict(subject)
           end
+
+          def define_method_attribute(name)
+            safe_name = name.unpack('h*').first
+
+            if primary_key == name || (primary_key.is_a?(Array) && primary_key.include?(name))
+              condition = "true"
+            else
+              condition = "!@protector_subject || protector_meta.readable?(#{name.inspect})"
+            end
+
+            generated_attribute_methods.module_eval <<-STR, __FILE__, __LINE__ + 1
+              def __temp__#{safe_name}
+                if #{condition}
+                  read_attribute(AttrNames::ATTR_#{safe_name}) { |n| missing_attribute(n, caller) }
+                else
+                  nil
+                end
+              end
+              alias_method #{name.inspect}, :__temp__#{safe_name}
+              undef_method :__temp__#{safe_name}
+            STR
+          end
         end
 
         def protector_meta
@@ -52,22 +74,30 @@ module Protector
 
         def visible?
           protector_meta.relation.where(
-            self.class.primary_key => send(self.class.primary_key)
+            self.class.primary_key => id
           ).any?
         end
 
         def creatable?
-          fields = HashWithIndifferentAccess[changed.map{|x| [x, __send__(x)]}]
+          fields = HashWithIndifferentAccess[changed.map{|x| [x, read_attribute(x)]}]
           protector_meta.creatable?(fields)
         end
 
         def updatable?
-          fields = HashWithIndifferentAccess[changed.map{|x| [x, __send__(x)]}]
+          fields = HashWithIndifferentAccess[changed.map{|x| [x, read_attribute(x)]}]
           protector_meta.updatable?(fields)
         end
 
         def destroyable?
           protector_meta.destroyable?
+        end
+
+        def [](name)
+          if !@protector_subject || protector_meta.readable?(name)
+            super
+          else
+            nil
+          end
         end
 
         def association(*args)

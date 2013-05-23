@@ -9,6 +9,7 @@ module Protector
           @model       = model
           @fields      = fields
           @access      = {update: {}, view: {}, create: {}}.with_indifferent_access
+          @access_keys = {}.with_indifferent_access
           @relation    = false
           @destroyable = false
 
@@ -21,6 +22,8 @@ module Protector
               instance_exec &b
             end
           end
+
+          @access.each{|k,v| @access_keys[k] = v.keys}
         end
 
         def scope(&block)
@@ -63,6 +66,10 @@ module Protector
           end
         end
 
+        def readable?(field)
+          @access_keys[:view].include?(field.to_s)
+        end
+
         def creatable?(fields=false)
           modifiable? :create, fields
         end
@@ -78,10 +85,10 @@ module Protector
         private
 
         def modifiable?(part, fields)
-          return false unless @access[part].length > 0
+          return false unless @access_keys[part].length > 0
 
           if fields
-            return false if (fields.keys - @access[part].keys).length > 0
+            return false if (fields.keys - @access_keys[part]).length > 0
 
             fields.each do |k,v|
               case x = @access[part][k]
