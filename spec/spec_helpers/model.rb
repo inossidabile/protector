@@ -140,7 +140,7 @@ shared_examples_for "a model" do
       before(:each) do
         @dummy.instance_eval do
           protect do
-            can :create, string: -> (x) { x.try(:length) == 5 }
+            can :create, string: lambda {|x| x.try(:length) == 5 }
           end
         end
       end
@@ -256,7 +256,7 @@ shared_examples_for "a model" do
       before(:each) do
         @dummy.instance_eval do
           protect do
-            can :update, string: -> (x) { x.try(:length) == 5 }
+            can :update, string: lambda {|x| x.try(:length) == 5 }
           end
         end
       end

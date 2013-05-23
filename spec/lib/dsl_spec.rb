@@ -41,24 +41,23 @@ describe Protector::DSL do
   end
 
   describe Protector::DSL::Meta do
-    l = -> (x) { x > 4 }
+    l = lambda {|x| x > 4 }
 
     before :each do
       @meta = Protector::DSL::Meta.new
 
-      # << -> FTW!
-      @meta << -> {
+      @meta << lambda {
         scope { 'relation' }
       }
 
-      @meta << -> (user) {
+      @meta << lambda {|user|
         user.should  == 'user'
 
         can    :view
         cannot :view, %w(field5), :field4
       }
 
-      @meta << -> (user, entry) {
+      @meta << lambda {|user, entry|
         user.should  == 'user'
         entry.should == 'entry'
 
