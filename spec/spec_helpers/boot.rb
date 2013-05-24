@@ -1,7 +1,6 @@
-require 'pry'
 require 'protector'
 
-begin; require 'active_record'; rescue LoadError; end
+Bundler.require
 
 require_relative 'model'
 

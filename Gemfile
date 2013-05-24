@@ -9,5 +9,5 @@ gem 'guard-rspec'
 
 gem 'appraisal'
 
-gem 'sqlite3', :platform => :ruby
-gem 'activerecord-jdbcsqlite3-adapter', :platform => :jruby
+gem 'sqlite3', platform: :ruby
+gem 'jdbc-sqlite3', platform: :jruby
