@@ -29,33 +29,43 @@ module Protector
             return true unless @protector_subject
             destroyable?
           end
+
+          if Gem::Version.new(::ActiveRecord::VERSION::STRING) < Gem::Version.new('4.0.0.rc1')
+            def self.restrict(subject)
+              scoped.restrict(subject)
+            end
+          else
+            def self.restrict(subject)
+              all.restrict(subject)
+            end
+          end
+
+          def [](name)
+            if !@protector_subject || protector_meta.readable?(name)
+              read_attribute(name)
+            else
+              nil
+            end
+          end
         end
 
         module ClassMethods
-          def restrict(subject)
-            all.restrict(subject)
-          end
-
           def define_method_attribute(name)
-            safe_name = name.unpack('h*').first
+            super
 
-            if primary_key == name || (primary_key.is_a?(Array) && primary_key.include?(name))
-              condition = "true"
-            else
-              condition = "!@protector_subject || protector_meta.readable?(#{name.inspect})"
-            end
+            unless (primary_key == name || (primary_key.is_a?(Array) && primary_key.include?(name)))
+              generated_attribute_methods.module_eval <<-STR, __FILE__, __LINE__ + 1
+                alias_method #{"#{name}_unprotected".inspect}, #{name.inspect}
 
-            generated_attribute_methods.module_eval <<-STR, __FILE__, __LINE__ + 1
-              def __temp__#{safe_name}
-                if #{condition}
-                  read_attribute(AttrNames::ATTR_#{safe_name}) { |n| missing_attribute(n, caller) }
-                else
-                  nil
+                def #{name}
+                  if !@protector_subject || protector_meta.readable?(#{name.inspect})
+                    #{name}_unprotected
+                  else
+                    nil
+                  end
                 end
-              end
-              alias_method #{name.inspect}, :__temp__#{safe_name}
-              undef_method :__temp__#{safe_name}
-            STR
+              STR
+            end
           end
         end
 
@@ -90,14 +100,6 @@ module Protector
 
         def destroyable?
           protector_meta.destroyable?
-        end
-
-        def [](name)
-          if !@protector_subject || protector_meta.readable?(name)
-            super
-          else
-            nil
-          end
         end
 
         def association(*args)

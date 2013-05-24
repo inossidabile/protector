@@ -1,7 +1,7 @@
 require 'pry'
 require 'protector'
 
-require 'active_record'
+begin; require 'active_record'; rescue LoadError; end
 
 require_relative 'model'
 

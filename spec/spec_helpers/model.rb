@@ -352,7 +352,7 @@ shared_examples_for "a model" do
       end
 
       dummy = @dummy.create!.restrict('!')
-      dummy.destroy!.should == dummy
+      dummy.destroy.should == dummy
       dummy.destroyed?.should == true
     end
   end
