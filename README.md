@@ -1,5 +1,8 @@
 # Protector
 
+[![Build Status](https://travis-ci.org/inossidabile/protector.png?branch=master)](https://travis-ci.org/inossidabile/protector)
+[![Code Climate](https://codeclimate.com/github/inossidabile/protector.png)](https://codeclimate.com/github/inossidabile/protector)
+
 TODO: Write a gem description
 
 ## Installation
