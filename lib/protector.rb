@@ -1,4 +1,5 @@
 require "active_support/all"
+require "i18n"
 
 require "protector/version"
 require "protector/dsl"
