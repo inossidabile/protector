@@ -61,6 +61,32 @@ if defined?(ActiveRecord)
       end
 
       it_behaves_like "a model"
+
+      describe "eager loading" do
+        before(:all) do
+          class FluffyTest < ActiveRecord::Base
+            self.table_name = "fluffies"
+            protect do; scope { where('1=0') }; end
+          end
+        end
+
+        before(:each) do
+          @dummy.instance_eval do
+            has_many :fluffies, class_name: 'FluffyTest'
+            protect do; end
+            def self.name; 'Dummy'; end
+          end
+        end
+
+        after(:all) do
+          Object.send :remove_const, :FluffyTest
+        end
+
+        it "scopes" do
+          dummy = @dummy.restrict!('!').includes(:fluffies).first
+          dummy.fluffies.length.should == 0
+        end
+      end
     end
 
     describe Protector::Adapters::ActiveRecord::Relation do
@@ -77,6 +103,15 @@ if defined?(ActiveRecord)
 
       it "saves subject" do
         @dummy.restrict!('!').where(number: 999).protector_subject.should == '!'
+      end
+
+      it "forwards subject" do
+        @dummy.instance_eval do
+          protect do; end
+        end
+
+        @dummy.restrict!('!').where(number: 999).first.protector_subject.should == '!'
+        @dummy.restrict!('!').where(number: 999).to_a.first.protector_subject.should == '!'
       end
 
       context "with null relation" do
