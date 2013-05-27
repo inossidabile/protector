@@ -55,7 +55,7 @@ if defined?(ActiveRecord)
           protect do; scope{ all }; end
         end
 
-        scope = @dummy.restrict('!')
+        scope = @dummy.restrict!('!')
         scope.should be_a_kind_of ActiveRecord::Relation
         scope.protector_subject.should == '!'
       end
@@ -76,7 +76,7 @@ if defined?(ActiveRecord)
       end
 
       it "saves subject" do
-        @dummy.restrict('!').where(number: 999).protector_subject.should == '!'
+        @dummy.restrict!('!').where(number: 999).protector_subject.should == '!'
       end
 
       context "with null relation" do
@@ -88,11 +88,11 @@ if defined?(ActiveRecord)
 
         it "counts" do
           @dummy.count.should == 2
-          @dummy.restrict('!').count.should == 0
+          @dummy.restrict!('!').count.should == 0
         end
 
         it "fetches" do
-          fetched = @dummy.restrict('!').to_a
+          fetched = @dummy.restrict!('!').to_a
 
           @dummy.all.length.should == 2
           fetched.length.should == 0
@@ -108,11 +108,11 @@ if defined?(ActiveRecord)
 
         it "counts" do
           @dummy.count.should == 2
-          @dummy.restrict('!').count.should == 1
+          @dummy.restrict!('!').count.should == 1
         end
 
         it "fetches" do
-          fetched = @dummy.restrict('!').to_a
+          fetched = @dummy.restrict!('!').to_a
 
           @dummy.all.length.should == 2
           fetched.length.should == 1

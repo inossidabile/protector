@@ -31,12 +31,12 @@ module Protector
           end
 
           if Gem::Version.new(::ActiveRecord::VERSION::STRING) < Gem::Version.new('4.0.0.rc1')
-            def self.restrict(subject)
-              scoped.restrict(subject)
+            def self.restrict!(subject)
+              scoped.restrict!(subject)
             end
           else
-            def self.restrict(subject)
-              all.restrict(subject)
+            def self.restrict!(subject)
+              all.restrict!(subject)
             end
           end
 
@@ -104,7 +104,7 @@ module Protector
 
         def association(*args)
           association = super
-          association.restrict @protector_subject
+          association.restrict! @protector_subject
           association
         end
       end
@@ -132,12 +132,12 @@ module Protector
 
         def calculate(*args)
           return super unless @protector_subject
-          merge(protector_meta.relation).unrestrict.calculate *args
+          merge(protector_meta.relation).unrestrict!.calculate *args
         end
 
         def exec_queries_with_protector(*args)
           return exec_queries_without_protector unless @protector_subject
-          @records = merge(protector_meta.relation).unrestrict.send :exec_queries
+          @records = merge(protector_meta.relation).unrestrict!.send :exec_queries
         end
       end
 
@@ -151,7 +151,7 @@ module Protector
         end
 
         def reader_with_protector
-          reader_without_protector.restrict(@protector_subject)
+          reader_without_protector.restrict!(@protector_subject)
         end
       end
     end

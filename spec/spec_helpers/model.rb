@@ -31,7 +31,7 @@ shared_examples_for "a model" do
     end
 
     fields = Hash[*%w(id string number text created_at updated_at).map{|x| [x, nil]}.flatten]
-    dummy  = @dummy.new.restrict('!')
+    dummy  = @dummy.new.restrict!('!')
     meta   = dummy.protector_meta
 
     meta.access[:view].should   == fields
@@ -42,13 +42,13 @@ shared_examples_for "a model" do
   describe "association" do
     context "(has_many)" do
       it "passes subject" do
-        Dummy.first.restrict('!').fluffies.protector_subject.should == '!'
+        Dummy.first.restrict!('!').fluffies.protector_subject.should == '!'
       end
     end
 
     context "(belongs_to)" do
       it "passes subject" do
-        Fluffy.first.restrict('!').dummy.protector_subject.should == '!'
+        Fluffy.first.restrict!('!').dummy.protector_subject.should == '!'
       end
     end
   end
@@ -59,7 +59,7 @@ shared_examples_for "a model" do
         protect do; scope { none }; end
       end
 
-      @dummy.first.restrict('!').visible?.should == false
+      @dummy.first.restrict!('!').visible?.should == false
     end
 
     it "marks allowed" do
@@ -67,7 +67,7 @@ shared_examples_for "a model" do
         protect do; scope { limit(5) }; end
       end
 
-      @dummy.first.restrict('!').visible?.should == true
+      @dummy.first.restrict!('!').visible?.should == true
     end
   end
 
@@ -79,7 +79,7 @@ shared_examples_for "a model" do
         end
       end
 
-      dummy = @dummy.first.restrict('!')
+      dummy = @dummy.first.restrict!('!')
       dummy.number.should == nil
       dummy[:number].should == nil
       dummy.read_attribute(:number).should_not == nil
@@ -97,11 +97,11 @@ shared_examples_for "a model" do
 
       it "marks blocked" do
         dummy = @dummy.new(string: 'bam', number: 1)
-        dummy.restrict('!').creatable?.should == false
+        dummy.restrict!('!').creatable?.should == false
       end
 
       it "invalidates" do
-        dummy = @dummy.new(string: 'bam', number: 1).restrict('!')
+        dummy = @dummy.new(string: 'bam', number: 1).restrict!('!')
         dummy.should invalidate
       end
     end
@@ -117,21 +117,21 @@ shared_examples_for "a model" do
 
       it "marks blocked" do
         dummy = @dummy.new(string: 'bam', number: 1)
-        dummy.restrict('!').creatable?.should == false
+        dummy.restrict!('!').creatable?.should == false
       end
 
       it "marks allowed" do
         dummy = @dummy.new(string: 'bam')
-        dummy.restrict('!').creatable?.should == true
+        dummy.restrict!('!').creatable?.should == true
       end
 
       it "invalidates" do
-        dummy = @dummy.new(string: 'bam', number: 1).restrict('!')
+        dummy = @dummy.new(string: 'bam', number: 1).restrict!('!')
         dummy.should invalidate
       end
 
       it "validates" do
-        dummy = @dummy.new(string: 'bam').restrict('!')
+        dummy = @dummy.new(string: 'bam').restrict!('!')
         dummy.should validate
       end
     end
@@ -147,21 +147,21 @@ shared_examples_for "a model" do
 
       it "marks blocked" do
         dummy = @dummy.new(string: 'bam')
-        dummy.restrict('!').creatable?.should == false
+        dummy.restrict!('!').creatable?.should == false
       end
 
       it "marks allowed" do
         dummy = @dummy.new(string: '12345')
-        dummy.restrict('!').creatable?.should == true
+        dummy.restrict!('!').creatable?.should == true
       end
 
       it "invalidates" do
-        dummy = @dummy.new(string: 'bam').restrict('!')
+        dummy = @dummy.new(string: 'bam').restrict!('!')
         dummy.should invalidate
       end
 
       it "validates" do
-        dummy = @dummy.new(string: '12345').restrict('!')
+        dummy = @dummy.new(string: '12345').restrict!('!')
         dummy.should validate
       end
     end
@@ -177,21 +177,21 @@ shared_examples_for "a model" do
 
       it "marks blocked" do
         dummy = @dummy.new(number: 500)
-        dummy.restrict('!').creatable?.should == false
+        dummy.restrict!('!').creatable?.should == false
       end
 
       it "marks allowed" do
         dummy = @dummy.new(number: 2)
-        dummy.restrict('!').creatable?.should == true
+        dummy.restrict!('!').creatable?.should == true
       end
 
       it "invalidates" do
-        dummy = @dummy.new(number: 500).restrict('!')
+        dummy = @dummy.new(number: 500).restrict!('!')
         dummy.should invalidate
       end
 
       it "validates" do
-        dummy = @dummy.new(number: 2).restrict('!')
+        dummy = @dummy.new(number: 2).restrict!('!')
         dummy.should validate
       end
     end
@@ -208,11 +208,11 @@ shared_examples_for "a model" do
       it "marks blocked" do
         dummy = @dummy.first
         dummy.assign_attributes(string: 'bam', number: 1)
-        dummy.restrict('!').updatable?.should == false
+        dummy.restrict!('!').updatable?.should == false
       end
 
       it "invalidates" do
-        dummy = @dummy.first.restrict('!')
+        dummy = @dummy.first.restrict!('!')
         dummy.assign_attributes(string: 'bam', number: 1)
         dummy.should invalidate
       end
@@ -230,23 +230,23 @@ shared_examples_for "a model" do
       it "marks blocked" do
         dummy = @dummy.first
         dummy.assign_attributes(string: 'bam', number: 1)
-        dummy.restrict('!').updatable?.should == false
+        dummy.restrict!('!').updatable?.should == false
       end
 
       it "marks allowed" do
         dummy = @dummy.first
         dummy.assign_attributes(string: 'bam')
-        dummy.restrict('!').updatable?.should == true
+        dummy.restrict!('!').updatable?.should == true
       end
 
       it "invalidates" do
-        dummy = @dummy.first.restrict('!')
+        dummy = @dummy.first.restrict!('!')
         dummy.assign_attributes(string: 'bam', number: 1)
         dummy.should invalidate
       end
 
       it "validates" do
-        dummy = @dummy.first.restrict('!')
+        dummy = @dummy.first.restrict!('!')
         dummy.assign_attributes(string: 'bam')
         dummy.should validate
       end
@@ -264,23 +264,23 @@ shared_examples_for "a model" do
       it "marks blocked" do
         dummy = @dummy.first
         dummy.assign_attributes(string: 'bam')
-        dummy.restrict('!').updatable?.should == false
+        dummy.restrict!('!').updatable?.should == false
       end
 
       it "marks allowed" do
         dummy = @dummy.first
         dummy.assign_attributes(string: '12345')
-        dummy.restrict('!').updatable?.should == true
+        dummy.restrict!('!').updatable?.should == true
       end
 
       it "invalidates" do
-        dummy = @dummy.first.restrict('!')
+        dummy = @dummy.first.restrict!('!')
         dummy.assign_attributes(string: 'bam')
         dummy.should invalidate
       end
 
       it "validates" do
-        dummy = @dummy.first.restrict('!')
+        dummy = @dummy.first.restrict!('!')
         dummy.assign_attributes(string: '12345')
         dummy.should validate
       end
@@ -298,23 +298,23 @@ shared_examples_for "a model" do
       it "marks blocked" do
         dummy = @dummy.first
         dummy.assign_attributes(number: 500)
-        dummy.restrict('!').updatable?.should == false
+        dummy.restrict!('!').updatable?.should == false
       end
 
       it "marks allowed" do
         dummy = @dummy.first
         dummy.assign_attributes(number: 2)
-        dummy.restrict('!').updatable?.should == true
+        dummy.restrict!('!').updatable?.should == true
       end
 
       it "invalidates" do
-        dummy = @dummy.first.restrict('!')
+        dummy = @dummy.first.restrict!('!')
         dummy.assign_attributes(number: 500)
         dummy.should invalidate
       end
 
       it "validates" do
-        dummy = @dummy.first.restrict('!')
+        dummy = @dummy.first.restrict!('!')
         dummy.assign_attributes(number: 2)
         dummy.should validate
       end
@@ -327,7 +327,7 @@ shared_examples_for "a model" do
         protect do; end
       end
 
-      @dummy.first.restrict('!').destroyable?.should == false
+      @dummy.first.restrict!('!').destroyable?.should == false
     end
 
     it "marks allowed" do
@@ -335,7 +335,7 @@ shared_examples_for "a model" do
         protect do; can :destroy; end
       end
 
-      @dummy.first.restrict('!').destroyable?.should == true
+      @dummy.first.restrict!('!').destroyable?.should == true
     end
 
     it "invalidates" do
@@ -343,7 +343,7 @@ shared_examples_for "a model" do
         protect do; end
       end
 
-      @dummy.first.restrict('!').destroy.should == false
+      @dummy.first.restrict!('!').destroy.should == false
     end
 
     it "validates" do
@@ -351,7 +351,7 @@ shared_examples_for "a model" do
         protect do; can :destroy; end
       end
 
-      dummy = @dummy.create!.restrict('!')
+      dummy = @dummy.create!.restrict!('!')
       dummy.destroy.should == dummy
       dummy.destroyed?.should == true
     end

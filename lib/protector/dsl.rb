@@ -2,6 +2,9 @@ module Protector
   module DSL
     # DSL meta storage and evaluator
     class Meta
+
+      # Evaluation result moved out of Meta to make it thread-safe
+      # and incapsulate better
       class Box
         attr_accessor :access, :relation, :destroyable
 
@@ -14,9 +17,10 @@ module Protector
           @destroyable = false
 
           blocks.each do |b|
-            if b.arity == 2
+            case b.arity
+            when 2
               instance_exec subject, entry, &b
-            elsif b.arity == 1
+            when 1
               instance_exec subject, &b
             else
               instance_exec &b
@@ -120,12 +124,12 @@ module Protector
         attr_reader :protector_subject
       end
 
-      def restrict(subject)
+      def restrict!(subject)
         @protector_subject = subject
         self
       end
 
-      def unrestrict
+      def unrestrict!
         @protector_subject = nil
         self
       end

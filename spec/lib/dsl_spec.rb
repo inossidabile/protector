@@ -7,21 +7,21 @@ describe Protector::DSL do
     end
 
     it "defines proper methods" do
-      @base.instance_methods.should include(:restrict)
+      @base.instance_methods.should include(:restrict!)
       @base.instance_methods.should include(:protector_subject)
     end
 
     it "remembers protection subject" do
       base = @base.new
-      base.restrict("universe")
+      base.restrict!("universe")
       base.protector_subject.should == "universe"
     end
 
     it "forgets protection subject" do
       base = @base.new
-      base.restrict("universe")
+      base.restrict!("universe")
       base.protector_subject.should == "universe"
-      base.unrestrict
+      base.unrestrict!
       base.protector_subject.should == nil
     end
   end
