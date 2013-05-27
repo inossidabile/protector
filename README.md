@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/inossidabile/protector.png?branch=master)](https://travis-ci.org/inossidabile/protector)
 [![Code Climate](https://codeclimate.com/github/inossidabile/protector.png)](https://codeclimate.com/github/inossidabile/protector)
 
-Protector is a Ruby ORM extension for managing security restrections on a field level. The gem favors whitelisting over blacklisting (everything is disallowed by default), convention over configuration and is duck-type compatible with most of existing code.
+Protector is a Ruby ORM extension for managing security restrictions on a field level. The gem favors white-listing over black-listing (everything is disallowed by default), convention over configuration and is duck-type compatible with most of existing code.
 
 Currently Protector supports the following ORM adapters:
 
@@ -19,7 +19,7 @@ We are working hard to extend the list with:
 
 DSL of Protector is a Ruby block (or several) describing ACL separated into contexts (authorized user is a very typical example of a context). Each time the context of model changes, DSL blocks reevaluate internally to get an actual ACL that is then utilized internally to cut restricted actions.
 
-Protector follows an indestructive blocking strategy. It returns `nil` when the forbidden field is requested and only checks creation (modification) capability during persisting. Even more: the latter is implemented as a model validation so it will seamlessly integrate into your typical workflow.
+Protector follows nondestructive blocking strategy. It returns `nil` when the forbidden field is requested and only checks creation (modification) capability during persisting. Even more: the latter is implemented as a model validation so it will seamlessly integrate into your typical workflow.
 
 This example is based on ActiveRecord but the code is mostly identical for any supported adapter.
 
@@ -113,7 +113,7 @@ The access to `belongs_to` kind of association depends on corresponding foreign 
 
 ## Ideology
 
-Protector is successor to [Heimdallr](https://github.com/inossidabile/heimdallr). The latter being a proof-of-concept appeared to be way too paranoid and incompatible with the rest of the world. Protector brings the same idea into the Ruby way:
+Protector is a successor to [Heimdallr](https://github.com/inossidabile/heimdallr). The latter being a proof-of-concept appeared to be way too paranoid and incompatible with the rest of the world. Protector re-implements same idea keeping the Ruby way:
 
   * it works inside of the model instead of wrapping it into a proxy: that's why it's compatible with every other extension you use
   * it secures persistence and not object properties: you can modify any properties you want but it's not going to let you save what you can not save
