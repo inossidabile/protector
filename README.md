@@ -18,7 +18,7 @@ We are working hard to extend the list with:
 
 ## Basics
 
-DSL of Protector is a Ruby block (or several) describing ACL separated into contexts (authorized user is a very typical example of a context). Each time the context of model changes, DSL blocks reevaluate internally to get an actual ACL that is then utilized internally to block restricted actions.
+DSL of Protector is a Ruby block (or several) describing ACL separated into contexts (authorized user is a very typical example of a context). Each time the context of model changes, DSL blocks reevaluate internally to get an actual ACL that is then utilized internally to cut restricted actions.
 
 Protector follows an indestructive blocking strategy. It returns `nil` when the forbidden field is requested and only checks creation (modification) capability during persisting. Even more: the latter is implemented as a model validation so it will seamlessly integrate into your typical workflow.
 
