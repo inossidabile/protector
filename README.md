@@ -130,7 +130,7 @@ Or install it yourself as:
 
     $ gem install protector
 
-If you load Protector after the ORM library it will automatically activate itself. Otherwise you can do it manually with the following:
+As long as you load Protector after an ORM library it is supposed to activate itself automatically. Otherwise you can active the required adapter manually:
 
 ```ruby
 Protector::Adapters::ActiveRecord.activate!
