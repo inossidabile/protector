@@ -132,6 +132,11 @@ if defined?(ActiveRecord)
           @dummy.all.length.should == 2
           fetched.length.should == 0
         end
+
+        it "keeps security scope when unscoped" do
+          @dummy.unscoped.restrict!('!').count.should == 0
+          @dummy.restrict!('!').unscoped.count.should == 0
+        end
       end
 
       context "with active relation" do
@@ -151,6 +156,11 @@ if defined?(ActiveRecord)
 
           @dummy.all.length.should == 2
           fetched.length.should == 1
+        end
+
+        it "keeps security scope when unscoped" do
+          @dummy.unscoped.restrict!('!').count.should == 1
+          @dummy.restrict!('!').unscoped.count.should == 1
         end
       end
     end

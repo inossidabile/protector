@@ -122,6 +122,10 @@ module Protector
           @klass.protector_meta.evaluate(@klass, @klass.column_names, @protector_subject)
         end
 
+        def unscoped
+          super.restrict!(@protector_subject)
+        end
+
         def count
           super || 0
         end
