@@ -7,14 +7,14 @@ Protector is a Ruby ORM extension for managing security restrections on a field 
 
 Currently Protector supports the following ORM adapters:
 
-  * ActiveRecord 3.2
-  * ActiveRecord 4
+  * [ActiveRecord 3.2](http://guides.rubyonrails.org/active_record_querying.html)
+  * [ActiveRecord 4](http://guides.rubyonrails.org/active_record_querying.html)
 
 We are working hard to extend the list with:
 
-  * Sequel
-  * DataMapper
-  * Mongoid
+  * [Sequel](http://sequel.rubyforge.org/)
+  * [DataMapper](http://datamapper.org/)
+  * [Mongoid](http://mongoid.org/en/mongoid/index.html)
 
 ## Basics
 
@@ -106,9 +106,15 @@ class Article < ActiveRecord::Base          # Fields: title, text, user_id, hidd
 end
 ```
 
+## Associations
+
+Protector is aware of associations. All the associations retrieved from restricted instance will automatically be restricted to the same context. Therefore you don't have to do anything special – it will respect proper scopes out of the box.
+
+The access to `belongs_to` kind of association depends on corresponding foreign key readability.
+
 ## Ideology
 
-Protector is successor to Heimdallr. The latter being a proof-of-concept appeared to be way too paranoid and incompatible with the rest of the world. Protector brings the same idea into the Ruby way:
+Protector is successor to [Heimdallr](https://github.com/inossidabile/heimdallr). The latter being a proof-of-concept appeared to be way too paranoid and incompatible with the rest of the world. Protector brings the same idea into the Ruby way:
 
   * it works inside of the model instead of wrapping it into a proxy: that's why it's compatible with every other extension you use
   * it secures persistence and not object properties: you can modify any properties you want but it's not going to let you save what you can not save
