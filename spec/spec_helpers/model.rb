@@ -1,21 +1,3 @@
-RSpec::Matchers.define :invalidate do
-  match do |actual|
-    actual.save.should == false
-    actual.errors[:base].should == ["Access denied"]
-  end
-end
-
-RSpec::Matchers.define :validate do
-  match do |actual|
-    actual.class.transaction do
-      actual.save.should == true
-      raise ActiveRecord::Rollback
-    end
-
-    true
-  end
-end
-
 shared_examples_for "a model" do
   it "evaluates meta properly" do
     @dummy.instance_eval do
@@ -41,14 +23,26 @@ shared_examples_for "a model" do
 
   describe "association" do
     context "(has_many)" do
-      it "passes subject" do
-        Dummy.first.restrict!('!').fluffies.protector_subject.should == '!'
+      around(:each) do |e|
+        ActiveRecord::Base.logger = Logger.new(STDOUT)
+        e.run
+        ActiveRecord::Base.logger = nil
+      end
+      it "loads" do
+        Dummy.first.restrict!('!').fluffies.length.should == 2
+        Dummy.first.restrict!('+').fluffies.length.should == 1
+        Dummy.first.restrict!('-').fluffies.empty?.should == true
       end
     end
 
     context "(belongs_to)" do
       it "passes subject" do
         Fluffy.first.restrict!('!').dummy.protector_subject.should == '!'
+      end
+
+      it "loads" do
+        Fluffy.first.restrict!('!').dummy.should be_a_kind_of(Dummy)
+        Fluffy.first.restrict!('-').dummy.should == nil
       end
     end
   end

@@ -2,6 +2,24 @@ require 'spec_helpers/boot'
 
 if defined?(ActiveRecord)
 
+  RSpec::Matchers.define :invalidate do
+  match do |actual|
+    actual.save.should == false
+    actual.errors[:base].should == ["Access denied"]
+  end
+  end
+
+  RSpec::Matchers.define :validate do
+  match do |actual|
+    actual.class.transaction do
+      actual.save.should == true
+      raise ActiveRecord::Rollback
+    end
+
+    true
+  end
+  end
+
   describe Protector::Adapters::ActiveRecord do
     before(:all) do
       ActiveRecord::Schema.verbose = false
@@ -16,6 +34,7 @@ if defined?(ActiveRecord)
 
       ActiveRecord::Migration.create_table :fluffies do |t|
         t.string      :string
+        t.integer     :number
         t.belongs_to  :dummy
         t.timestamps
       end
@@ -23,19 +42,30 @@ if defined?(ActiveRecord)
       Protector::Adapters::ActiveRecord.activate!
 
       class Dummy < ActiveRecord::Base
-        protect do; end
+        protect do |x|
+          scope{ where('1=0') } if x == '-'
+          scope{ where(number: 999) } if x == '+'
+        end
+
+        scope :none, where('1 = 0') unless respond_to?(:none)
         has_many :fluffies
       end
       Dummy.create! string: 'zomgstring', number: 999, text: 'zomgtext'
       Dummy.create! string: 'zomgstring', number: 777, text: 'zomgtext'
 
       class Fluffy < ActiveRecord::Base
-        protect do
-          can :view, :dummy_id
+        protect do |x|
+          scope{ where('1=0') } if x == '-'
+          scope{ where(number: 999) } if x == '+'
+
+          can :view, :dummy_id unless x == '-'
         end
+
+        scope :none, where('1 = 0') unless respond_to?(:none)
         belongs_to :dummy
       end
-      Fluffy.create! string: 'zomgstring', dummy_id: 1
+      Fluffy.create! string: 'zomgstring', number: 999, dummy_id: 1
+      Fluffy.create! string: 'zomgstring', number: 777, dummy_id: 1
     end
 
     describe Protector::Adapters::ActiveRecord::Base do
@@ -63,28 +93,15 @@ if defined?(ActiveRecord)
       it_behaves_like "a model"
 
       describe "eager loading" do
-        before(:all) do
-          class FluffyTest < ActiveRecord::Base
-            self.table_name = "fluffies"
-            protect do; scope { where('1=0') }; end
-          end
-        end
-
-        before(:each) do
-          @dummy.instance_eval do
-            has_many :fluffies, class_name: 'FluffyTest'
-            protect do; end
-            def self.name; 'Dummy'; end
-          end
-        end
-
-        after(:all) do
-          Object.send :remove_const, :FluffyTest
-        end
+        # around(:each) do |e|
+        #   ActiveRecord::Base.logger = Logger.new(STDOUT)
+        #   e.run
+        #   ActiveRecord::Base.logger = nil
+        # end
 
         it "scopes" do
-          dummy = @dummy.restrict!('!').includes(:fluffies).first
-          dummy.fluffies.length.should == 0
+          dummy = Dummy.restrict!('+').includes(:fluffies).first
+          dummy.fluffies.length.should == 1
         end
       end
     end
@@ -121,6 +138,11 @@ if defined?(ActiveRecord)
           end
         end
 
+        it "checks existence" do
+          @dummy.any?.should == true
+          @dummy.restrict!('!').any?.should == false
+        end
+
         it "counts" do
           @dummy.count.should == 2
           @dummy.restrict!('!').count.should == 0
@@ -144,6 +166,11 @@ if defined?(ActiveRecord)
           @dummy.instance_eval do
             protect do; scope{ where(number: 999) }; end
           end
+        end
+
+        it "checks existence" do
+          @dummy.any?.should == true
+          @dummy.restrict!('!').any?.should == true
         end
 
         it "counts" do
