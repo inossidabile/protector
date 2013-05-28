@@ -30,6 +30,10 @@ module Protector
           @access.each{|k,v| @access_keys[k] = v.keys}
         end
 
+        def scoped?
+          !!@relation
+        end
+
         def scope(&block)
           @relation = @model.instance_eval(&block)
         end
@@ -112,7 +116,7 @@ module Protector
         (@blocks ||= []) << block
       end
 
-      def evaluate(model, fields, subject, entry=nil)
+      def evaluate(model, subject, fields=[], entry=nil)
         Box.new(model, fields, subject, entry, @blocks)
       end
     end

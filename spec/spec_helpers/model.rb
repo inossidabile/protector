@@ -1,6 +1,6 @@
 shared_examples_for "a model" do
   it "evaluates meta properly" do
-    @dummy.instance_eval do
+    dummy.instance_eval do
       protect do |subject, dummy|
         subject.should == '!'
 
@@ -12,9 +12,8 @@ shared_examples_for "a model" do
       end
     end
 
-    fields = Hash[*%w(id string number text created_at updated_at).map{|x| [x, nil]}.flatten]
-    dummy  = @dummy.new.restrict!('!')
-    meta   = dummy.protector_meta
+    fields = Hash[*%w(id string number text dummy_id created_at updated_at).map{|x| [x, nil]}.flatten]
+    meta   = dummy.new.restrict!('!').protector_meta
 
     meta.access[:view].should   == fields
     meta.access[:create].should == fields
@@ -23,11 +22,6 @@ shared_examples_for "a model" do
 
   describe "association" do
     context "(has_many)" do
-      around(:each) do |e|
-        ActiveRecord::Base.logger = Logger.new(STDOUT)
-        e.run
-        ActiveRecord::Base.logger = nil
-      end
       it "loads" do
         Dummy.first.restrict!('!').fluffies.length.should == 2
         Dummy.first.restrict!('+').fluffies.length.should == 1
@@ -49,60 +43,52 @@ shared_examples_for "a model" do
 
   describe "visibility" do
     it "marks blocked" do
-      @dummy.instance_eval do
-        protect do; scope { none }; end
-      end
-
-      @dummy.first.restrict!('!').visible?.should == false
+      Dummy.first.restrict!('-').visible?.should == false
     end
 
     it "marks allowed" do
-      @dummy.instance_eval do
-        protect do; scope { limit(5) }; end
-      end
-
-      @dummy.first.restrict!('!').visible?.should == true
+      Dummy.first.restrict!('+').visible?.should == true
     end
   end
 
   describe "readability" do
     it "hides fields" do
-      @dummy.instance_eval do
+      dummy.instance_eval do
         protect do
           can :view, :string
         end
       end
 
-      dummy = @dummy.first.restrict!('!')
-      dummy.number.should == nil
-      dummy[:number].should == nil
-      dummy.read_attribute(:number).should_not == nil
-      dummy.string.should == 'zomgstring'
+      d = dummy.first.restrict!('!')
+      d.number.should == nil
+      d[:number].should == nil
+      d.read_attribute(:number).should_not == nil
+      d.string.should == 'zomgstring'
     end
   end
 
   describe "creatability" do
     context "with empty meta" do
       before(:each) do
-        @dummy.instance_eval do
+        dummy.instance_eval do
           protect do; end
         end
       end
 
       it "marks blocked" do
-        dummy = @dummy.new(string: 'bam', number: 1)
-        dummy.restrict!('!').creatable?.should == false
+        d = dummy.new(string: 'bam', number: 1)
+        d.restrict!('!').creatable?.should == false
       end
 
       it "invalidates" do
-        dummy = @dummy.new(string: 'bam', number: 1).restrict!('!')
-        dummy.should invalidate
+        d = dummy.new(string: 'bam', number: 1).restrict!('!')
+        d.should invalidate
       end
     end
 
     context "by list of fields" do
       before(:each) do
-        @dummy.instance_eval do
+        dummy.instance_eval do
           protect do
             can :create, :string
           end
@@ -110,29 +96,29 @@ shared_examples_for "a model" do
       end
 
       it "marks blocked" do
-        dummy = @dummy.new(string: 'bam', number: 1)
-        dummy.restrict!('!').creatable?.should == false
+        d = dummy.new(string: 'bam', number: 1)
+        d.restrict!('!').creatable?.should == false
       end
 
       it "marks allowed" do
-        dummy = @dummy.new(string: 'bam')
-        dummy.restrict!('!').creatable?.should == true
+        d = dummy.new(string: 'bam')
+        d.restrict!('!').creatable?.should == true
       end
 
       it "invalidates" do
-        dummy = @dummy.new(string: 'bam', number: 1).restrict!('!')
-        dummy.should invalidate
+        d = dummy.new(string: 'bam', number: 1).restrict!('!')
+        d.should invalidate
       end
 
       it "validates" do
-        dummy = @dummy.new(string: 'bam').restrict!('!')
-        dummy.should validate
+        d = dummy.new(string: 'bam').restrict!('!')
+        d.should validate
       end
     end
 
     context "by lambdas" do
       before(:each) do
-        @dummy.instance_eval do
+        dummy.instance_eval do
           protect do
             can :create, string: lambda {|x| x.try(:length) == 5 }
           end
@@ -140,29 +126,29 @@ shared_examples_for "a model" do
       end
 
       it "marks blocked" do
-        dummy = @dummy.new(string: 'bam')
-        dummy.restrict!('!').creatable?.should == false
+        d = dummy.new(string: 'bam')
+        d.restrict!('!').creatable?.should == false
       end
 
       it "marks allowed" do
-        dummy = @dummy.new(string: '12345')
-        dummy.restrict!('!').creatable?.should == true
+        d = dummy.new(string: '12345')
+        d.restrict!('!').creatable?.should == true
       end
 
       it "invalidates" do
-        dummy = @dummy.new(string: 'bam').restrict!('!')
-        dummy.should invalidate
+        d = dummy.new(string: 'bam').restrict!('!')
+        d.should invalidate
       end
 
       it "validates" do
-        dummy = @dummy.new(string: '12345').restrict!('!')
-        dummy.should validate
+        d = dummy.new(string: '12345').restrict!('!')
+        d.should validate
       end
     end
 
     context "by ranges" do
       before(:each) do
-        @dummy.instance_eval do
+        dummy.instance_eval do
           protect do
             can :create, number: 0..2
           end
@@ -170,23 +156,23 @@ shared_examples_for "a model" do
       end
 
       it "marks blocked" do
-        dummy = @dummy.new(number: 500)
-        dummy.restrict!('!').creatable?.should == false
+        d = dummy.new(number: 500)
+        d.restrict!('!').creatable?.should == false
       end
 
       it "marks allowed" do
-        dummy = @dummy.new(number: 2)
-        dummy.restrict!('!').creatable?.should == true
+        d = dummy.new(number: 2)
+        d.restrict!('!').creatable?.should == true
       end
 
       it "invalidates" do
-        dummy = @dummy.new(number: 500).restrict!('!')
-        dummy.should invalidate
+        d = dummy.new(number: 500).restrict!('!')
+        d.should invalidate
       end
 
       it "validates" do
-        dummy = @dummy.new(number: 2).restrict!('!')
-        dummy.should validate
+        d = dummy.new(number: 2).restrict!('!')
+        d.should validate
       end
     end
   end
@@ -194,27 +180,27 @@ shared_examples_for "a model" do
   describe "updatability" do
     context "with empty meta" do
       before(:each) do
-        @dummy.instance_eval do
+        dummy.instance_eval do
           protect do; end
         end
       end
 
       it "marks blocked" do
-        dummy = @dummy.first
-        dummy.assign_attributes(string: 'bam', number: 1)
-        dummy.restrict!('!').updatable?.should == false
+        d = dummy.first
+        d.assign_attributes(string: 'bam', number: 1)
+        d.restrict!('!').updatable?.should == false
       end
 
       it "invalidates" do
-        dummy = @dummy.first.restrict!('!')
-        dummy.assign_attributes(string: 'bam', number: 1)
-        dummy.should invalidate
+        d = dummy.first.restrict!('!')
+        d.assign_attributes(string: 'bam', number: 1)
+        d.should invalidate
       end
     end
 
     context "by list of fields" do
       before(:each) do
-        @dummy.instance_eval do
+        dummy.instance_eval do
           protect do
             can :update, :string
           end
@@ -222,33 +208,33 @@ shared_examples_for "a model" do
       end
 
       it "marks blocked" do
-        dummy = @dummy.first
-        dummy.assign_attributes(string: 'bam', number: 1)
-        dummy.restrict!('!').updatable?.should == false
+        d = dummy.first
+        d.assign_attributes(string: 'bam', number: 1)
+        d.restrict!('!').updatable?.should == false
       end
 
       it "marks allowed" do
-        dummy = @dummy.first
-        dummy.assign_attributes(string: 'bam')
-        dummy.restrict!('!').updatable?.should == true
+        d = dummy.first
+        d.assign_attributes(string: 'bam')
+        d.restrict!('!').updatable?.should == true
       end
 
       it "invalidates" do
-        dummy = @dummy.first.restrict!('!')
-        dummy.assign_attributes(string: 'bam', number: 1)
-        dummy.should invalidate
+        d = dummy.first.restrict!('!')
+        d.assign_attributes(string: 'bam', number: 1)
+        d.should invalidate
       end
 
       it "validates" do
-        dummy = @dummy.first.restrict!('!')
-        dummy.assign_attributes(string: 'bam')
-        dummy.should validate
+        d = dummy.first.restrict!('!')
+        d.assign_attributes(string: 'bam')
+        d.should validate
       end
     end
 
     context "by lambdas" do
       before(:each) do
-        @dummy.instance_eval do
+        dummy.instance_eval do
           protect do
             can :update, string: lambda {|x| x.try(:length) == 5 }
           end
@@ -256,33 +242,33 @@ shared_examples_for "a model" do
       end
 
       it "marks blocked" do
-        dummy = @dummy.first
-        dummy.assign_attributes(string: 'bam')
-        dummy.restrict!('!').updatable?.should == false
+        d = dummy.first
+        d.assign_attributes(string: 'bam')
+        d.restrict!('!').updatable?.should == false
       end
 
       it "marks allowed" do
-        dummy = @dummy.first
-        dummy.assign_attributes(string: '12345')
-        dummy.restrict!('!').updatable?.should == true
+        d = dummy.first
+        d.assign_attributes(string: '12345')
+        d.restrict!('!').updatable?.should == true
       end
 
       it "invalidates" do
-        dummy = @dummy.first.restrict!('!')
-        dummy.assign_attributes(string: 'bam')
-        dummy.should invalidate
+        d = dummy.first.restrict!('!')
+        d.assign_attributes(string: 'bam')
+        d.should invalidate
       end
 
       it "validates" do
-        dummy = @dummy.first.restrict!('!')
-        dummy.assign_attributes(string: '12345')
-        dummy.should validate
+        d = dummy.first.restrict!('!')
+        d.assign_attributes(string: '12345')
+        d.should validate
       end
     end
 
     context "by ranges" do
       before(:each) do
-        @dummy.instance_eval do
+        dummy.instance_eval do
           protect do
             can :update, number: 0..2
           end
@@ -290,64 +276,64 @@ shared_examples_for "a model" do
       end
 
       it "marks blocked" do
-        dummy = @dummy.first
-        dummy.assign_attributes(number: 500)
-        dummy.restrict!('!').updatable?.should == false
+        d = dummy.first
+        d.assign_attributes(number: 500)
+        d.restrict!('!').updatable?.should == false
       end
 
       it "marks allowed" do
-        dummy = @dummy.first
-        dummy.assign_attributes(number: 2)
-        dummy.restrict!('!').updatable?.should == true
+        d = dummy.first
+        d.assign_attributes(number: 2)
+        d.restrict!('!').updatable?.should == true
       end
 
       it "invalidates" do
-        dummy = @dummy.first.restrict!('!')
-        dummy.assign_attributes(number: 500)
-        dummy.should invalidate
+        d = dummy.first.restrict!('!')
+        d.assign_attributes(number: 500)
+        d.should invalidate
       end
 
       it "validates" do
-        dummy = @dummy.first.restrict!('!')
-        dummy.assign_attributes(number: 2)
-        dummy.should validate
+        d = dummy.first.restrict!('!')
+        d.assign_attributes(number: 2)
+        d.should validate
       end
     end
   end
 
   describe "destroyability" do
     it "marks blocked" do
-      @dummy.instance_eval do
+      dummy.instance_eval do
         protect do; end
       end
 
-      @dummy.first.restrict!('!').destroyable?.should == false
+      dummy.first.restrict!('!').destroyable?.should == false
     end
 
     it "marks allowed" do
-      @dummy.instance_eval do
+      dummy.instance_eval do
         protect do; can :destroy; end
       end
 
-      @dummy.first.restrict!('!').destroyable?.should == true
+      dummy.first.restrict!('!').destroyable?.should == true
     end
 
     it "invalidates" do
-      @dummy.instance_eval do
+      dummy.instance_eval do
         protect do; end
       end
 
-      @dummy.first.restrict!('!').destroy.should == false
+      dummy.first.restrict!('!').destroy.should == false
     end
 
     it "validates" do
-      @dummy.instance_eval do
+      dummy.instance_eval do
         protect do; can :destroy; end
       end
 
-      dummy = @dummy.create!.restrict!('!')
-      dummy.destroy.should == dummy
-      dummy.destroyed?.should == true
+      d = dummy.create!.restrict!('!')
+      d.destroy.should == d
+      d.destroyed?.should == true
     end
   end
 end

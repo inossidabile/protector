@@ -46,7 +46,8 @@ module Protector
           def define_method_attribute(name)
             super
 
-            unless (primary_key == name || (primary_key.is_a?(Array) && primary_key.include?(name)))
+            # Show some <3 to composite primary keys
+            unless (primary_key == name || Array(primary_key).include?(name))
               generated_attribute_methods.module_eval <<-STR, __FILE__, __LINE__ + 1
                 alias_method #{"#{name}_unprotected".inspect}, #{name.inspect}
 
@@ -69,8 +70,8 @@ module Protector
 
           self.class.protector_meta.evaluate(
             self.class,
-            self.class.column_names,
             @protector_subject,
+            self.class.column_names,
             self
           )
         end

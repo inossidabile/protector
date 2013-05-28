@@ -70,16 +70,16 @@ describe Protector::DSL do
     end
 
     it "evaluates" do
-      @meta.evaluate(nil, [], 'user', 'entry')
+      @meta.evaluate(nil, 'user', [], 'entry')
     end
 
     it "sets relation" do
-      data = @meta.evaluate(nil, [], 'user', 'entry')
+      data = @meta.evaluate(nil, 'user', [], 'entry')
       data.relation.should == 'relation'
     end
 
     it "sets access" do
-      data = @meta.evaluate(nil, %w(field1 field2 field3 field4 field5), 'user', 'entry')
+      data = @meta.evaluate(nil, 'user', %w(field1 field2 field3 field4 field5), 'entry')
       data.access.should == {
         "update" => {
           "field1" => nil,
@@ -98,17 +98,17 @@ describe Protector::DSL do
     end
 
     it "marks destroyable" do
-      data = @meta.evaluate(nil, [], 'user', 'entry')
+      data = @meta.evaluate(nil, 'user', [], 'entry')
       data.destroyable?.should == true
     end
 
     it "marks updatable" do
-      data = @meta.evaluate(nil, [], 'user', 'entry')
+      data = @meta.evaluate(nil, 'user', [], 'entry')
       data.updatable?.should == true
     end
 
     it "marks creatable" do
-      data = @meta.evaluate(nil, [], 'user', 'entry')
+      data = @meta.evaluate(nil, 'user', [], 'entry')
       data.creatable?.should == false
     end
   end

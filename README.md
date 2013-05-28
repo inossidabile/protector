@@ -7,7 +7,7 @@ Protector is a Ruby ORM extension for managing security restrictions on a field 
 
 Currently Protector supports the following ORM adapters:
 
-  * [ActiveRecord](http://guides.rubyonrails.org/active_record_querying.html) (>= 3.2)
+  * [ActiveRecord](http://guides.rubyonrails.org/active_record_querying.html) (>= 3.2.9)
 
 We are working hard to extend the list with:
 

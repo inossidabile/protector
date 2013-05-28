@@ -9,7 +9,7 @@ GIT
 PATH
   remote: /Users/inossidabile/Repos/protector
   specs:
-    protector (0.0.3)
+    protector (0.0.5)
       activesupport
       i18n
 
