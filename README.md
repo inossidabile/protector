@@ -111,6 +111,27 @@ Protector is aware of associations. All the associations retrieved from restrict
 
 The access to `belongs_to` kind of association depends on corresponding foreign key readability.
 
+## Eager Loading
+
+To take a long story short: it works and you are very likely to never notice changes it introduces to the process.
+
+Eager Loading has 2 possible strategies: JOINs and additional requests. Whenever you mark an association to preload and at the same time use this relation among `where` clause – ORMs prefer JOIN. Otherwise it goes with additional requests.
+
+```ruby
+Foo.includes(:bars)                                  # This will make 2 queries
+Foo.includes(:bars).where(bars: {absolute: true})    # This will make 1 big JOINfull query
+```
+
+The problem here is that JOIN strategy is impossible for scoped restrictions. I.e. for the following code:
+
+```ruby
+Foo.restrict(current_user).includes(:bars).where(bars: {absolute: true})
+```
+
+we can appear in the situation where `foos` and `bars` relations are having different restrictions scopes. In this case JOIN will filter by an intersection of scopes which is wrong.
+
+To solve the issue Protector forces additional requests strategy and intelligently adds proper JOINs to the general query to make your conditions work. That's why unlike unrestricted query from the first sample, the code from the second sample will result into 2 queries.
+
 ## Ideology
 
 Protector is a successor to [Heimdallr](https://github.com/inossidabile/heimdallr). The latter being a proof-of-concept appeared to be way too paranoid and incompatible with the rest of the world. Protector re-implements same idea keeping the Ruby way:
