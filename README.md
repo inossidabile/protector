@@ -128,7 +128,7 @@ The problem here is that JOIN strategy is impossible for scoped restrictions. I.
 Foo.restrict(current_user).includes(:bars).where(bars: {absolute: true})
 ```
 
-we can appear in the situation where `foos` and `bars` relations are having different restrictions scopes. In this case JOIN will filter by an intersection of scopes which is wrong.
+we can appear in the situation where `foos` and `bars` relations are having different restrictions scopes. In this case JOIN would filter by an intersection of scopes which is wrong.
 
 To solve the issue Protector forces additional requests strategy and intelligently adds proper JOINs to the general query to make your conditions work. That's why unlike unrestricted query from the first sample, the code from the second sample will result into 2 queries.
 
