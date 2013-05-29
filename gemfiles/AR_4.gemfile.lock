@@ -40,6 +40,7 @@ GEM
     atomic (1.1.9-java)
     builder (3.1.4)
     coderay (1.0.9)
+    colored (1.2)
     diff-lcs (1.2.4)
     ffi (1.8.1)
     ffi (1.8.1-java)
@@ -103,6 +104,7 @@ DEPENDENCIES
   activerecord (= 4.0.0.rc1)
   activerecord-jdbcsqlite3-adapter!
   appraisal
+  colored
   guard
   guard-rspec
   jdbc-sqlite3

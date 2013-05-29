@@ -111,6 +111,8 @@ Protector is aware of associations. All the associations retrieved from restrict
 
 The access to `belongs_to` kind of association depends on corresponding foreign key readability.
 
+Remember however that auto-restriction is only enabled for reading. Passing a model (or an array of those) to an association will not auto-restrict it. You should handle it manually.
+
 ## Eager Loading
 
 To take a long story short: it works and you are very likely to never notice changes it introduces to the process.

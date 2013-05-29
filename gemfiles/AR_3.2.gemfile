@@ -3,6 +3,7 @@
 source "https://rubygems.org"
 
 gem "rake"
+gem "colored"
 gem "pry"
 gem "rspec"
 gem "guard"

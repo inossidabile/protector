@@ -7,6 +7,8 @@ if defined?(ActiveRecord)
     before(:all) do
       load 'migrations/active_record.rb'
 
+      [Dummy, Fluffy].each{|c| c.send :include, ProtectionCase}
+
       Dummy.create! string: 'zomgstring', number: 999, text: 'zomgtext'
       Dummy.create! string: 'zomgstring', number: 999, text: 'zomgtext'
       Dummy.create! string: 'zomgstring', number: 777, text: 'zomgtext'
@@ -110,10 +112,12 @@ if defined?(ActiveRecord)
           Dummy.restrict!('+').unscoped.count.should == 2
         end
       end
+    end
 
-      #
-      # Eager loading
-      #
+    #
+    # Eager loading
+    #
+    describe Protector::Adapters::ActiveRecord::Preloader do
       describe "eager loading" do
         it "scopes" do
           d = Dummy.restrict!('+').includes(:fluffies)

@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rake'
+gem 'colored'
 gem 'pry'
 gem 'rspec'
 gem 'guard'

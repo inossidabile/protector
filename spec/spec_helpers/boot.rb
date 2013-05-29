@@ -3,7 +3,7 @@ Bundler.require
 require 'protector'
 require_relative 'examples/model'
 
-module ProtectionTester
+module ProtectionCase
   extend ActiveSupport::Concern
 
   included do

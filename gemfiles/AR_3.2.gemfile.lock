@@ -30,6 +30,7 @@ GEM
     arel (3.0.2)
     builder (3.0.4)
     coderay (1.0.9)
+    colored (1.2)
     diff-lcs (1.2.4)
     ffi (1.8.1)
     formatador (0.2.4)
@@ -80,6 +81,7 @@ DEPENDENCIES
   activerecord (= 3.2.9)
   activerecord-jdbcsqlite3-adapter!
   appraisal
+  colored
   guard
   guard-rspec
   jdbc-sqlite3

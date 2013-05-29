@@ -28,21 +28,17 @@ ActiveRecord::Migration.create_table(:loonies){|t| t.belongs_to :fluffy; t.strin
 ### Classes
 
 class Dummy < ActiveRecord::Base
-  include ProtectionTester
   has_many :fluffies
   has_many :bobbies
 end
 
 class Fluffy < ActiveRecord::Base
-  include ProtectionTester
   belongs_to :dummy
   has_one :loony
 end
 
 class Bobby < ActiveRecord::Base
-  protect do; end
 end
 
 class Loony < ActiveRecord::Base
-  protect do; end
 end
