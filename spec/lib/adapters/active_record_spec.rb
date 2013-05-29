@@ -43,6 +43,8 @@ if defined?(ActiveRecord)
         end
       end
 
+      ActiveRecord::Migration.create_table(:loonies){|t| t.belongs_to :fluffy; t.string :string }
+
       Protector::Adapters::ActiveRecord.activate!
 
       module Tester extend ActiveSupport::Concern
@@ -67,9 +69,14 @@ if defined?(ActiveRecord)
       class Fluffy < ActiveRecord::Base
         include Tester
         belongs_to :dummy
+        has_one :loony
       end
 
       class Bobby < ActiveRecord::Base
+        protect do; end
+      end
+
+      class Loony < ActiveRecord::Base
         protect do; end
       end
 
@@ -84,6 +91,8 @@ if defined?(ActiveRecord)
         m.create! string: 'zomgstring', number: 999, text: 'zomgtext', dummy_id: 2
         m.create! string: 'zomgstring', number: 777, text: 'zomgtext', dummy_id: 2
       end
+
+      Fluffy.all.each{|f| Loony.create! fluffy_id: f.id, string: 'zomgstring' }
     end
 
     describe Protector::Adapters::ActiveRecord::Base do
@@ -122,8 +131,6 @@ if defined?(ActiveRecord)
         end
 
         context "joined to plain association" do
-          # log!
-
           it "scopes" do
             d = Dummy.restrict!('+').includes(:bobbies, :fluffies).where(
               bobbies: {number: 777}, fluffies: {number: 777}
@@ -131,6 +138,18 @@ if defined?(ActiveRecord)
             d.length.should == 2
             d.first.fluffies.length.should == 1
             d.first.bobbies.length.should == 1
+          end
+        end
+
+        context "with complex include" do
+          it "scopes" do
+            d = Dummy.restrict!('+').includes(fluffies: :loony).where(
+              fluffies: {number: 777},
+              loonies: {string: 'zomgstring'}
+            )
+            d.length.should == 2
+            d.first.fluffies.length.should == 1
+            d.first.fluffies.first.loony.should be_a_kind_of(Loony)
           end
         end
       end

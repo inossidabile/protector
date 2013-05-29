@@ -19,9 +19,10 @@ module Protector
             end
           end
 
-          unless method_defined?(:joins!)
-            def joins!(*args)
-              self.joins_values += args
+          unless method_defined?(:includes!)
+            def includes!(*args)
+              self.includes_values += args
+              self
             end
           end
         end
@@ -60,27 +61,7 @@ module Protector
           subject  = @protector_subject
           relation = merge(protector_meta.relation).unrestrict!
 
-          # We can not allow join-based eager loading for scoped associations
-          # since actual filtering can differ for host model and joined relation.
-          # Therefore we turn all `includes` into `preloads`.
-          # 
-          # Note that `includes_values` shares reference across relation diffs so
-          # it has to be COPIED not modified
-          relation.includes_values = relation.includes_values.select do |i|
-            klass = @klass.reflect_on_association(i).klass
-            meta  = klass.protector_meta.evaluate(klass, subject)
-
-            # We leave unscoped restrictions as `includes`
-            # but turn scoped ones into `preloads`
-            unless meta.scoped?
-              true
-            else
-              # AR 3.2 Y U NO HAVE BANG RELATION MODIFIERS
-              relation.joins!(i.to_sym) if references_values.include?(i.to_s)
-              relation.preload_values << i
-              false
-            end
-          end
+          relation = protector_substitute_includes(relation)
 
           # We should explicitly allow/deny eager loading now that we know
           # if we can use it
@@ -101,9 +82,97 @@ module Protector
           @records
         end
 
+        #
+        # This method swaps `includes` with `preload` and adds JOINs
+        # to any table referenced from `where` (or manually with `reference`)
+        #
+        def protector_substitute_includes(relation)
+          subject = @protector_subject
+          includes, relation.includes_values = relation.includes_values, []
+
+          # We can not allow join-based eager loading for scoped associations
+          # since actual filtering can differ for host model and joined relation.
+          # Therefore we turn all `includes` into `preloads`.
+          # 
+          # Note that `includes_values` shares reference across relation diffs so
+          # it has to be COPIED not modified
+          includes.each do |iv|
+            protector_expand_include(iv).each do |ive|
+              # First-level associations can stay JOINed if restriction scope
+              # is absent. Checking deep associations would make us to check
+              # every parent. This should probably be done sometimes :\
+              meta = ive[0].protector_meta.evaluate(ive[0], subject) unless ive[1].is_a?(Hash)
+
+              # We leave unscoped restrictions as `includes`
+              # but turn scoped ones into `preloads`
+              if meta && !meta.scoped?
+                relation.includes!(ive[1])
+              else
+                if relation.references_values.include?(ive[0].table_name)
+                  if relation.respond_to?(:joins!)
+                    relation.joins!(ive[1])
+                  else
+                    relation = relation.joins(ive[1])
+                  end
+                end
+
+                # AR 3.2 Y U NO HAVE BANG RELATION MODIFIERS
+                relation.preload_values << ive[1]
+                false
+              end
+            end
+          end
+
+          relation
+        end
+
+        #
+        # Indexes `includes` format by actual entity class
+        # Turns {foo: :bar} into [[Foo, :foo], [Bar, {foo: :bar}]
+        #
+        def protector_expand_include(inclusion, results=[], base=[], klass=@klass)
+          if inclusion.is_a?(Hash)
+            protector_expand_include_hash(inclusion, results, base, klass)
+          else
+            Array(inclusion).each do |i|
+              if i.is_a?(Hash)
+                protector_expand_include_hash(i, results, base, klass)
+              else
+                results << [
+                  klass.reflect_on_association(i.to_sym).klass,
+                  i.to_sym
+                ]
+              end
+            end
+          end
+
+          results
+        end
+
+        def protector_expand_include_hash(inclusion, results=[], base=[], klass=@klass)
+          inclusion.each do |key, value|
+            model = klass.reflect_on_association(key.to_sym).klass
+            value = [value] unless value.is_a?(Array)
+
+            value.each do |v|
+              if v.is_a?(Hash)
+                protector_expand_include_hash(v, results, [key]+base)
+              else
+                results << [
+                  model.reflect_on_association(v.to_sym).klass,
+                  ([key]+base).inject(v){|a, n| { n => a } }
+                ]
+              end
+            end
+
+            results << [model, base.inject(key){|a, n| { n => a } }]
+          end
+        end
+
         def eager_loading_with_protector?
-          @eager_loadable_when_protected.nil? ? eager_loading_without_protector?
-                                              : !!@eager_loadable_when_protected
+          flag = eager_loading_without_protector?
+          flag &&= !!@eager_loadable_when_protected unless @eager_loadable_when_protected.nil?
+          flag
         end
       end
     end
