@@ -88,14 +88,14 @@ module Protector
         #
         def protector_substitute_includes(relation)
           subject = @protector_subject
+
+          # Note that `includes_values` shares reference across relation diffs so
+          # it can not be modified safely and should be copied instead
           includes, relation.includes_values = relation.includes_values, []
 
           # We can not allow join-based eager loading for scoped associations
           # since actual filtering can differ for host model and joined relation.
           # Therefore we turn all `includes` into `preloads`.
-          # 
-          # Note that `includes_values` shares reference across relation diffs so
-          # it has to be COPIED not modified
           includes.each do |iv|
             protector_expand_include(iv).each do |ive|
               # First-level associations can stay JOINed if restriction scope
@@ -153,14 +153,15 @@ module Protector
           inclusion.each do |key, value|
             model = klass.reflect_on_association(key.to_sym).klass
             value = [value] unless value.is_a?(Array)
+            nest  = [key]+base
 
             value.each do |v|
               if v.is_a?(Hash)
-                protector_expand_include_hash(v, results, [key]+base)
+                protector_expand_include_hash(v, results, nest)
               else
                 results << [
                   model.reflect_on_association(v.to_sym).klass,
-                  ([key]+base).inject(v){|a, n| { n => a } }
+                  nest.inject(v){|a, n| { n => a } }
                 ]
               end
             end

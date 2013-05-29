@@ -20,27 +20,6 @@ shared_examples_for "a model" do
     meta.access[:update].should == fields
   end
 
-  describe "association" do
-    context "(has_many)" do
-      it "loads" do
-        Dummy.first.restrict!('!').fluffies.length.should == 2
-        Dummy.first.restrict!('+').fluffies.length.should == 1
-        Dummy.first.restrict!('-').fluffies.empty?.should == true
-      end
-    end
-
-    context "(belongs_to)" do
-      it "passes subject" do
-        Fluffy.first.restrict!('!').dummy.protector_subject.should == '!'
-      end
-
-      it "loads" do
-        Fluffy.first.restrict!('!').dummy.should be_a_kind_of(Dummy)
-        Fluffy.first.restrict!('-').dummy.should == nil
-      end
-    end
-  end
-
   describe "visibility" do
     it "marks blocked" do
       Dummy.first.restrict!('-').visible?.should == false
@@ -51,6 +30,9 @@ shared_examples_for "a model" do
     end
   end
 
+  #
+  # Reading
+  #
   describe "readability" do
     it "hides fields" do
       dummy.instance_eval do
@@ -67,6 +49,9 @@ shared_examples_for "a model" do
     end
   end
 
+  #
+  # Creating
+  #
   describe "creatability" do
     context "with empty meta" do
       before(:each) do
@@ -177,6 +162,9 @@ shared_examples_for "a model" do
     end
   end
 
+  #
+  # Updating
+  #
   describe "updatability" do
     context "with empty meta" do
       before(:each) do
@@ -301,6 +289,9 @@ shared_examples_for "a model" do
     end
   end
 
+  #
+  # Destroying
+  #
   describe "destroyability" do
     it "marks blocked" do
       dummy.instance_eval do
@@ -334,6 +325,30 @@ shared_examples_for "a model" do
       d = dummy.create!.restrict!('!')
       d.destroy.should == d
       d.destroyed?.should == true
+    end
+  end
+
+  #
+  # Associations
+  #
+  describe "association" do
+    context "(has_many)" do
+      it "loads" do
+        Dummy.first.restrict!('!').fluffies.length.should == 2
+        Dummy.first.restrict!('+').fluffies.length.should == 1
+        Dummy.first.restrict!('-').fluffies.empty?.should == true
+      end
+    end
+
+    context "(belongs_to)" do
+      it "passes subject" do
+        Fluffy.first.restrict!('!').dummy.protector_subject.should == '!'
+      end
+
+      it "loads" do
+        Fluffy.first.restrict!('!').dummy.should be_a_kind_of(Dummy)
+        Fluffy.first.restrict!('-').dummy.should == nil
+      end
     end
   end
 end
