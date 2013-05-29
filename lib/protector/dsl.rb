@@ -112,12 +112,16 @@ module Protector
         end
       end
 
+      def blocks
+        @blocks ||= []
+      end
+
       def <<(block)
-        (@blocks ||= []) << block
+        blocks << block
       end
 
       def evaluate(model, subject, fields=[], entry=nil)
-        Box.new(model, fields, subject, entry, @blocks)
+        Box.new(model, fields, subject, entry, blocks)
       end
     end
 
@@ -142,15 +146,13 @@ module Protector
     module Entry
       extend ActiveSupport::Concern
 
-      included do
-        class <<self
-          attr_reader :protector_meta
-        end
-      end
-
       module ClassMethods
         def protect(&block)
-          (@protector_meta ||= Meta.new) << block
+          protector_meta << block
+        end
+
+        def protector_meta
+          @protector_meta ||= Meta.new
         end
       end
     end
