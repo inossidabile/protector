@@ -10,6 +10,7 @@ class Perf
   def initialize(adapter)
     @blocks = {}
     @adapter = adapter
+    @activated = false
   end
 
   def migrate
@@ -27,8 +28,16 @@ class Perf
     puts "Done".yellow
   end
 
+  def activate(&block)
+    @activation = block
+  end
+
   def benchmark(subject, &block)
     @blocks[subject] = block
+  end
+
+  def activated?
+    @activated
   end
 
   def run!
@@ -47,6 +56,8 @@ class Perf
     puts
 
     Protector::Adapters.const_get(@adapter).activate!
+    @activation.call
+    @activated = true
 
     puts "Protector #{'enabled'.green}"
     puts "-"*60

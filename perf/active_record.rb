@@ -12,7 +12,22 @@ seed do
   end
 end
 
-benchmark 'Selection' do
-  a = ''
-  10_000.times { a += '.' }
+activate do
+  Dummy.instance_eval do
+    protect do
+      can :view, :string
+    end
+  end
+end
+
+benchmark 'Reading open field' do
+  d = Dummy.first
+  d = d.restrict!('!') if activated?
+  10_000.times { d.string }
+end
+
+benchmark 'Reading nil field' do
+  d = Dummy.first
+  d = d.restrict!('!') if activated?
+  10_000.times { d.text }
 end

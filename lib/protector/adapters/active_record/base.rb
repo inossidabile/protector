@@ -8,6 +8,10 @@ module Protector
           include Protector::DSL::Base
           include Protector::DSL::Entry
 
+          ObjectSpace.each_object(Class).each do |c|
+            c.undefine_attribute_methods if c < self
+          end
+
           validate(on: :create) do
             return unless @protector_subject
             errors[:base] << I18n.t('protector.invalid') unless creatable?
