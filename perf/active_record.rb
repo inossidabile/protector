@@ -23,18 +23,18 @@ activate do
   Dummy.first
 end
 
-benchmark 'Reading from unprotected model' do
+benchmark 'Reading from unprotected model (100k)' do
   d = Dummy.first
   100_000.times { d.string }
 end
 
-benchmark 'Reading open field' do
+benchmark 'Reading open field (100k)' do
   d = Dummy.first
   d = d.restrict!('!') if activated?
   100_000.times { d.string }
 end
 
-benchmark 'Reading nil field' do
+benchmark 'Reading nil field (100k)' do
   d = Dummy.first
   d = d.restrict!('!') if activated?
   100_000.times { d.text }

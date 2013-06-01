@@ -41,35 +41,55 @@ class Perf
   end
 
   def run!
-    puts
-    puts "Protector #{'disabled'.red}"
-    puts "-"*60
+    results = {}
 
-    @blocks.each do |s, b|
-      print s.yellow
-      print "... "
-      print Benchmark.realtime(&b).to_s.bold
-      puts
-    end
-
-    puts "-"*60
-    puts
+    results[:off] = run_state('disabled', :red)
 
     Protector::Adapters.const_get(@adapter).activate!
     @activation.call
     @activated = true
 
-    puts "Protector #{'enabled'.green}"
-    puts "-"*60
+    results[:on] = run_state('enabled', :green)
 
-    @blocks.each do |s, b|
-      print s.yellow
-      print "... "
-      print Benchmark.realtime(&b).to_s.bold
-      puts
+    print_block "Total".blue do
+      results[:off].keys.each do |k|
+        off = results[:off][k]
+        on  = results[:on][k]
+
+        print_result k, sprintf("%8s / %8s (%s)", off, on, (on / off).round(2))
+      end
+    end
+  end
+
+  private
+
+  def run_state(state, color)
+    data = {}
+
+    print_block "Protector #{state.send color}" do
+      @blocks.each do |s, b|
+        data[s] = Benchmark.realtime(&b)
+        print_result s, data[s].to_s
+      end
     end
 
-    puts "-"*60
+    data
+  end
+
+  def print_result(title, time)
+    print title.yellow
+    print "..."
+    puts sprintf("%#{100-title.length-3}s", time)
+  end
+
+  def print_block(title)
+    puts
+    puts title
+    puts "-"*100
+
+    yield
+
+    puts "-"*100
     puts
   end
 end
