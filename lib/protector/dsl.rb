@@ -1,3 +1,5 @@
+require 'set'
+
 module Protector
   module DSL
     # DSL meta storage and evaluator
@@ -11,8 +13,7 @@ module Protector
         def initialize(model, fields, subject, entry, blocks)
           @model       = model
           @fields      = fields
-          @access      = {update: {}, view: {}, create: {}}.with_indifferent_access
-          @access_keys = {}.with_indifferent_access
+          @access      = {update: {}, view: {}, create: {}}
           @relation    = false
           @destroyable = false
 
@@ -26,8 +27,6 @@ module Protector
               instance_exec &b
             end
           end
-
-          @access.each{|k,v| @access_keys[k] = v.keys}
         end
 
         def scoped?
@@ -43,15 +42,15 @@ module Protector
           return unless @access[action]
 
           if fields.size == 0
-            @fields.each{|f| @access[action][f] = nil}
+            @fields.each{|f| @access[action][f.to_s] = nil}
           else
             fields.each do |a|
               if a.is_a?(Array)
-                a.each{|f| @access[action][f] = nil}
+                a.each{|f| @access[action][f.to_s] = nil}
               elsif a.is_a?(Hash)
-                @access[action].merge!(a)
+                @access[action].merge!(a.stringify_keys)
               else
-                @access[action][a] = nil
+                @access[action][a.to_s] = nil
               end
             end
           end
@@ -66,16 +65,16 @@ module Protector
           else
             fields.each do |a|
               if a.is_a?(Array)
-                a.each{|f| @access[action].delete(f)}
+                a.each{|f| @access[action].delete(f.to_s)}
               else
-                @access[action].delete(a)
+                @access[action].delete(a.to_s)
               end
             end
           end
         end
 
         def readable?(field)
-          @access_keys[:view].include?(field.to_s)
+          @access[:view].has_key?(field)
         end
 
         def creatable?(fields=false)
@@ -93,10 +92,11 @@ module Protector
         private
 
         def modifiable?(part, fields)
-          return false unless @access_keys[part].length > 0
+          keys = @access[part].keys
+          return false unless keys.length > 0
 
           if fields
-            return false if (fields.keys - @access_keys[part]).length > 0
+            return false if (fields.keys - keys).length > 0
 
             fields.each do |k,v|
               case x = @access[part][k]

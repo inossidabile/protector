@@ -27,6 +27,11 @@ module Protector
             destroyable?
           end
 
+          def restrict!(*args)
+            @protector_meta = nil
+            super
+          end
+
           if Gem::Version.new(::ActiveRecord::VERSION::STRING) < Gem::Version.new('4.0.0.rc1')
             def self.restrict!(subject)
               scoped.restrict!(subject)
@@ -72,7 +77,7 @@ module Protector
             raise "Unprotected entity detected: use `restrict` method to protect it."
           end
 
-          self.class.protector_meta.evaluate(
+          @protector_meta ||= self.class.protector_meta.evaluate(
             self.class,
             @protector_subject,
             self.class.column_names,

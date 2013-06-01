@@ -18,16 +18,24 @@ activate do
       can :view, :string
     end
   end
+
+  # Define attributes methods
+  Dummy.first
+end
+
+benchmark 'Reading from unprotected model' do
+  d = Dummy.first
+  100_000.times { d.string }
 end
 
 benchmark 'Reading open field' do
   d = Dummy.first
   d = d.restrict!('!') if activated?
-  10_000.times { d.string }
+  100_000.times { d.string }
 end
 
 benchmark 'Reading nil field' do
   d = Dummy.first
   d = d.restrict!('!') if activated?
-  10_000.times { d.text }
+  100_000.times { d.text }
 end

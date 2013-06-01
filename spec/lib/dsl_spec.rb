@@ -81,19 +81,19 @@ describe Protector::DSL do
     it "sets access" do
       data = @meta.evaluate(nil, 'user', %w(field1 field2 field3 field4 field5), 'entry')
       data.access.should == {
-        "update" => {
+        update: {
           "field1" => nil,
           "field2" => nil,
           "field3" => nil,
           "field4" => 0..5,
           "field5" => l
         },
-        "view" => {
+        view: {
           "field1" => nil,
           "field2" => nil,
           "field3" => nil
         },
-        "create" => {}
+        create: {}
       }
     end
 

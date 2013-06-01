@@ -20,6 +20,15 @@ shared_examples_for "a model" do
     meta.access[:update].should == fields
   end
 
+  it "drops meta on restrict" do
+    d = Dummy.first
+
+    d.restrict!('!').protector_meta
+    d.instance_variable_get('@protector_meta').should_not == nil
+    d.restrict!('!')
+    d.instance_variable_get('@protector_meta').should == nil
+  end
+
   describe "visibility" do
     it "marks blocked" do
       Dummy.first.restrict!('-').visible?.should == false
