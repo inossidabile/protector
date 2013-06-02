@@ -1,8 +1,7 @@
 module Protector
   module Adapters
     module ActiveRecord
-      
-      # Pathces `ActiveRecord::Relation`
+      # Patches `ActiveRecord::Relation`
       module Relation
         extend ActiveSupport::Concern
 
