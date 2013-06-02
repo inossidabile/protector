@@ -1,6 +1,10 @@
 ### Connection
 
-DB = Sequel.sqlite
+DB = if RUBY_PLATFORM == 'java'
+  Sequel.connect('jdbc:sqlite::memory:')
+else
+  Sequel.sqlite
+end
 
 Sequel::Model.instance_eval do
   def none

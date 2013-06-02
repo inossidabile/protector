@@ -10,12 +10,12 @@ end
 
 appraise "Sequel" do
   gem "sequel", ">= 3.48.0"
-  gem "jdbc-sqlite3"
+  gem "jdbc-sqlite3", require: "jdbc/sqlite3"
 end
 
 appraise "DM" do
   gem "datamapper", ">= 1.2.0"
-  gem "jdbc-sqlite3"
+  gem "jdbc-sqlite3", require: "jdbc/sqlite3"
 end
 
 appraise "Mongoid" do

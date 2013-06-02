@@ -38,7 +38,7 @@ if defined?(Sequel)
 
       it "scopes" do
         scope = Dummy.restrict!('!')
-        scope.should be_a_kind_of Sequel::SQLite::Dataset
+        scope.should be_a_kind_of Sequel::Dataset
         scope.protector_subject.should == '!'
       end
 
