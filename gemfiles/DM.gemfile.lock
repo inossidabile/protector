@@ -1,8 +1,3 @@
-GIT
-  remote: git://github.com/jruby/activerecord-jdbc-adapter.git
-  revision: 180dd863d30d6048c914622e4e77f018cf77026a
-  specs:
-
 PATH
   remote: /Users/inossidabile/Repos/protector
   specs:
@@ -13,25 +8,56 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (3.2.9)
-      activesupport (= 3.2.9)
-      builder (~> 3.0.0)
-    activerecord (3.2.9)
-      activemodel (= 3.2.9)
-      activesupport (= 3.2.9)
-      arel (~> 3.0.2)
-      tzinfo (~> 0.3.29)
-    activesupport (3.2.9)
+    activesupport (3.2.12)
       i18n (~> 0.6)
       multi_json (~> 1.0)
+    addressable (2.2.8)
     appraisal (0.5.2)
       bundler
       rake
-    arel (3.0.2)
-    builder (3.0.4)
+    bcrypt-ruby (3.0.1)
     coderay (1.0.9)
     colored (1.2)
+    datamapper (1.2.0)
+      dm-aggregates (~> 1.2.0)
+      dm-constraints (~> 1.2.0)
+      dm-core (~> 1.2.0)
+      dm-migrations (~> 1.2.0)
+      dm-serializer (~> 1.2.0)
+      dm-timestamps (~> 1.2.0)
+      dm-transactions (~> 1.2.0)
+      dm-types (~> 1.2.0)
+      dm-validations (~> 1.2.0)
     diff-lcs (1.2.4)
+    dm-aggregates (1.2.0)
+      dm-core (~> 1.2.0)
+    dm-constraints (1.2.0)
+      dm-core (~> 1.2.0)
+    dm-core (1.2.0)
+      addressable (~> 2.2.6)
+    dm-migrations (1.2.0)
+      dm-core (~> 1.2.0)
+    dm-serializer (1.2.2)
+      dm-core (~> 1.2.0)
+      fastercsv (~> 1.5)
+      json (~> 1.6)
+      json_pure (~> 1.6)
+      multi_json (~> 1.0)
+    dm-timestamps (1.2.0)
+      dm-core (~> 1.2.0)
+    dm-transactions (1.2.0)
+      dm-core (~> 1.2.0)
+    dm-types (1.2.2)
+      bcrypt-ruby (~> 3.0)
+      dm-core (~> 1.2.0)
+      fastercsv (~> 1.5)
+      json (~> 1.6)
+      multi_json (~> 1.0)
+      stringex (~> 1.4)
+      uuidtools (~> 2.1)
+    dm-validations (1.2.0)
+      dm-core (~> 1.2.0)
+    fastercsv (1.5.5)
     ffi (1.8.1)
     formatador (0.2.4)
     guard (1.8.0)
@@ -40,17 +66,20 @@ GEM
       lumberjack (>= 1.0.2)
       pry (>= 0.9.10)
       thor (>= 0.14.6)
-    guard-rspec (3.0.0)
+    guard-rspec (3.0.1)
       guard (>= 1.8)
       rspec (~> 2.13)
     i18n (0.6.4)
-    listen (1.1.3)
+    jdbc-sqlite3 (3.7.2.1)
+    json (1.8.0)
+    json_pure (1.8.0)
+    listen (1.1.4)
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9)
       rb-kqueue (>= 0.2)
     lumberjack (1.0.3)
     method_source (0.8.1)
-    multi_json (1.7.4)
+    multi_json (1.7.5)
     pry (0.9.12.2)
       coderay (~> 1.0.5)
       method_source (~> 0.8)
@@ -71,17 +100,17 @@ GEM
     rspec-mocks (2.13.1)
     slop (3.4.5)
     sqlite3 (1.3.7)
+    stringex (1.5.1)
     thor (0.18.1)
-    tzinfo (0.3.37)
+    uuidtools (2.1.4)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord (= 3.2.9)
-  activerecord-jdbcsqlite3-adapter!
   appraisal
   colored
+  datamapper (>= 1.2.0)
   guard
   guard-rspec
   jdbc-sqlite3
