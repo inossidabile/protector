@@ -12,7 +12,7 @@ shared_examples_for "a model" do
       end
     end
 
-    fields = Hash[*%w(id string number text dummy_id created_at updated_at).map{|x| [x, nil]}.flatten]
+    fields = Hash[*%w(id string number text dummy_id).map{|x| [x, nil]}.flatten]
     meta   = dummy.new.restrict!('!').protector_meta
 
     meta.access[:view].should   == fields
@@ -53,7 +53,7 @@ shared_examples_for "a model" do
       d = dummy.first.restrict!('!')
       d.number.should == nil
       d[:number].should == nil
-      d.read_attribute(:number).should_not == nil
+      read_attribute(d, :number).should_not == nil
       d.string.should == 'zomgstring'
     end
   end
@@ -184,13 +184,13 @@ shared_examples_for "a model" do
 
       it "marks blocked" do
         d = dummy.first
-        d.assign_attributes(string: 'bam', number: 1)
+        assign!(d, string: 'bam', number: 1)
         d.restrict!('!').updatable?.should == false
       end
 
       it "invalidates" do
         d = dummy.first.restrict!('!')
-        d.assign_attributes(string: 'bam', number: 1)
+        assign!(d, string: 'bam', number: 1)
         d.should invalidate
       end
     end
@@ -206,25 +206,25 @@ shared_examples_for "a model" do
 
       it "marks blocked" do
         d = dummy.first
-        d.assign_attributes(string: 'bam', number: 1)
+        assign!(d, string: 'bam', number: 1)
         d.restrict!('!').updatable?.should == false
       end
 
       it "marks allowed" do
         d = dummy.first
-        d.assign_attributes(string: 'bam')
+        assign!(d, string: 'bam')
         d.restrict!('!').updatable?.should == true
       end
 
       it "invalidates" do
         d = dummy.first.restrict!('!')
-        d.assign_attributes(string: 'bam', number: 1)
+        assign!(d, string: 'bam', number: 1)
         d.should invalidate
       end
 
       it "validates" do
         d = dummy.first.restrict!('!')
-        d.assign_attributes(string: 'bam')
+        assign!(d, string: 'bam')
         d.should validate
       end
     end
@@ -240,25 +240,25 @@ shared_examples_for "a model" do
 
       it "marks blocked" do
         d = dummy.first
-        d.assign_attributes(string: 'bam')
+        assign!(d, string: 'bam')
         d.restrict!('!').updatable?.should == false
       end
 
       it "marks allowed" do
         d = dummy.first
-        d.assign_attributes(string: '12345')
+        assign!(d, string: '12345')
         d.restrict!('!').updatable?.should == true
       end
 
       it "invalidates" do
         d = dummy.first.restrict!('!')
-        d.assign_attributes(string: 'bam')
+        assign!(d, string: 'bam')
         d.should invalidate
       end
 
       it "validates" do
         d = dummy.first.restrict!('!')
-        d.assign_attributes(string: '12345')
+        assign!(d, string: '12345')
         d.should validate
       end
     end
@@ -274,25 +274,25 @@ shared_examples_for "a model" do
 
       it "marks blocked" do
         d = dummy.first
-        d.assign_attributes(number: 500)
+        assign!(d, number: 500)
         d.restrict!('!').updatable?.should == false
       end
 
       it "marks allowed" do
         d = dummy.first
-        d.assign_attributes(number: 2)
+        assign!(d, number: 2)
         d.restrict!('!').updatable?.should == true
       end
 
       it "invalidates" do
         d = dummy.first.restrict!('!')
-        d.assign_attributes(number: 500)
+        assign!(d, number: 500)
         d.should invalidate
       end
 
       it "validates" do
         d = dummy.first.restrict!('!')
-        d.assign_attributes(number: 2)
+        assign!(d, number: 2)
         d.should validate
       end
     end
@@ -323,7 +323,8 @@ shared_examples_for "a model" do
         protect do; end
       end
 
-      dummy.first.restrict!('!').destroy.should == false
+      d = dummy.create.restrict!('!')
+      d.should survive
     end
 
     it "validates" do
@@ -331,9 +332,8 @@ shared_examples_for "a model" do
         protect do; can :destroy; end
       end
 
-      d = dummy.create!.restrict!('!')
-      d.destroy.should == d
-      d.destroyed?.should == true
+      d = dummy.create.restrict!('!')
+      d.should destroy
     end
   end
 

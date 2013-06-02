@@ -5,7 +5,7 @@ module Protector
 
       # Single DSL evaluation result
       class Box
-        attr_accessor :access, :relation, :destroyable
+        attr_accessor :access, :scope_proc, :relation, :destroyable
 
         # @param model [Class]              The class of protected entity
         # @param fields [Array<String>]     All the fields the model has
@@ -50,7 +50,8 @@ module Protector
         #     scope { none }
         #   end
         def scope(&block)
-          @relation = @model.instance_eval(&block)
+          @scope_proc = block
+          @relation   = @model.instance_eval(&block)
         end
 
         # Enables action for given fields.

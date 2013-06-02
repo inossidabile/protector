@@ -45,7 +45,12 @@ module Protector
           end
 
           def [](name)
-            if !@protector_subject || name == self.class.primary_key || protector_meta.readable?(name)
+            if (
+              !@protector_subject || 
+              name == self.class.primary_key ||
+              (self.class.primary_key.is_a?(Array) && self.class.primary_key.include?(name)) ||
+              protector_meta.readable?(name)
+            )
               read_attribute(name)
             else
               nil

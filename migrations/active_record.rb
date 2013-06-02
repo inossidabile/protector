@@ -23,7 +23,6 @@ end
     t.integer     :number
     t.text        :text
     t.belongs_to  :dummy
-    t.timestamps
   end
 end
 
