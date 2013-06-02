@@ -1,6 +1,8 @@
 module Protector
   module Adapters
     module ActiveRecord
+      
+      # Pathces `ActiveRecord::Relation`
       module Relation
         extend ActiveSupport::Concern
 
@@ -27,34 +29,47 @@ module Protector
           end
         end
 
+        # Gets {Protector::DSL::Meta::Box} of this relation
         def protector_meta
           # We don't seem to require columns here as well
           # @klass.protector_meta.evaluate(@klass, @protector_subject, @klass.column_names)
           @klass.protector_meta.evaluate(@klass, @protector_subject)
         end
 
+        # @note Unscoped relation drops properties and therefore should be re-restricted
         def unscoped
           super.restrict!(@protector_subject)
         end
 
+        # @note This is here cause `NullRelation` can return `nil` from `count`
         def count(*args)
           super || 0
         end
 
+        # @note This is here cause `NullRelation` can return `nil` from `sum`
         def sum(*args)
           super || 0
         end
 
+        # Merges current relation with restriction and calls real `calculate`
         def calculate(*args)
           return super unless @protector_subject
           merge(protector_meta.relation).unrestrict!.calculate *args
         end
 
+        # Merges current relation with restriction and calls real `exists?`
         def exists?(*args)
           return super unless @protector_subject
           merge(protector_meta.relation).unrestrict!.exists? *args
         end
 
+        # Patches current relation to fulfill restriction and call real `exec_queries`
+        #
+        # Patching includes:
+        #
+        # * turning `includes` into `preload`
+        # * delaying built-in preloading to the stage where selection is restricted
+        # * merging current relation with restriction
         def exec_queries_with_protector(*args)
           return exec_queries_without_protector unless @protector_subject
 
@@ -82,10 +97,8 @@ module Protector
           @records
         end
 
-        #
-        # This method swaps `includes` with `preload` and adds JOINs
-        # to any table referenced from `where` (or manually with `reference`)
-        #
+        # Swaps `includes` with `preload` and adds JOINs to any table referenced
+        # from `where` (or manually with `reference`)
         def protector_substitute_includes(relation)
           subject = @protector_subject
 
@@ -126,10 +139,22 @@ module Protector
           relation
         end
 
-        #
+        # Checks whether current object can be eager loaded respecting
+        # protector flags
+        def eager_loading_with_protector?
+          flag = eager_loading_without_protector?
+          flag &&= !!@eager_loadable_when_protected unless @eager_loadable_when_protected.nil?
+          flag
+        end
+
         # Indexes `includes` format by actual entity class
-        # Turns {foo: :bar} into [[Foo, :foo], [Bar, {foo: :bar}]
         #
+        # Turns `{foo: :bar}` into `[[Foo, :foo], [Bar, {foo: :bar}]`
+        #
+        # @param [Symbol, Array, Hash] inclusion        Inclusion description in the AR format
+        # @param [Array] results                        Resulting set
+        # @param [Array] base                           Association path ([:foo, :bar])
+        # @param [Class] klass                          Base class
         def protector_expand_include(inclusion, results=[], base=[], klass=@klass)
           if inclusion.is_a?(Hash)
             protector_expand_include_hash(inclusion, results, base, klass)
@@ -148,6 +173,8 @@ module Protector
 
           results
         end
+
+      private
 
         def protector_expand_include_hash(inclusion, results=[], base=[], klass=@klass)
           inclusion.each do |key, value|
@@ -168,12 +195,6 @@ module Protector
 
             results << [model, base.inject(key){|a, n| { n => a } }]
           end
-        end
-
-        def eager_loading_with_protector?
-          flag = eager_loading_without_protector?
-          flag &&= !!@eager_loadable_when_protected unless @eager_loadable_when_protected.nil?
-          flag
         end
       end
     end

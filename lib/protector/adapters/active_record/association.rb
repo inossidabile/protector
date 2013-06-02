@@ -1,10 +1,12 @@
 module Protector
   module Adapters
     module ActiveRecord
+      # Patches `ActiveRecord::Associations::SingularAssociation` and `ActiveRecord::Associations::CollectionAssociation`
       module Association
         extend ActiveSupport::Concern
 
         included do
+          # AR 4 has renamed `scoped` to `scope`
           if method_defined?(:scope)
             alias_method_chain :scope, :protector
           else
@@ -13,6 +15,7 @@ module Protector
           end
         end
 
+        # Wraps every association with current subject
         def scope_with_protector(*args)
           scope_without_protector(*args).restrict!(owner.protector_subject)
         end

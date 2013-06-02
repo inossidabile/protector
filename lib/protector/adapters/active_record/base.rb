@@ -1,6 +1,7 @@
 module Protector
   module Adapters
     module ActiveRecord
+      # Pathces `ActiveRecord::Base`
       module Base
         extend ActiveSupport::Concern
 
@@ -27,6 +28,7 @@ module Protector
             destroyable?
           end
 
+          # Drops {Protector::DSL::Meta::Box} cache when subject changes
           def restrict!(*args)
             @protector_meta = nil
             super
@@ -52,6 +54,7 @@ module Protector
         end
 
         module ClassMethods
+          # Wraps every `.field` method with a check against {Protector::DSL::Meta::Box#readable?}
           def define_method_attribute(name)
             super
 
@@ -72,6 +75,7 @@ module Protector
           end
         end
 
+        # Storage for {Protector::DSL::Meta::Box}
         def protector_meta
           unless @protector_subject
             raise "Unprotected entity detected: use `restrict` method to protect it."
@@ -85,22 +89,26 @@ module Protector
           )
         end
 
+        # Checks if current model can be selected in the context of current subject
         def visible?
           protector_meta.relation.where(
             self.class.primary_key => id
           ).any?
         end
 
+        # Checks if current model can be created in the context of current subject
         def creatable?
           fields = HashWithIndifferentAccess[changed.map{|x| [x, read_attribute(x)]}]
           protector_meta.creatable?(fields)
         end
 
+        # Checks if current model can be updated in the context of current subject
         def updatable?
           fields = HashWithIndifferentAccess[changed.map{|x| [x, read_attribute(x)]}]
           protector_meta.updatable?(fields)
         end
 
+        # Checks if current model can be destroyed in the context of current subject
         def destroyable?
           protector_meta.destroyable?
         end

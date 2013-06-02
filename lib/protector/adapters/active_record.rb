@@ -5,7 +5,9 @@ require 'protector/adapters/active_record/preloader'
 
 module Protector
   module Adapters
+    # ActiveRecord adapter
     module ActiveRecord
+      # YIP YIP! Monkey-Patch the ActiveRecord.
       def self.activate!
         ::ActiveRecord::Base.send :include, Protector::Adapters::ActiveRecord::Base
         ::ActiveRecord::Relation.send :include, Protector::Adapters::ActiveRecord::Relation
