@@ -9,6 +9,10 @@ ActiveRecord::Base.instance_eval do
       where('1 = 0')
     end
   end
+
+  def every
+    where(nil)
+  end
 end
 
 ### Tables
