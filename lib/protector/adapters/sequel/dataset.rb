@@ -47,7 +47,9 @@ module Protector
 
           if @opts[:eager_graph]
             @opts[:eager_graph][:reflections].each do |k,v|
-              model = v[:cache][:class] || v[:class_name].constantize
+
+              model = v[:cache][:class] if v[:cache].is_a?(Hash) && v[:cache][:class]
+              model = v[:class_name].constantize unless model
               meta  = model.protector_meta.evaluate(model, subject)
 
               relation = relation.instance_eval(&meta.scope_proc) if meta.scoped?

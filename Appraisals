@@ -9,12 +9,7 @@ appraise "AR_4" do
 end
 
 appraise "Sequel" do
-  gem "sequel", ">= 3.48.0", path: '../../sequel'
-  gem "jdbc-sqlite3", require: "jdbc/sqlite3"
-end
-
-appraise "DM" do
-  gem "datamapper", ">= 1.2.0"
+  gem "sequel", "3.30.0"
   gem "jdbc-sqlite3", require: "jdbc/sqlite3"
 end
 

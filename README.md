@@ -10,12 +10,13 @@ Protector is a Ruby ORM extension for managing security restrictions on a field 
 Currently Protector supports the following ORM adapters:
 
   * [ActiveRecord](http://guides.rubyonrails.org/active_record_querying.html) (>= 3.2.9)
+  * [Sequel](http://sequel.rubyforge.org/) (>= 3.30.0)
 
 We are working hard to extend the list with:
 
-  * [Sequel](http://sequel.rubyforge.org/)
-  * [DataMapper](http://datamapper.org/)
   * [Mongoid](http://mongoid.org/en/mongoid/index.html)
+  * [ROM](https://github.com/rom-rb/rom)
+  * [DataMapper](http://datamapper.org/) (its undead so it might be skipped)
 
 ## Basics
 

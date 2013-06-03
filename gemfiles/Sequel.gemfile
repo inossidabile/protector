@@ -11,7 +11,7 @@ gem "guard-rspec"
 gem "appraisal"
 gem "sqlite3", :platform=>:ruby
 gem "coveralls", :require=>false
-gem "sequel", ">= 3.48.0", :path=>"../../sequel"
+gem "sequel", "3.30.0"
 gem "jdbc-sqlite3", :require=>"jdbc/sqlite3"
 
 gemspec :path=>"../"
