@@ -1,5 +1,6 @@
 # Protector
 
+[![Gem Version](https://badge.fury.io/rb/protector.png)](http://badge.fury.io/rb/protector)
 [![Build Status](https://travis-ci.org/inossidabile/protector.png?branch=master)](https://travis-ci.org/inossidabile/protector)
 [![Code Climate](https://codeclimate.com/github/inossidabile/protector.png)](https://codeclimate.com/github/inossidabile/protector)
 

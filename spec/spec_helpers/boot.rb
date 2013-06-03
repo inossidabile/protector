@@ -1,5 +1,8 @@
 Bundler.require
 
+require 'coveralls'
+Coveralls.wear!
+
 require 'protector'
 require_relative 'examples/model'
 

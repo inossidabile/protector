@@ -100,6 +100,63 @@ if defined?(Sequel)
         end
       end
     end
+
+    #
+    # Eager loading
+    #
+    describe Protector::Adapters::Sequel::Dataset do
+      describe "eager loading" do
+        log!
+
+        context "straight" do
+          it "scopes" do
+            d = Dummy.restrict!('+').eager(:fluffies)
+            d.count.should == 2
+            d.first.fluffies.length.should == 1
+          end
+
+          pending do
+            context "joined to filtered association" do
+              it "scopes" do
+                d = Dummy.restrict!('+').eager(:fluffies).where(fluffies: {number: 777})
+                d.count.should == 2
+                d.first.fluffies.length.should == 1
+              end
+            end
+
+            context "joined to plain association" do
+              it "scopes" do
+                d = Dummy.restrict!('+').eager(:bobbies, :fluffies).where(
+                  bobbies: {number: 777}, fluffies: {number: 777}
+                )
+                d.count.should == 2
+                d.first.fluffies.length.should == 1
+                d.first.bobbies.length.should == 1
+              end
+            end
+
+            context "with complex include" do
+              it "scopes" do
+                d = Dummy.restrict!('+').eager(fluffies: :loony).where(
+                  fluffies: {number: 777},
+                  loonies: {string: 'zomgstring'}
+                )
+                d.count.should == 2
+                d.first.fluffies.length.should == 1
+                d.first.fluffies.first.loony.should be_a_kind_of(Loony)
+              end
+            end
+          end
+        end
+
+        context "graph" do
+          it "scopes" do
+            d = Dummy.eager_graph(:fluffies)
+            d.first.fluffies.length.should == 1
+          end
+        end
+      end
+    end
   end
 
 end

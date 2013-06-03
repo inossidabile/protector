@@ -12,3 +12,5 @@ gem 'appraisal'
 
 gem 'sqlite3', platform: :ruby
 gem 'jdbc-sqlite3', platform: :jruby
+
+gem 'coveralls', require: false
