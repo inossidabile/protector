@@ -1,6 +1,7 @@
 ### Connection
 
 DB = if RUBY_PLATFORM == 'java'
+  Jdbc::SQLite3.load_driver
   Sequel.connect('jdbc:sqlite::memory:')
 else
   Sequel.sqlite

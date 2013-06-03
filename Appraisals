@@ -10,7 +10,6 @@ end
 
 appraise "Sequel" do
   gem "sequel", "3.30.0"
-  gem "jdbc-sqlite3", require: "jdbc/sqlite3"
 end
 
 # appraise "Mongoid" do

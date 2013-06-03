@@ -11,6 +11,6 @@ gem 'guard-rspec'
 gem 'appraisal'
 
 gem 'sqlite3', platform: :ruby
-gem 'jdbc-sqlite3', platform: :jruby
+gem 'jdbc-sqlite3', platform: :jruby, require: 'jdbc/sqlite3'
 
 gem 'coveralls', require: false
