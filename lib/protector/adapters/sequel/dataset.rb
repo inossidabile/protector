@@ -47,7 +47,6 @@ module Protector
 
           if @opts[:graph]
             graph_each do |r|
-              r = restrict!()
               yield r
             end
           else

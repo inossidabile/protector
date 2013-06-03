@@ -6,19 +6,6 @@ Coveralls.wear!
 require 'protector'
 require_relative 'examples/model'
 
-module ProtectionCase
-  extend ActiveSupport::Concern
-
-  included do
-    protect do |x|
-      scope{ where('1=0') } if x == '-'
-      scope{ where(number: 999) } if x == '+' 
-
-      can :view, :dummy_id unless x == '-'
-    end
-  end
-end
-
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
   config.run_all_when_everything_filtered = true

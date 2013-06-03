@@ -6,13 +6,6 @@ GIT
       activerecord-jdbc-adapter (~> 1.3.0.DEV)
       jdbc-sqlite3 (~> 3.7.2)
 
-PATH
-  remote: /Users/inossidabile/Repos/protector
-  specs:
-    protector (0.1.1)
-      activesupport
-      i18n
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -123,7 +116,6 @@ DEPENDENCIES
   guard
   guard-rspec
   jdbc-sqlite3
-  protector!
   pry
   rake
   rspec

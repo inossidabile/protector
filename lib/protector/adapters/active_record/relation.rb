@@ -9,9 +9,6 @@ module Protector
           include Protector::DSL::Base
 
           alias_method_chain :exec_queries, :protector
-          alias_method_chain :eager_loading?, :protector
-
-          attr_accessor :eager_loadable_when_protected
 
           # AR 3.2 workaround. Come on, guys... SQL parsing :(
           unless method_defined?(:references_values)
@@ -66,20 +63,15 @@ module Protector
         #
         # Patching includes:
         #
-        # * turning `includes` into `preload`
+        # * turning `includes` (that are not referenced for eager loading) into `preload`
         # * delaying built-in preloading to the stage where selection is restricted
-        # * merging current relation with restriction
+        # * merging current relation with restriction (of self and every eager association)
         def exec_queries_with_protector(*args)
           return exec_queries_without_protector unless @protector_subject
 
           subject  = @protector_subject
           relation = merge(protector_meta.relation).unrestrict!
-
           relation = protector_substitute_includes(relation)
-
-          # We should explicitly allow/deny eager loading now that we know
-          # if we can use it
-          relation.eager_loadable_when_protected = relation.includes_values.any?
 
           # Preserve associations from internal loading. We are going to handle that
           # ourselves respecting security scopes FTW!
@@ -96,54 +88,19 @@ module Protector
           @records
         end
 
-        # Swaps `includes` with `preload` and adds JOINs to any table referenced
-        # from `where` (or manually with `reference`)
+        # Swaps `includes` with `preload` whether it's not referenced or merges
+        # security scope of proper class otherwise
         def protector_substitute_includes(relation)
-          subject = @protector_subject
-
-          # Note that `includes_values` shares reference across relation diffs so
-          # it can not be modified safely and should be copied instead
-          includes, relation.includes_values = relation.includes_values, []
-
-          # We can not allow join-based eager loading for scoped associations
-          # since actual filtering can differ for host model and joined relation.
-          # Therefore we turn all `includes` into `preloads`.
-          includes.each do |iv|
-            protector_expand_include(iv).each do |ive|
-              # First-level associations can stay JOINed if restriction scope
-              # is absent. Checking deep associations would make us to check
-              # every parent. This should probably be done sometimes :\
-              meta = ive[0].protector_meta.evaluate(ive[0], subject) unless ive[1].is_a?(Hash)
-
-              # We leave unscoped restrictions as `includes`
-              # but turn scoped ones into `preloads`
-              if meta && !meta.scoped?
-                relation.includes!(ive[1])
-              else
-                if relation.references_values.include?(ive[0].table_name)
-                  if relation.respond_to?(:joins!)
-                    relation.joins!(ive[1])
-                  else
-                    relation = relation.joins(ive[1])
-                  end
-                end
-
-                # AR 3.2 Y U NO HAVE BANG RELATION MODIFIERS
-                relation.preload_values << ive[1]
-                false
-              end
+          if eager_loading?
+            protector_expand_inclusion(includes_values + eager_load_values).each do |klass, path|
+              relation = relation.merge(klass.protector_meta.evaluate(klass, subject).relation)
             end
+          else
+            relation.preload_values += includes_values
+            relation.includes_values = []
           end
 
           relation
-        end
-
-        # Checks whether current object can be eager loaded respecting
-        # protector flags
-        def eager_loading_with_protector?
-          flag = eager_loading_without_protector?
-          flag &&= !!@eager_loadable_when_protected unless @eager_loadable_when_protected.nil?
-          flag
         end
 
         # Indexes `includes` format by actual entity class
@@ -154,13 +111,13 @@ module Protector
         # @param [Array] results                        Resulting set
         # @param [Array] base                           Association path ([:foo, :bar])
         # @param [Class] klass                          Base class
-        def protector_expand_include(inclusion, results=[], base=[], klass=@klass)
+        def protector_expand_inclusion(inclusion, results=[], base=[], klass=@klass)
           if inclusion.is_a?(Hash)
-            protector_expand_include_hash(inclusion, results, base, klass)
+            protector_expand_inclusion_hash(inclusion, results, base, klass)
           else
             Array(inclusion).each do |i|
               if i.is_a?(Hash)
-                protector_expand_include_hash(i, results, base, klass)
+                protector_expand_inclusion_hash(i, results, base, klass)
               else
                 results << [
                   klass.reflect_on_association(i.to_sym).klass,
@@ -175,7 +132,7 @@ module Protector
 
       private
 
-        def protector_expand_include_hash(inclusion, results=[], base=[], klass=@klass)
+        def protector_expand_inclusion_hash(inclusion, results=[], base=[], klass=@klass)
           inclusion.each do |key, value|
             model = klass.reflect_on_association(key.to_sym).klass
             value = [value] unless value.is_a?(Array)
@@ -183,7 +140,7 @@ module Protector
 
             value.each do |v|
               if v.is_a?(Hash)
-                protector_expand_include_hash(v, results, nest)
+                protector_expand_inclusion_hash(v, results, nest)
               else
                 results << [
                   model.reflect_on_association(v.to_sym).klass,

@@ -7,6 +7,19 @@ if defined?(ActiveRecord)
     before(:all) do
       load 'migrations/active_record.rb'
 
+      module ProtectionCase
+        extend ActiveSupport::Concern
+
+        included do |klass|
+          protect do |x|
+            scope{ where('1=0') } if x == '-'
+            scope{ where(klass.table_name => {number: 999}) } if x == '+' 
+
+            can :view, :dummy_id unless x == '-'
+          end
+        end
+      end
+
       [Dummy, Fluffy].each{|c| c.send :include, ProtectionCase}
 
       Dummy.create! string: 'zomgstring', number: 999, text: 'zomgtext'
@@ -127,7 +140,7 @@ if defined?(ActiveRecord)
 
         context "joined to filtered association" do
           it "scopes" do
-            d = Dummy.restrict!('+').includes(:fluffies).where(fluffies: {number: 777})
+            d = Dummy.restrict!('+').includes(:fluffies).where(fluffies: {string: 'zomgstring'})
             d.length.should == 2
             d.first.fluffies.length.should == 1
           end
@@ -136,18 +149,18 @@ if defined?(ActiveRecord)
         context "joined to plain association" do
           it "scopes" do
             d = Dummy.restrict!('+').includes(:bobbies, :fluffies).where(
-              bobbies: {number: 777}, fluffies: {number: 777}
+              bobbies: {string: 'zomgstring'}, fluffies: {string: 'zomgstring'}
             )
             d.length.should == 2
             d.first.fluffies.length.should == 1
-            d.first.bobbies.length.should == 1
+            d.first.bobbies.length.should == 2
           end
         end
 
         context "with complex include" do
           it "scopes" do
             d = Dummy.restrict!('+').includes(fluffies: :loony).where(
-              fluffies: {number: 777},
+              fluffies: {string: 'zomgstring'},
               loonies: {string: 'zomgstring'}
             )
             d.length.should == 2

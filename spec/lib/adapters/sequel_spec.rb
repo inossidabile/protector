@@ -7,6 +7,19 @@ if defined?(Sequel)
     before(:all) do
       load 'migrations/sequel.rb'
 
+      module ProtectionCase
+        extend ActiveSupport::Concern
+
+        included do |klass|
+          protect do |x|
+            scope{ where('1=0') } if x == '-'
+            scope{ where("#{klass.table_name}__number".to_sym => 999) } if x == '+' 
+
+            can :view, :dummy_id unless x == '-'
+          end
+        end
+      end
+
       [Dummy, Fluffy].each{|c| c.send :include, ProtectionCase}
 
       Dummy.create string: 'zomgstring', number: 999, text: 'zomgtext'
@@ -73,7 +86,13 @@ if defined?(Sequel)
           Dummy.restrict!('-').count.should == 0
         end
 
-        it "fetches" do
+        context do
+          it "fetches first" do
+            Dummy.restrict!('-').first.should == nil
+          end
+        end
+
+        it "fetches all" do
           fetched = Dummy.restrict!('-').to_a
 
           Dummy.count.should == 4
@@ -92,7 +111,11 @@ if defined?(Sequel)
           Dummy.restrict!('+').count.should == 2
         end
 
-        it "fetches" do
+        it "fetches first" do
+          Dummy.restrict!('+').first.should be_a_kind_of Dummy
+        end
+
+        it "fetches all" do
           fetched = Dummy.restrict!('+').to_a
 
           Dummy.count.should == 4
@@ -106,7 +129,6 @@ if defined?(Sequel)
     #
     describe Protector::Adapters::Sequel::Dataset do
       describe "eager loading" do
-        log!
 
         context "straight" do
           it "scopes" do
@@ -114,45 +136,14 @@ if defined?(Sequel)
             d.count.should == 2
             d.first.fluffies.length.should == 1
           end
-
-          pending do
-            context "joined to filtered association" do
-              it "scopes" do
-                d = Dummy.restrict!('+').eager(:fluffies).where(fluffies: {number: 777})
-                d.count.should == 2
-                d.first.fluffies.length.should == 1
-              end
-            end
-
-            context "joined to plain association" do
-              it "scopes" do
-                d = Dummy.restrict!('+').eager(:bobbies, :fluffies).where(
-                  bobbies: {number: 777}, fluffies: {number: 777}
-                )
-                d.count.should == 2
-                d.first.fluffies.length.should == 1
-                d.first.bobbies.length.should == 1
-              end
-            end
-
-            context "with complex include" do
-              it "scopes" do
-                d = Dummy.restrict!('+').eager(fluffies: :loony).where(
-                  fluffies: {number: 777},
-                  loonies: {string: 'zomgstring'}
-                )
-                d.count.should == 2
-                d.first.fluffies.length.should == 1
-                d.first.fluffies.first.loony.should be_a_kind_of(Loony)
-              end
-            end
-          end
         end
 
         context "graph" do
+          log!
+
           it "scopes" do
-            d = Dummy.eager_graph(:fluffies)
-            d.first.fluffies.length.should == 1
+            d = Dummy.restrict!('+').eager_graph(:fluffies)
+            binding.pry
           end
         end
       end
