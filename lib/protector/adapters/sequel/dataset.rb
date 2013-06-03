@@ -5,10 +5,14 @@ module Protector
       module Dataset
         extend ActiveSupport::Concern
 
+        # Wrapper for the Dataset `row_proc` adding restriction function
         class Restrictor
           attr_accessor :subject
           attr_accessor :mutator
 
+          # Mutate entity through `row_proc` if available and then protect
+          #
+          # @param entity [Object]          Entity coming from Dataset
           def call(entity)
             entity = mutator.call(entity) if mutator
             return entity if !entity.respond_to?(:restrict!)
@@ -27,6 +31,9 @@ module Protector
           model.protector_meta.evaluate(model, @protector_subject)
         end
 
+        # Sets up an instance of {Restrictor}
+        #
+        # @param mutator [Proc]               Current value of `@row_proc`
         def protector_restrictor(mutator)
           @protector_restrictor ||= Restrictor.new
           @protector_restrictor.subject = @protector_subject
@@ -34,6 +41,7 @@ module Protector
           @protector_restrictor
         end
 
+        # Substitutes `row_proc` with {Protector} and injects protection scope
         def each_with_protector(*args, &block)
           row_proc = @protector_subject ? protector_restrictor(@row_proc) : @row_proc
 

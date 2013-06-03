@@ -1,7 +1,7 @@
 module Protector
   module Adapters
     module Sequel
-      # Pathces `Sequel::Model`
+      # Patches `Sequel::Model`
       module Model
         extend ActiveSupport::Concern
 
@@ -17,6 +17,7 @@ module Protector
         end
 
         module ClassMethods
+          # Gets default restricted `Dataset`
           def restrict!(subject)
             dataset.clone.restrict! subject
           end
@@ -58,6 +59,7 @@ module Protector
           protector_meta.destroyable?
         end
 
+        # Basic security validations
         def validate
           super
           return unless @protector_subject
@@ -65,11 +67,15 @@ module Protector
           errors.add(:base, I18n.t('protector.invalid')) unless __send__(method)
         end
 
+        # Destroy availability check
         def before_destroy
           return false if @protector_subject && !destroyable?
           super
         end
 
+        # Security-checking attributes reader
+        #
+        # @param name [Symbol]          Name of attribute to read
         def [](name)
           if (
             !@protector_subject || 
@@ -83,10 +89,12 @@ module Protector
           end
         end
 
+        # This is used whenever we fetch data
         def _associated_dataset(*args)
           super.restrict!(@protector_subject)
         end
 
+        # This is used whenever we call counters and existance checkers
         def _dataset(*args)
           super.restrict!(@protector_subject)
         end

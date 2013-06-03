@@ -1,7 +1,7 @@
 module Protector
   module Adapters
     module ActiveRecord
-      # Pathces `ActiveRecord::Base`
+      # Patches `ActiveRecord::Base`
       module Base
         extend ActiveSupport::Concern
 
@@ -9,8 +9,8 @@ module Protector
           include Protector::DSL::Base
           include Protector::DSL::Entry
 
-          ObjectSpace.each_object(Class).each do |c|
-            c.undefine_attribute_methods if c < self
+          ObjectSpace.each_object(Class).each do |klass|
+            klass.undefine_attribute_methods if klass < self
           end
 
           validate(on: :create) do
