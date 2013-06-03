@@ -1,7 +1,7 @@
 Bundler.require
 
 require 'coveralls'
-Coveralls.wear!
+Coveralls.wear! if Coveralls.should_run?
 
 require 'protector'
 require_relative 'examples/model'

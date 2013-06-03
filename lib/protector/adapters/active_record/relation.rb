@@ -91,6 +91,8 @@ module Protector
         # Swaps `includes` with `preload` whether it's not referenced or merges
         # security scope of proper class otherwise
         def protector_substitute_includes(relation)
+          subject = @protector_subject
+
           if eager_loading?
             protector_expand_inclusion(includes_values + eager_load_values).each do |klass, path|
               relation = relation.merge(klass.protector_meta.evaluate(klass, subject).relation)

@@ -15,3 +15,4 @@ gem "coveralls", :require=>false
 gem "activerecord", "4.0.0.rc1", :require=>"active_record"
 gem "activerecord-jdbcsqlite3-adapter", :platform=>:jruby, :github=>"jruby/activerecord-jdbc-adapter"
 
+gemspec :path=>"../"

@@ -11,8 +11,7 @@ gem "guard-rspec"
 gem "appraisal"
 gem "sqlite3", :platform=>:ruby
 gem "coveralls", :require=>false
-gem "activerecord", "4.0.0.rc1", :require=>"active_record"
-gem "activerecord-jdbcsqlite3-adapter", :platform=>:jruby, :github=>"jruby/activerecord-jdbc-adapter"
-gem "sequel", ">= 3.48.0"
+gem "sequel", ">= 3.48.0", :path=>"../../sequel"
 gem "jdbc-sqlite3", :require=>"jdbc/sqlite3"
 
+gemspec :path=>"../"

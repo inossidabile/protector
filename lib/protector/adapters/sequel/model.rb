@@ -2,8 +2,7 @@ module Protector
   module Adapters
     module Sequel
       # Patches `Sequel::Model`
-      module Model
-        extend ActiveSupport::Concern
+      module Model extend ActiveSupport::Concern
 
         included do
           include Protector::DSL::Base

@@ -2,13 +2,17 @@ module Protector
   module Adapters
     module Sequel
       # Patches `Sequel::Dataset`
-      module Dataset
-        extend ActiveSupport::Concern
+      module Dataset extend ActiveSupport::Concern
 
         # Wrapper for the Dataset `row_proc` adding restriction function
         class Restrictor
           attr_accessor :subject
           attr_accessor :mutator
+
+          def initialize(subject, mutator)
+            @subject = subject
+            @mutator = mutator
+          end
 
           # Mutate entity through `row_proc` if available and then protect
           #
@@ -20,7 +24,7 @@ module Protector
           end
         end
 
-        included do
+        included do |klass|
           include Protector::DSL::Base
 
           alias_method_chain :each, :protector
@@ -31,33 +35,27 @@ module Protector
           model.protector_meta.evaluate(model, @protector_subject)
         end
 
-        # Sets up an instance of {Restrictor}
-        #
-        # @param mutator [Proc]               Current value of `@row_proc`
-        def protector_restrictor(mutator)
-          @protector_restrictor ||= Restrictor.new
-          @protector_restrictor.subject = @protector_subject
-          @protector_restrictor.mutator = mutator
-          @protector_restrictor
-        end
-
         # Substitutes `row_proc` with {Protector} and injects protection scope
         def each_with_protector(*args, &block)
-          row_proc = @protector_subject ? protector_restrictor(@row_proc) : @row_proc
+          if !@protector_subject
+            return each_without_protector(*args, &block)
+          end
 
-          if @opts[:graph]
-            graph_each do |r|
-              yield r
-            end
-          else
-            if !@protector_subject || !protector_meta.scoped?
-              fetch_rows(select_sql){|r| yield row_proc ? row_proc.call(r) : r}
-            else
-              dataset = clone.instance_eval(&protector_meta.scope_proc)
-              dataset.fetch_rows(dataset.select_sql){|r| yield row_proc ? row_proc.call(r) : r}
+          subject  = @protector_subject
+          relation = clone
+          relation = relation.instance_eval(&protector_meta.scope_proc) if protector_meta.scoped?
+
+          if @opts[:eager_graph]
+            @opts[:eager_graph][:reflections].each do |k,v|
+              model = v[:cache][:class] || v[:class_name].constantize
+              meta  = model.protector_meta.evaluate(model, subject)
+
+              relation = relation.instance_eval(&meta.scope_proc) if meta.scoped?
             end
           end
-          self
+
+          relation.row_proc = Restrictor.new(@protector_subject, relation.row_proc)
+          relation.each_without_protector(*args, &block)
         end
       end
     end

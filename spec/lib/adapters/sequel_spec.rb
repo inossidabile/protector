@@ -73,6 +73,7 @@ if defined?(Sequel)
       it "forwards subject" do
         Dummy.restrict!('!').where(number: 999).first.protector_subject.should == '!'
         Dummy.restrict!('!').where(number: 999).to_a.first.protector_subject.should == '!'
+        Dummy.restrict!('!').eager_graph(fluffies: :loony).all.first.fluffies.first.loony.protector_subject.should == '!'
       end
 
       context "with null relation" do
@@ -139,11 +140,13 @@ if defined?(Sequel)
         end
 
         context "graph" do
-          log!
-
           it "scopes" do
-            d = Dummy.restrict!('+').eager_graph(:fluffies)
-            binding.pry
+            d = Dummy.restrict!('+').eager_graph(fluffies: :loony)
+            d.count.should == 4
+            d = d.all
+            d.length.should == 2 # which is terribly sick :doh:
+            d.first.fluffies.length.should == 1
+            d.first.fluffies.first.loony.should be_a_kind_of Loony
           end
         end
       end
