@@ -120,30 +120,7 @@ Remember however that auto-restriction is only enabled for reading. Passing a mo
 
 ## Eager Loading
 
-To take a long story short: it works and you are very likely to never notice changes it introduces to the process. But it might behave unexpected (yet mathematically correct) in complex cases.
-
-Eager Loading has 2 possible strategies: JOINs and additional requests. Whenever you mark an association to preload and at the same time use this relation among `where` clause – ORMs prefer JOIN. Otherwise it goes with additional requests.
-
-```ruby
-Foo.includes(:bars)                                  # This will make 2 queries
-Foo.includes(:bars).where(bars: {absolute: true})    # This will make 1 big JOINfull query
-```
-
-The problem here is that JOIN strategy makes restriction scopes overlap. With the following query:
-
-```ruby
-Foo.restrict!(current_user).includes(:bars).where(bars: {absolute: true})
-```
-
-we can appear in the situation where `foos` and `bars` relations are having different restrictions scopes. In this case JOIN will filter by an intersection of scopes which is important to understand. You might not get all `Foo` entries you expect with such where clause since they might appear filtered out by the restriction scope of `Bar`.
-
-If you don't want `Bar` scope to affect `Foo` selection, you can modify the query as follows:
-
-```ruby
-Foo.restrict!(current_user).preload(:bars).join(:bars).where(bars: {absolute: true})
-```
-
-Such chain will force the usage of an additional request so the first query will not be scoped with `Bar` restriction.
+Both of eager loading strategies (separate query and JOIN) are fully supported.
 
 ## Manual checks and custom actions
 
