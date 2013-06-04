@@ -34,6 +34,7 @@ module Protector
 
         # Checks if current model can be selected in the context of current subject
         def visible?
+          return true unless protector_meta.scoped?
           protector_meta.relation.where(pk_hash).any?
         end
 
@@ -52,6 +53,10 @@ module Protector
         # Checks if current model can be destroyed in the context of current subject
         def destroyable?
           protector_meta.destroyable?
+        end
+
+        def can?(action, field)
+          protector_meta.can?(action, field)
         end
 
         # Basic security validations

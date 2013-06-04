@@ -62,6 +62,8 @@ Now that we have ACL described we can enable it as easy as:
 article.restrict!(current_user)    # Assuming article is an instance of Article
 ```
 
+Now if `current_user` is a guest we will get `nil` from `article.text`. At the same time we will get validation error if we pass any fields but title, text and user_id (equal to our own id) on creation.
+
 To make model unsafe again call:
 
 ```ruby
@@ -142,6 +144,33 @@ Foo.restrict!(current_user).preload(:bars).join(:bars).where(bars: {absolute: tr
 ```
 
 Such chain will force the usage of an additional request so the first query will not be scoped with `Bar` restriction.
+
+## Manual checks and custom actions
+
+Each restricted model responds to the following methods:
+
+* `visible?` – determines if the model is visible through restriction scope
+* `creatable?` – determines if you pass validation on creation with the fields you set
+* `updateable?` – determines if you pass validation on update with the fields you changed
+* `destroyable?` – determines if you can destroy the model
+
+In fact Protector does not limit you to `:view`, `:update` and `:create` actions. They are just used internally. You however can define any other to make custom roles and restrictions. All of them are able to work on a field level.
+
+```ruby
+protect do
+  can :drink, :field1         # Allows `drink` action with field1
+  can :eat                    # Allows `eat` action with any field
+end
+```
+
+To check against custom actions use `can?` method:
+
+```ruby
+model.can?(:drink, :field2)   # Checks if model can drink field2
+model.can?(:drink)            # Checks if model can drink any field
+```
+
+As you can see you don't have to use fields. You can use `can :foo` and `can? :foo`. While they will bound to fields internally it will work like you expect for empty sets.
 
 ## Ideology
 

@@ -41,75 +41,101 @@ describe Protector::DSL do
   end
 
   describe Protector::DSL::Meta do
-    l = lambda {|x| x > 4 }
+    context "basic methods" do
+      l = lambda {|x| x > 4 }
 
-    before :each do
-      @meta = Protector::DSL::Meta.new
+      before :each do
+        @meta = Protector::DSL::Meta.new
 
-      @meta << lambda {
-        scope { 'relation' }
-      }
+        @meta << lambda {
+          scope { 'relation' }
+        }
 
-      @meta << lambda {|user|
-        user.should  == 'user'
+        @meta << lambda {|user|
+          user.should  == 'user'
 
-        can    :view
-        cannot :view, %w(field5), :field4
-      }
+          can    :view
+          cannot :view, %w(field5), :field4
+        }
 
-      @meta << lambda {|user, entry|
-        user.should  == 'user'
-        entry.should == 'entry'
+        @meta << lambda {|user, entry|
+          user.should  == 'user'
+          entry.should == 'entry'
 
-        can :update, %w(field1 field2 field3),
-          field4: 0..5,
-          field5: l
+          can :update, %w(field1 field2 field3),
+            field4: 0..5,
+            field5: l
 
-        can :destroy
-      }
+          can :destroy
+        }
+      end
+
+      it "evaluates" do
+        @meta.evaluate(nil, 'user', [], 'entry')
+      end
+
+      it "sets relation" do
+        data = @meta.evaluate(nil, 'user', [], 'entry')
+        data.relation.should == 'relation'
+      end
+
+      it "sets access" do
+        data = @meta.evaluate(nil, 'user', %w(field1 field2 field3 field4 field5), 'entry')
+        data.access.should == {
+          update: {
+            "field1" => nil,
+            "field2" => nil,
+            "field3" => nil,
+            "field4" => 0..5,
+            "field5" => l
+          },
+          view: {
+            "field1" => nil,
+            "field2" => nil,
+            "field3" => nil
+          },
+          create: {}
+        }
+      end
+
+      it "marks destroyable" do
+        data = @meta.evaluate(nil, 'user', [], 'entry')
+        data.destroyable?.should == true
+      end
+
+      it "marks updatable" do
+        data = @meta.evaluate(nil, 'user', [], 'entry')
+        data.updatable?.should == true
+      end
+
+      it "marks creatable" do
+        data = @meta.evaluate(nil, 'user', [], 'entry')
+        data.creatable?.should == false
+      end
     end
 
-    it "evaluates" do
-      @meta.evaluate(nil, 'user', [], 'entry')
-    end
+    context "custom methods" do
+      before :each do
+        @meta = Protector::DSL::Meta.new
 
-    it "sets relation" do
-      data = @meta.evaluate(nil, 'user', [], 'entry')
-      data.relation.should == 'relation'
-    end
+        @meta << lambda {
+          can :drink, :field1
+          can :eat
+          cannot :eat, :field1
+        }
+      end
 
-    it "sets access" do
-      data = @meta.evaluate(nil, 'user', %w(field1 field2 field3 field4 field5), 'entry')
-      data.access.should == {
-        update: {
-          "field1" => nil,
-          "field2" => nil,
-          "field3" => nil,
-          "field4" => 0..5,
-          "field5" => l
-        },
-        view: {
-          "field1" => nil,
-          "field2" => nil,
-          "field3" => nil
-        },
-        create: {}
-      }
-    end
+      it "sets field-level restriction" do
+        box = @meta.evaluate(nil, 'user', %w(field1 field2), 'entry')
+        box.can?(:drink, :field1).should == true
+        box.can?(:drink).should == true
+      end
 
-    it "marks destroyable" do
-      data = @meta.evaluate(nil, 'user', [], 'entry')
-      data.destroyable?.should == true
-    end
-
-    it "marks updatable" do
-      data = @meta.evaluate(nil, 'user', [], 'entry')
-      data.updatable?.should == true
-    end
-
-    it "marks creatable" do
-      data = @meta.evaluate(nil, 'user', [], 'entry')
-      data.creatable?.should == false
+      it "sets field-level protection" do
+        box = @meta.evaluate(nil, 'user', %w(field1 field2), 'entry')
+        box.can?(:eat, :field1).should == false
+        box.can?(:eat).should == true
+      end
     end
   end
 end

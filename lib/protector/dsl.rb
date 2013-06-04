@@ -156,7 +156,7 @@ module Protector
         def can?(action, field=false)
           return false unless @access[action]
           return !@access[action].empty? if field === false
-          @access[action].has_key?(field)
+          @access[action].has_key?(field.to_s)
         end
 
         private
