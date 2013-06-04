@@ -96,13 +96,13 @@ module Protector
 
         # Checks if current model can be created in the context of current subject
         def creatable?
-          fields = HashWithIndifferentAccess[changed.map{|x| [x, read_attribute(x)]}]
+          fields = HashWithIndifferentAccess[changed.map{|field| [field, read_attribute(field)]}]
           protector_meta.creatable?(fields)
         end
 
         # Checks if current model can be updated in the context of current subject
         def updatable?
-          fields = HashWithIndifferentAccess[changed.map{|x| [x, read_attribute(x)]}]
+          fields = HashWithIndifferentAccess[changed.map{|field| [field, read_attribute(field)]}]
           protector_meta.updatable?(fields)
         end
 

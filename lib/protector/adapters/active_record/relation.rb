@@ -78,11 +78,11 @@ module Protector
           # ourselves respecting security scopes FTW!
           associations, relation.preload_values = relation.preload_values, []
 
-          @records = relation.send(:exec_queries).each{|r| r.restrict!(subject)}
+          @records = relation.send(:exec_queries).each{|record| record.restrict!(subject)}
 
           # Now we have @records restricted properly so let's preload associations!
-          associations.each do |a|
-            ::ActiveRecord::Associations::Preloader.new(@records, a).run
+          associations.each do |association|
+            ::ActiveRecord::Associations::Preloader.new(@records, association).run
           end
 
           @loaded = true

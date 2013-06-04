@@ -37,15 +37,11 @@ module Protector
 
         # Substitutes `row_proc` with {Protector} and injects protection scope
         def each_with_protector(*args, &block)
-          if !@protector_subject
-            return each_without_protector(*args, &block)
-          end
+          return each_without_protector(*args, &block) if !@protector_subject
 
-          subject  = @protector_subject
           relation = clone
           relation = relation.instance_eval(&protector_meta.scope_proc) if protector_meta.scoped?
-
-          protector_defend_graph(relation) if @opts[:eager_graph]
+          relation = protector_defend_graph(relation) if @opts[:eager_graph]
 
           relation.row_proc = Restrictor.new(@protector_subject, relation.row_proc)
           relation.each_without_protector(*args, &block)
@@ -53,10 +49,12 @@ module Protector
 
         # Injects protection scope for every joined graph association
         def protector_defend_graph(relation)
-          @opts[:eager_graph][:reflections].each do |k,v|
+          subject = @protector_subject
 
-            model = v[:cache][:class] if v[:cache].is_a?(Hash) && v[:cache][:class]
-            model = v[:class_name].constantize unless model
+          @opts[:eager_graph][:reflections].each do |association, reflection|
+
+            model = reflection[:cache][:class] if reflection[:cache].is_a?(Hash) && reflection[:cache][:class]
+            model = reflection[:class_name].constantize unless model
             meta  = model.protector_meta.evaluate(model, subject)
 
             relation = relation.instance_eval(&meta.scope_proc) if meta.scoped?
