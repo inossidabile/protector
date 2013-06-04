@@ -199,6 +199,8 @@ module Protector
       # @param fields [Array<String>]     All the fields the model has
       # @param entry [Object]             An instance of the model
       def evaluate(model, subject, fields=[], entry=nil)
+        raise "Unprotected entity detected: use `restrict` method to protect it." unless subject
+
         Box.new(model, fields, subject, entry, blocks)
       end
     end

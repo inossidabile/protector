@@ -13,14 +13,11 @@ module Protector
             klass.undefine_attribute_methods if klass < self
           end
 
-          validate(on: :create) do
+          validate do
             return unless @protector_subject
-            errors[:base] << I18n.t('protector.invalid') unless creatable?
-          end
-
-          validate(on: :update) do
-            return unless @protector_subject
-            errors[:base] << I18n.t('protector.invalid') unless updatable?
+            if (new_record? && !creatable?) || (!new_record? && !updatable?)
+              errors[:base] << I18n.t('protector.invalid')
+            end
           end
 
           before_destroy do
@@ -82,10 +79,6 @@ module Protector
 
         # Storage for {Protector::DSL::Meta::Box}
         def protector_meta
-          unless @protector_subject
-            raise "Unprotected entity detected: use `restrict` method to protect it."
-          end
-
           @protector_meta ||= self.class.protector_meta.evaluate(
             self.class,
             @protector_subject,

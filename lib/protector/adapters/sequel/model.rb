@@ -24,10 +24,6 @@ module Protector
 
         # Storage for {Protector::DSL::Meta::Box}
         def protector_meta
-          unless @protector_subject
-            raise "Unprotected entity detected: use `restrict` method to protect it."
-          end
-
           @protector_meta ||= self.class.protector_meta.evaluate(
             self.class,
             @protector_subject,
