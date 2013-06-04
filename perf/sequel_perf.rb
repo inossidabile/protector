@@ -2,12 +2,12 @@ migrate
 
 seed do
   500.times do
-    d = Dummy.create! string: 'zomgstring', number: [999,777].sample, text: 'zomgtext'
+    d = Dummy.create string: 'zomgstring', number: [999,777].sample, text: 'zomgtext'
 
     2.times do
-      f = Fluffy.create! string: 'zomgstring', number: [999,777].sample, text: 'zomgtext', dummy_id: d.id
-      b = Bobby.create! string: 'zomgstring', number: [999,777].sample, text: 'zomgtext', dummy_id: d.id
-      l = Loony.create! string: 'zomgstring', fluffy_id: f.id
+      f = Fluffy.create string: 'zomgstring', number: [999,777].sample, text: 'zomgtext', dummy_id: d.id
+      b = Bobby.create string: 'zomgstring', number: [999,777].sample, text: 'zomgtext', dummy_id: d.id
+      l = Loony.create string: 'zomgstring', fluffy_id: f.id
     end
   end
 end
@@ -15,14 +15,14 @@ end
 activate do
   Dummy.instance_eval do
     protect do
-      scope { every }
+      scope { where }
       can :view, :string
     end
   end
 
   Fluffy.instance_eval do
     protect do
-      scope { every }
+      scope { where }
       can :view
     end
   end
@@ -49,8 +49,8 @@ benchmark 'Read nil field (100k)' do
 end
 
 benchmark 'Check existance' do
-  scope = activated? ? Dummy.restrict!('!') : Dummy.every
-  1000.times { scope.exists? }
+  scope = activated? ? Dummy.restrict!('!') : Dummy.where
+  1000.times { scope.any? }
 end
 
 benchmark 'Count' do
@@ -66,25 +66,19 @@ benchmark 'Select one' do
 end
 
 benchmark 'Select many' do
-  scope = Dummy.every
+  scope = Dummy.where
   scope = scope.restrict!('!') if activated?
-  1000.times { scope.to_a }
+  200.times { scope.to_a }
 end
 
 benchmark 'Select with eager loading' do
-  scope = Dummy.includes(:fluffies)
+  scope = Dummy.eager(:fluffies)
   scope = scope.restrict!('!') if activated?
-  1000.times { scope.to_a }
+  200.times { scope.to_a }
 end
 
 benchmark 'Select with filtered eager loading' do
-  scope = Dummy.includes(:fluffies).where(fluffies: {number: 999})
+  scope = Dummy.eager_graph(fluffies: :loony)
   scope = scope.restrict!('!') if activated?
-  1000.times { scope.to_a }
-end
-
-benchmark 'Select with mixed eager loading' do
-  scope = Dummy.includes(:fluffies, :bobbies).where(fluffies: {number: 999})
-  scope = scope.restrict!('!') if activated?
-  1000.times { scope.to_a }
+  200.times { scope.to_a }
 end

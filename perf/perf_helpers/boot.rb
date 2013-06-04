@@ -2,7 +2,7 @@ class Perf
   def self.load(adapter)
     perf = Perf.new(adapter.camelize)
     base = Pathname.new(File.expand_path '../..', __FILE__)
-    file = base.join(adapter+'.rb').to_s
+    file = base.join(adapter+'_perf.rb').to_s
     perf.instance_eval File.read(file), file
     perf.run!
   end
@@ -11,6 +11,7 @@ class Perf
     @blocks = {}
     @adapter = adapter
     @activated = false
+    @profiling = {}
   end
 
   def migrate
@@ -32,8 +33,13 @@ class Perf
     @activation = block
   end
 
-  def benchmark(subject, &block)
+  def benchmark(subject, options={}, &block)
     @blocks[subject] = block
+  end
+
+  def benchmark!(subject, options={min_percent: 4}, &block)
+    @profiling[subject] = options
+    benchmark(subject, &block)
   end
 
   def activated?
@@ -41,6 +47,8 @@ class Perf
   end
 
   def run!
+    require 'ruby-prof' if @profiling.any?
+
     results = {}
 
     results[:off] = run_state('disabled', :red)
@@ -65,11 +73,21 @@ class Perf
 
   def run_state(state, color)
     data = {}
+    prof = @profiling
 
     print_block "Protector #{state.send color}" do
       @blocks.each do |s, b|
+        RubyProf.start if prof.include?(s)
+
         data[s] = Benchmark.realtime(&b)
         print_result s, data[s].to_s
+
+        if prof.include?(s)
+          result = RubyProf.stop 
+
+          printer = RubyProf::FlatPrinter.new(result)
+          printer.print(STDOUT, prof[s])
+        end
       end
     end
 

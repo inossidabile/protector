@@ -67,6 +67,7 @@ module Protector
         # * delaying built-in preloading to the stage where selection is restricted
         # * merging current relation with restriction (of self and every eager association)
         def exec_queries_with_protector(*args)
+          return @records if loaded?
           return exec_queries_without_protector unless @protector_subject
 
           subject  = @protector_subject

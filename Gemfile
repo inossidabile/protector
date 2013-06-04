@@ -14,3 +14,5 @@ gem 'sqlite3', platform: :ruby
 gem 'jdbc-sqlite3', platform: :jruby, require: 'jdbc/sqlite3'
 
 gem 'coveralls', require: false
+
+gem 'ruby-prof', platform: :ruby
