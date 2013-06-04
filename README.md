@@ -112,11 +112,15 @@ end
 
 ## Associations
 
-Protector is aware of associations. All the associations retrieved from restricted instance will automatically be restricted to the same context. Therefore you don't have to do anything special – it will respect proper scopes out of the box.
+Protector is aware of associations. All the associations retrieved from restricted instance will automatically be restricted to the same context. Therefore you don't have to do anything special – it will respect proper scopes out of the box:
 
-The access to `belongs_to` kind of association depends on corresponding foreign key readability.
+```ruby
+foo.restrict!(current_user).bar         # bar is automatically restricted by `current_user`
+```
 
 Remember however that auto-restriction is only enabled for reading. Passing a model (or an array of those) to an association will not auto-restrict it. You should handle it manually.
+
+The access to `belongs_to` kind of association depends on corresponding foreign key readability.
 
 ## Eager Loading
 
