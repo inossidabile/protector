@@ -39,7 +39,7 @@ class Article < ActiveRecord::Base          # Fields: title, text, user_id, hidd
       end
 
       can :create, %w(title text)           # Non-admins can't set `hidden` flag
-      can :create, user_id: lamda{|x|       # ... and should correctly fill 
+      can :create, user_id: labmda{|x|      # ... and should correctly fill 
         x == user.id                        # ... the `user_id` association
       }
 
