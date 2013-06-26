@@ -132,7 +132,7 @@ Each restricted model responds to the following methods:
 
 * `visible?` – determines if the model is visible through restriction scope
 * `creatable?` – determines if you pass validation on creation with the fields you set
-* `updateable?` – determines if you pass validation on update with the fields you changed
+* `updatable?` – determines if you pass validation on update with the fields you changed
 * `destroyable?` – determines if you can destroy the model
 
 In fact Protector does not limit you to `:view`, `:update` and `:create` actions. They are just used internally. You however can define any other to make custom roles and restrictions. All of them are able to work on a field level.
