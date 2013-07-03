@@ -155,10 +155,6 @@ module Protector
 
       private
 
-        def merge_relation_safely(relation, other)
-          relation.merge other
-        end
-
         def protector_expand_inclusion_hash(inclusion, results=[], base=[], klass=@klass)
           inclusion.each do |key, value|
             model = klass.reflect_on_association(key.to_sym).klass
