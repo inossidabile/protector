@@ -31,7 +31,7 @@ module Protector
             super
           end
 
-          if Gem::Version.new(::ActiveRecord::VERSION::STRING) < Gem::Version.new('4.0.0.rc1')
+          if Gem::Version.new(::ActiveRecord::VERSION::STRING) < Gem::Version.new('4.0.0')
             def self.restrict!(subject)
               scoped.restrict!(subject)
             end

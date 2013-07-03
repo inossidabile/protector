@@ -5,7 +5,7 @@ module Protector
 
       # Single DSL evaluation result
       class Box
-        attr_accessor :access, :scope_proc, :relation, :destroyable
+        attr_accessor :access, :scope_proc, :destroyable
 
         # @param model [Class]              The class of protected entity
         # @param fields [Array<String>]     All the fields the model has
@@ -16,7 +16,7 @@ module Protector
           @model       = model
           @fields      = fields
           @access      = {update: {}, view: {}, create: {}}
-          @relation    = false
+          @scope_proc  = false
           @destroyable = false
 
           blocks.each do |b|
@@ -34,7 +34,7 @@ module Protector
         # Checks whether protection with given subject
         # has the selection scope defined
         def scoped?
-          !!@relation
+          !!@scope_proc
         end
 
         # @group Protection DSL
@@ -51,7 +51,15 @@ module Protector
         #   end
         def scope(&block)
           @scope_proc = block
-          @relation   = @model.instance_eval(&block)
+
+          @relation          = false
+          @unscoped_relation = false
+        end
+
+        def relation
+          return false unless scoped?
+
+          @relation ||= @model.instance_eval(&@scope_proc)
         end
 
         # Enables action for given fields.

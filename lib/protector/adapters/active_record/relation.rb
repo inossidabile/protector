@@ -96,7 +96,27 @@ module Protector
 
           if eager_loading?
             protector_expand_inclusion(includes_values + eager_load_values).each do |klass, path|
-              relation = relation.merge(klass.protector_meta.evaluate(klass, subject).relation)
+              # AR drops default_scope for eagerly loadable associations
+              # https://github.com/inossidabile/protector/issues/3
+              # and so should we
+              meta = klass.protector_meta.evaluate(klass, subject)
+
+              if meta.scoped?
+                unscoped = klass.unscoped
+
+                # AR 4 has awfull inconsistency when it comes to method `all`
+                # We have to mimic base class behaviour for relation we get from `unscoped`
+                if Gem::Version.new(::ActiveRecord::VERSION::STRING) >= Gem::Version.new('4.0.0')
+                  class <<unscoped
+                    def all
+                      self
+                    end
+                  end
+                end
+
+                # Finally we merge unscoped basic relation extended with protection scope
+                relation = relation.merge unscoped.instance_eval(&meta.scope_proc)
+              end
             end
           else
             relation.preload_values += includes_values
@@ -134,6 +154,10 @@ module Protector
         end
 
       private
+
+        def merge_relation_safely(relation, other)
+          relation.merge other
+        end
 
         def protector_expand_inclusion_hash(inclusion, results=[], base=[], klass=@klass)
           inclusion.each do |key, value|
