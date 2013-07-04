@@ -26,7 +26,7 @@ module Protector
         def protector_meta
           @protector_meta ||= self.class.protector_meta.evaluate(
             self.class,
-            @protector_subject,
+            protector_subject,
             self.class.columns,
             self
           )
@@ -62,14 +62,14 @@ module Protector
         # Basic security validations
         def validate
           super
-          return unless @protector_subject
+          return unless protector_subject?
           method = new? ? :creatable? : :updatable?
           errors.add(:base, I18n.t('protector.invalid')) unless __send__(method)
         end
 
         # Destroy availability check
         def before_destroy
-          return false if @protector_subject && !destroyable?
+          return false if protector_subject? && !destroyable?
           super
         end
 
@@ -78,7 +78,7 @@ module Protector
         # @param name [Symbol]          Name of attribute to read
         def [](name)
           if (
-            !@protector_subject || 
+            !protector_subject? || 
             name == self.class.primary_key ||
             (self.class.primary_key.is_a?(Array) && self.class.primary_key.include?(name)) ||
             protector_meta.readable?(name.to_s)
@@ -91,12 +91,12 @@ module Protector
 
         # This is used whenever we fetch data
         def _associated_dataset(*args)
-          super.restrict!(@protector_subject)
+          super.restrict!(protector_subject)
         end
 
         # This is used whenever we call counters and existance checkers
         def _dataset(*args)
-          super.restrict!(@protector_subject)
+          super.restrict!(protector_subject)
         end
       end
     end

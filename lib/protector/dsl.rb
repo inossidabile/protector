@@ -207,8 +207,6 @@ module Protector
       # @param fields [Array<String>]     All the fields the model has
       # @param entry [Object]             An instance of the model
       def evaluate(model, subject, fields=[], entry=nil)
-        raise "Unprotected entity detected: use `restrict` method to protect it." unless subject
-
         Box.new(model, fields, subject, entry, blocks)
       end
     end
@@ -216,8 +214,14 @@ module Protector
     module Base
       extend ActiveSupport::Concern
 
-      included do
-        attr_reader :protector_subject
+      # Property accessor that makes sure you don't use
+      # subject on a non-protected model
+      def protector_subject
+        unless protector_subject?
+          raise "Unprotected entity detected: use `restrict` method to protect it."
+        end
+
+        @protector_subject
       end
 
       # Assigns restriction subject
@@ -225,13 +229,20 @@ module Protector
       # @param [Object] subject         Subject to restrict against
       def restrict!(subject)
         @protector_subject = subject
+        @protector_subject_set = true
         self
       end
 
       # Clears restriction subject
       def unrestrict!
         @protector_subject = nil
+        @protector_subject_set = false
         self
+      end
+
+      # Checks if model was restricted
+      def protector_subject?
+        @protector_subject_set == true
       end
     end
 

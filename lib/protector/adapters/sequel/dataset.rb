@@ -32,17 +32,17 @@ module Protector
 
         # Gets {Protector::DSL::Meta::Box} of this dataset
         def protector_meta
-          model.protector_meta.evaluate(model, @protector_subject)
+          model.protector_meta.evaluate(model, protector_subject)
         end
 
         # Substitutes `row_proc` with {Protector} and injects protection scope
         def each_with_protector(*args, &block)
-          return each_without_protector(*args, &block) if !@protector_subject
+          return each_without_protector(*args, &block) unless protector_subject?
 
-          relation = protector_defend_graph(clone, @protector_subject)
+          relation = protector_defend_graph(clone, protector_subject)
           relation = relation.instance_eval(&protector_meta.scope_proc) if protector_meta.scoped?
 
-          relation.row_proc = Restrictor.new(@protector_subject, relation.row_proc)
+          relation.row_proc = Restrictor.new(protector_subject, relation.row_proc)
           relation.each_without_protector(*args, &block)
         end
 

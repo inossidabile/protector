@@ -28,13 +28,13 @@ module Protector
         # Gets {Protector::DSL::Meta::Box} of this relation
         def protector_meta
           # We don't seem to require columns here as well
-          # @klass.protector_meta.evaluate(@klass, @protector_subject, @klass.column_names)
-          @klass.protector_meta.evaluate(@klass, @protector_subject)
+          @klass.protector_meta.evaluate(@klass, protector_subject)
         end
 
         # @note Unscoped relation drops properties and therefore should be re-restricted
         def unscoped
-          super.restrict!(@protector_subject)
+          return super unless protector_subject?
+          scope.restrict!(protector_subject)
         end
 
         # @note This is here cause `NullRelation` can return `nil` from `count`
@@ -49,13 +49,13 @@ module Protector
 
         # Merges current relation with restriction and calls real `calculate`
         def calculate(*args)
-          return super unless @protector_subject
+          return super unless protector_subject?
           merge(protector_meta.relation).unrestrict!.calculate *args
         end
 
         # Merges current relation with restriction and calls real `exists?`
         def exists?(*args)
-          return super unless @protector_subject
+          return super unless protector_subject?
           merge(protector_meta.relation).unrestrict!.exists? *args
         end
 
@@ -68,11 +68,11 @@ module Protector
         # * merging current relation with restriction (of self and every eager association)
         def exec_queries_with_protector(*args)
           return @records if loaded?
-          return exec_queries_without_protector unless @protector_subject
+          return exec_queries_without_protector unless protector_subject?
 
-          subject  = @protector_subject
+          subject  = protector_subject
           relation = merge(protector_meta.relation).unrestrict!
-          relation = protector_substitute_includes(relation)
+          relation = protector_substitute_includes(subject, relation)
 
           # Preserve associations from internal loading. We are going to handle that
           # ourselves respecting security scopes FTW!
@@ -91,9 +91,7 @@ module Protector
 
         # Swaps `includes` with `preload` whether it's not referenced or merges
         # security scope of proper class otherwise
-        def protector_substitute_includes(relation)
-          subject = @protector_subject
-
+        def protector_substitute_includes(subject, relation)
           if eager_loading?
             protector_expand_inclusion(includes_values + eager_load_values).each do |klass, path|
               # AR drops default_scope for eagerly loadable associations

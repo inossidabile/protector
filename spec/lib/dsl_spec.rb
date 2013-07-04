@@ -11,6 +11,16 @@ describe Protector::DSL do
       @base.instance_methods.should include(:protector_subject)
     end
 
+    it "throws error for empty subect" do
+      base = @base.new
+      expect { base.protector_subject }.to raise_error
+    end
+
+    it "accepts nil as a subject" do
+      base = @base.new.restrict!(nil)
+      expect { base.protector_subject }.to_not raise_error
+    end
+
     it "remembers protection subject" do
       base = @base.new
       base.restrict!("universe")
@@ -22,7 +32,7 @@ describe Protector::DSL do
       base.restrict!("universe")
       base.protector_subject.should == "universe"
       base.unrestrict!
-      base.protector_subject.should == nil
+      expect { base.protector_subject }.to raise_error
     end
   end
 

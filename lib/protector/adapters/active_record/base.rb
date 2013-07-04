@@ -14,14 +14,14 @@ module Protector
           end
 
           validate do
-            return unless @protector_subject
+            return unless protector_subject?
             if (new_record? && !creatable?) || (!new_record? && !updatable?)
               errors[:base] << I18n.t('protector.invalid')
             end
           end
 
           before_destroy do
-            return true unless @protector_subject
+            return true unless protector_subject?
             destroyable?
           end
 
@@ -43,7 +43,7 @@ module Protector
 
           def [](name)
             if (
-              !@protector_subject || 
+              !protector_subject? || 
               name == self.class.primary_key ||
               (self.class.primary_key.is_a?(Array) && self.class.primary_key.include?(name)) ||
               protector_meta.readable?(name)
@@ -66,7 +66,7 @@ module Protector
                 alias_method #{"#{name}_unprotected".inspect}, #{name.inspect}
 
                 def #{name}
-                  if !@protector_subject || protector_meta.readable?(#{name.inspect})
+                  if !protector_subject? || protector_meta.readable?(#{name.inspect})
                     #{name}_unprotected
                   else
                     nil
@@ -81,7 +81,7 @@ module Protector
         def protector_meta
           @protector_meta ||= self.class.protector_meta.evaluate(
             self.class,
-            @protector_subject,
+            protector_subject,
             self.class.column_names,
             self
           )

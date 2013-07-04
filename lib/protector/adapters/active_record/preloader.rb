@@ -23,9 +23,13 @@ module Protector
             owners.first.protector_subject
           end
 
+          def protector_subject?
+            owners.first.protector_subject?
+          end
+
           # Restricts preloading association scope with subject of the owner
           def scope_with_protector(*args)
-            return scope_without_protector unless protector_subject
+            return scope_without_protector unless protector_subject?
 
             @meta ||= klass.protector_meta.evaluate(klass, protector_subject)
             scope_without_protector.merge(@meta.relation)

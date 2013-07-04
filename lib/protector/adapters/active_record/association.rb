@@ -17,7 +17,9 @@ module Protector
 
         # Wraps every association with current subject
         def scope_with_protector(*args)
-          scope_without_protector(*args).restrict!(owner.protector_subject)
+          scope = scope_without_protector(*args)
+          scope = scope.restrict!(owner.protector_subject) if owner.protector_subject?
+          scope
         end
       end
     end
