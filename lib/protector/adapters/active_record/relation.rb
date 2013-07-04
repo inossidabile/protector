@@ -34,7 +34,7 @@ module Protector
         # @note Unscoped relation drops properties and therefore should be re-restricted
         def unscoped
           return super unless protector_subject?
-          scope.restrict!(protector_subject)
+          super.restrict!(protector_subject)
         end
 
         # @note This is here cause `NullRelation` can return `nil` from `count`
