@@ -55,7 +55,7 @@ module Protector
           protector_meta.destroyable?
         end
 
-        def can?(action, field)
+        def can?(action, field=false)
           protector_meta.can?(action, field)
         end
 
