@@ -89,6 +89,8 @@ module Protector
 
         # Checks if current model can be selected in the context of current subject
         def visible?
+          return true unless protector_meta.scoped?
+
           protector_meta.relation.where(
             self.class.primary_key => id
           ).any?
