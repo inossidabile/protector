@@ -152,6 +152,18 @@ model.can?(:drink)            # Checks if model can drink any field
 
 As you can see you don't have to use fields. You can use `can :foo` and `can? :foo`. While they will bound to fields internally it will work like you expect for empty sets.
 
+## Global switch
+
+Sometimes for different reasons (like debug or whatever) you might want to run piece of code having Protector totally disabled. There is a way to do that:
+
+```ruby
+Protector.insecurely do
+  # anything here
+end
+```
+
+No matter what happens inside, all your entities will act unprotected. So use with **EXTREME** caution.
+
 ## Ideology
 
 Protector is a successor to [Heimdallr](https://github.com/inossidabile/heimdallr). The latter being a proof-of-concept appeared to be way too paranoid and incompatible with the rest of the world. Protector re-implements same idea keeping the Ruby way:

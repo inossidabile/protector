@@ -1,8 +1,9 @@
 shared_examples_for "a model" do
   it "evaluates meta properly" do
     dummy.instance_eval do
-      protect do |subject, dummy|
+      protect do |subject, entry|
         subject.should == '!'
+        entry.protector_subject?.should == false
 
         scope { limit(5) }
 

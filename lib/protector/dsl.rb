@@ -19,14 +19,16 @@ module Protector
           @scope_proc  = false
           @destroyable = false
 
-          blocks.each do |b|
-            case b.arity
-            when 2
-              instance_exec subject, entry, &b
-            when 1
-              instance_exec subject, &b
-            else
-              instance_exec &b
+          Protector.insecurely do
+            blocks.each do |b|
+              case b.arity
+              when 2
+                instance_exec subject, entry, &b
+              when 1
+                instance_exec subject, &b
+              else
+                instance_exec &b
+              end
             end
           end
         end
@@ -242,7 +244,7 @@ module Protector
 
       # Checks if model was restricted
       def protector_subject?
-        @protector_subject_set == true
+        @protector_subject_set == true && !Thread.current[:protector_disabled]
       end
     end
 
