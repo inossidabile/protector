@@ -37,6 +37,16 @@ module Protector
           super.restrict!(protector_subject)
         end
 
+        def except(*args)
+          return super unless protector_subject?
+          super.restrict!(protector_subject)
+        end
+
+        def only(*args)
+          return super unless protector_subject?
+          super.restrict!(protector_subject)
+        end
+
         # @note This is here cause `NullRelation` can return `nil` from `count`
         def count(*args)
           super || 0

@@ -71,6 +71,8 @@ if defined?(ActiveRecord)
 
       it "saves subject" do
         Dummy.restrict!('!').where(number: 999).protector_subject.should == '!'
+        Dummy.restrict!('!').except(:order).protector_subject.should == '!'
+        Dummy.restrict!('!').only(:order).protector_subject.should == '!'
       end
 
       it "forwards subject" do
