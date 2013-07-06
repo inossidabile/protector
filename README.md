@@ -63,7 +63,7 @@ Now that we have ACL described we can enable it as easy as:
 article.restrict!(current_user)    # Assuming article is an instance of Article
 ```
 
-Now if `current_user` is a guest we will get `nil` from `article.text`. At the same time we will get validation error if we pass any fields but title, text and user_id (equal to our own id) on creation.
+If `current_user` is a guest we will get `nil` from `article.text`. At the same time we will get validation error if we pass any fields but title, text and user_id (equal to our own id) on creation.
 
 To make model unsafe again call:
 
