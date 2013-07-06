@@ -55,6 +55,8 @@ class Article < ActiveRecord::Base          # Fields: title, text, user_id, hidd
 end
 ```
 
+Inside your model, you can have several `protect` calls that will get merged. Using this you can move basic rules to a separate module to keep code DRY.
+
 Now that we have ACL described we can enable it as easy as:
 
 ```ruby
