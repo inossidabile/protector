@@ -15,7 +15,6 @@ We are working hard to extend the list with:
 
   * [Mongoid](http://mongoid.org/en/mongoid/index.html)
   * [ROM](https://github.com/rom-rb/rom)
-  * [DataMapper](http://datamapper.org/) (its undead so it might be skipped)
 
 ## Basics
 
