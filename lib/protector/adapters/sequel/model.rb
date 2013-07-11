@@ -91,11 +91,13 @@ module Protector
 
         # This is used whenever we fetch data
         def _associated_dataset(*args)
+          return super unless protector_subject?
           super.restrict!(protector_subject)
         end
 
         # This is used whenever we call counters and existance checkers
         def _dataset(*args)
+          return super unless protector_subject?
           super.restrict!(protector_subject)
         end
       end

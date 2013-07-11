@@ -61,7 +61,11 @@ module Protector
         def relation
           return false unless scoped?
 
-          @relation ||= @model.instance_eval(&@scope_proc)
+          unless @relation
+            @relation = @model.instance_eval(&@scope_proc)
+          end
+
+          @relation
         end
 
         # Enables action for given fields.

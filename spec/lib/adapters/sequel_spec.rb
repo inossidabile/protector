@@ -37,6 +37,14 @@ if defined?(Sequel)
       Fluffy.all.each{|f| Loony.create fluffy_id: f.id, string: 'zomgstring' }
     end
 
+    describe Protector::Adapters::Sequel do
+      it "finds out whether object is Sequel relation" do
+        Protector::Adapters::Sequel.is?(Dummy).should == true
+        Protector::Adapters::Sequel.is?(Dummy.where).should == true
+      end
+    end
+
+
     #
     # Model instance
     #

@@ -114,7 +114,7 @@ module Protector
 
                 # AR 4 has awfull inconsistency when it comes to method `all`
                 # We have to mimic base class behaviour for relation we get from `unscoped`
-                if Gem::Version.new(::ActiveRecord::VERSION::STRING) >= Gem::Version.new('4.0.0')
+                if Protector::Adapters::ActiveRecord.modern?
                   class <<unscoped
                     def all
                       self

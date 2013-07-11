@@ -37,6 +37,13 @@ if defined?(ActiveRecord)
       Fluffy.all.each{|f| Loony.create! fluffy_id: f.id, string: 'zomgstring' }
     end
 
+    describe Protector::Adapters::ActiveRecord do
+      it "finds out whether object is AR relation" do
+        Protector::Adapters::ActiveRecord.is?(Dummy).should == true
+        Protector::Adapters::ActiveRecord.is?(Dummy.every).should == true
+      end
+    end
+
     #
     # Model instance
     #
