@@ -6,6 +6,8 @@ require "protector/dsl"
 require "protector/adapters/active_record"
 require "protector/adapters/sequel"
 
+require "protector/engine" if defined?(Rails)
+
 I18n.load_path += Dir[File.expand_path File.join('..', 'locales', '*.yml'), File.dirname(__FILE__)]
 
 module Protector

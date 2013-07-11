@@ -98,6 +98,8 @@ Article.where(...).restrict!(current_user)
 
 Note that you don't need to explicitly restrict models you get from a restricted scope – they born restricted.
 
+**Important**: unlike fields, scopes follow black-list approach by default. It means that you will NOT restrict selection in any way if no scope was set within protection block! This arguably is the best default strategy. But it's not the only one – see `paranoid` at the [list of available options](https://github.com/inossidabile/protector#options) for details.
+
 ## Self-aware conditions
 
 Sometimes an access decision depends on the object we restrict. `protect` block accepts second argument to fulfill these cases. Keep in mind however that it's not always accessible: we don't have any instance for the restriction of relation and therefore `nil` is passed.
@@ -202,6 +204,14 @@ Protector::Adapters::ActiveRecord.activate!
 ```
 
 Where "ActiveRecord" is the adapter you are about to use. It can be "Sequel", "DataMapper", "Mongoid".
+
+## Options
+
+Use `Protector.option = value` to assign an option. Available options are:
+
+  * `paranoid`: makes scope management white-listed. When set to `true` will force Protector to return empty scope when no scope was given within a protection block.
+
+Protector features basic Rails integration so you can assign options using `config.protector.option = value` at your `config/*.rb`.
 
 ## Maintainers
 
