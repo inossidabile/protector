@@ -211,6 +211,10 @@ Where "ActiveRecord" is the adapter you are about to use. It can be "Sequel", "D
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-## LICENSE
+## Maintainers
+
+* Boris Staal, [@inossidabile](http://staal.io)
+
+## License
 
 It is free software, and may be redistributed under the terms of MIT license.
