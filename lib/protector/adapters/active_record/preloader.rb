@@ -31,7 +31,12 @@ module Protector
           def scope_with_protector(*args)
             return scope_without_protector unless protector_subject?
 
-            @meta ||= klass.protector_meta.evaluate(klass, protector_subject)
+            @meta ||= klass.protector_meta.evaluate(
+              Protector::Adapters::ActiveRecord,
+              klass,
+              protector_subject
+            )
+
             scope_without_protector.merge(@meta.relation)
           end
         end

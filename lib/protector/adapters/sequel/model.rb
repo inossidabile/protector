@@ -25,6 +25,7 @@ module Protector
         # Storage for {Protector::DSL::Meta::Box}
         def protector_meta
           @protector_meta ||= self.class.protector_meta.evaluate(
+            Protector::Adapters::Sequel,
             self.class,
             protector_subject,
             self.class.columns,

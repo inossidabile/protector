@@ -58,19 +58,22 @@ describe Protector::DSL do
         @meta = Protector::DSL::Meta.new
 
         @meta << lambda {
-          scope { 'relation' }
+          can :view
         }
 
         @meta << lambda {|user|
-          user.should  == 'user'
+          scope { 'relation' } if user
+        }
 
-          can    :view
+        @meta << lambda {|user|
+          user.should  == 'user' if user
+
           cannot :view, %w(field5), :field4
         }
 
         @meta << lambda {|user, entry|
-          user.should  == 'user'
-          entry.should == 'entry'
+          user.should  == 'user' if user
+          entry.should == 'entry' if user
 
           can :update, %w(field1 field2 field3),
             field4: 0..5,
@@ -81,16 +84,30 @@ describe Protector::DSL do
       end
 
       it "evaluates" do
-        @meta.evaluate(nil, 'user', [], 'entry')
+        @meta.evaluate(nil, nil, 'user', [], 'entry')
+      end
+
+      context "adequate", paranoid: false do
+        it "sets scoped?" do
+          data = @meta.evaluate(nil, nil, nil, [], 'entry')
+          data.scoped?.should == false
+        end
+      end
+
+      context "paranoid", paranoid: true do
+        it "sets scoped?" do
+          data = @meta.evaluate(nil, nil, nil, [], 'entry')
+          data.scoped?.should == true
+        end
       end
 
       it "sets relation" do
-        data = @meta.evaluate(nil, 'user', [], 'entry')
+        data = @meta.evaluate(nil, nil, 'user', [], 'entry')
         data.relation.should == 'relation'
       end
 
       it "sets access" do
-        data = @meta.evaluate(nil, 'user', %w(field1 field2 field3 field4 field5), 'entry')
+        data = @meta.evaluate(nil, nil, 'user', %w(field1 field2 field3 field4 field5), 'entry')
         data.access.should == {
           update: {
             "field1" => nil,
@@ -109,17 +126,17 @@ describe Protector::DSL do
       end
 
       it "marks destroyable" do
-        data = @meta.evaluate(nil, 'user', [], 'entry')
+        data = @meta.evaluate(nil, nil, 'user', [], 'entry')
         data.destroyable?.should == true
       end
 
       it "marks updatable" do
-        data = @meta.evaluate(nil, 'user', [], 'entry')
+        data = @meta.evaluate(nil, nil, 'user', [], 'entry')
         data.updatable?.should == true
       end
 
       it "marks creatable" do
-        data = @meta.evaluate(nil, 'user', [], 'entry')
+        data = @meta.evaluate(nil, nil, 'user', [], 'entry')
         data.creatable?.should == false
       end
     end
@@ -136,13 +153,13 @@ describe Protector::DSL do
       end
 
       it "sets field-level restriction" do
-        box = @meta.evaluate(nil, 'user', %w(field1 field2), 'entry')
+        box = @meta.evaluate(nil, nil, 'user', %w(field1 field2), 'entry')
         box.can?(:drink, :field1).should == true
         box.can?(:drink).should == true
       end
 
       it "sets field-level protection" do
-        box = @meta.evaluate(nil, 'user', %w(field1 field2), 'entry')
+        box = @meta.evaluate(nil, nil, 'user', %w(field1 field2), 'entry')
         box.can?(:eat, :field1).should == false
         box.can?(:eat).should == true
       end

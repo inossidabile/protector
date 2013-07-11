@@ -20,8 +20,8 @@ module Protector
         (instance.kind_of?(Class) && instance < ::Sequel::Model)
       end
 
-      def self.nullify(relation)
-        relation.where("1=0")
+      def self.null_proc
+        @null_proc ||= Proc.new{ where("1=0") }
       end
     end
   end

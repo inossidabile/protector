@@ -5,14 +5,15 @@ module Protector
 
       # Single DSL evaluation result
       class Box
-        attr_accessor :access, :scope_proc, :destroyable
+        attr_accessor :adapter, :access, :destroyable
 
         # @param model [Class]              The class of protected entity
         # @param fields [Array<String>]     All the fields the model has
         # @param subject [Object]           Restriction subject
         # @param entry [Object]             An instance of the model
         # @param blocks [Array<Proc>]       An array of `protect` blocks
-        def initialize(model, fields, subject, entry, blocks)
+        def initialize(adapter, model, fields, subject, entry, blocks)
+          @adapter     = adapter
           @model       = model
           @fields      = fields
           @access      = {update: {}, view: {}, create: {}}
@@ -36,7 +37,7 @@ module Protector
         # Checks whether protection with given subject
         # has the selection scope defined
         def scoped?
-          !!@scope_proc
+          Protector.paranoid || !!@scope_proc
         end
 
         # @group Protection DSL
@@ -58,13 +59,18 @@ module Protector
           @unscoped_relation = false
         end
 
+        def scope_proc
+          unless Protector.paranoid
+            @scope_proc
+          else
+            @scope_proc || @adapter.null_proc
+          end
+        end
+
         def relation
           return false unless scoped?
 
-          unless @relation
-            @relation = @model.instance_eval(&@scope_proc)
-          end
-
+          @relation ||= @model.instance_eval(&scope_proc)
           @relation
         end
 
@@ -212,8 +218,8 @@ module Protector
       # @param subject [Object]           Restriction subject
       # @param fields [Array<String>]     All the fields the model has
       # @param entry [Object]             An instance of the model
-      def evaluate(model, subject, fields=[], entry=nil)
-        Box.new(model, fields, subject, entry, blocks)
+      def evaluate(adapter, model, subject, fields=[], entry=nil)
+        Box.new(adapter, model, fields, subject, entry, blocks)
       end
     end
 

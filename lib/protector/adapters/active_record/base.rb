@@ -80,6 +80,7 @@ module Protector
         # Storage for {Protector::DSL::Meta::Box}
         def protector_meta
           @protector_meta ||= self.class.protector_meta.evaluate(
+            Protector::Adapters::ActiveRecord,
             self.class,
             protector_subject,
             self.class.column_names,

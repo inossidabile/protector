@@ -42,6 +42,10 @@ if defined?(Sequel)
         Protector::Adapters::Sequel.is?(Dummy).should == true
         Protector::Adapters::Sequel.is?(Dummy.where).should == true
       end
+
+      it "sets the adapter" do
+        Dummy.restrict!('!').protector_meta.adapter.should == Protector::Adapters::Sequel
+      end
     end
 
 
@@ -84,6 +88,54 @@ if defined?(Sequel)
         Dummy.restrict!('!').eager_graph(fluffies: :loony).all.first.fluffies.first.loony.protector_subject.should == '!'
       end
 
+      context "with open relation" do
+        context "adequate", paranoid: false do
+          it "checks existence" do
+            Dummy.any?.should == true
+            Dummy.restrict!('!').any?.should == true
+          end
+
+          it "counts" do
+            Dummy.count.should == 4
+            Dummy.restrict!('!').count.should == 4
+          end
+
+          it "fetches first" do
+            Dummy.restrict!('!').first.should be_a_kind_of(Dummy)
+          end
+
+          it "fetches all" do
+            fetched = Dummy.restrict!('!').to_a
+
+            Dummy.count.should == 4
+            fetched.length.should == 4
+          end
+        end
+
+        context "paranoid", paranoid: true do
+          it "checks existence" do
+            Dummy.any?.should == true
+            Dummy.restrict!('!').any?.should == false
+          end
+
+          it "counts" do
+            Dummy.count.should == 4
+            Dummy.restrict!('!').count.should == 0
+          end
+
+          it "fetches first" do
+            Dummy.restrict!('!').first.should == nil
+          end
+
+          it "fetches all" do
+            fetched = Dummy.restrict!('!').to_a
+
+            Dummy.count.should == 4
+            fetched.length.should == 0
+          end
+        end
+      end
+
       context "with null relation" do
         it "checks existence" do
           Dummy.any?.should == true
@@ -95,10 +147,8 @@ if defined?(Sequel)
           Dummy.restrict!('-').count.should == 0
         end
 
-        context do
-          it "fetches first" do
-            Dummy.restrict!('-').first.should == nil
-          end
+        it "fetches first" do
+          Dummy.restrict!('-').first.should == nil
         end
 
         it "fetches all" do

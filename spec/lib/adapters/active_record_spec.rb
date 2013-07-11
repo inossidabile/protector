@@ -42,6 +42,10 @@ if defined?(ActiveRecord)
         Protector::Adapters::ActiveRecord.is?(Dummy).should == true
         Protector::Adapters::ActiveRecord.is?(Dummy.every).should == true
       end
+
+      it "sets the adapter" do
+        Dummy.restrict!('!').protector_meta.adapter.should == Protector::Adapters::ActiveRecord
+      end
     end
 
     #
@@ -85,6 +89,46 @@ if defined?(ActiveRecord)
       it "forwards subject" do
         Dummy.restrict!('!').where(number: 999).first.protector_subject.should == '!'
         Dummy.restrict!('!').where(number: 999).to_a.first.protector_subject.should == '!'
+      end
+
+      context "with open relation" do
+        context "adequate", paranoid: false do
+          it "checks existence" do
+            Dummy.any?.should == true
+            Dummy.restrict!('!').any?.should == true
+          end
+
+          it "counts" do
+            Dummy.count.should == 4
+            Dummy.restrict!('!').count.should == 4
+          end
+
+          it "fetches" do
+            fetched = Dummy.restrict!('!').to_a
+
+            Dummy.count.should == 4
+            fetched.length.should == 4
+          end
+        end
+
+        context "paranoid", paranoid: true do
+          it "checks existence" do
+            Dummy.any?.should == true
+            Dummy.restrict!('!').any?.should == false
+          end
+
+          it "counts" do
+            Dummy.count.should == 4
+            Dummy.restrict!('!').count.should == 0
+          end
+
+          it "fetches" do
+            fetched = Dummy.restrict!('!').to_a
+
+            Dummy.count.should == 4
+            fetched.length.should == 0
+          end
+        end
       end
 
       context "with null relation" do

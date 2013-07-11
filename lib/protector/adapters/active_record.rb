@@ -28,11 +28,11 @@ module Protector
         (instance.is_a?(Class) && instance < ActiveRecord::Base)
       end
 
-      def self.nullify(relation)
-        if modern?
-          relation.none
+      def self.null_proc
+        @null_proc ||= if modern?
+          Proc.new{ none }
         else
-          relation.where("1=0")
+          Proc.new{ where("1=0") }
         end
       end
     end

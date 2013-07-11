@@ -4,6 +4,7 @@ require 'coveralls'
 Coveralls.wear! if Coveralls.should_run?
 
 require 'protector'
+require_relative 'contexts/paranoid'
 require_relative 'examples/model'
 
 RSpec.configure do |config|
