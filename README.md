@@ -209,7 +209,7 @@ Where "ActiveRecord" is the adapter you are about to use. It can be "Sequel", "D
 
 Use `Protector.option = value` to assign an option. Available options are:
 
-  * `paranoid`: makes scope management white-listed. When set to `true` will force Protector to return empty scope when no scope was given within a protection block.
+  * **paranoid**: makes scope management white-listed. If set to `true` will force Protector to return empty scope when no scope was given within a protection block.
 
 Protector features basic Rails integration so you can assign options using `config.protector.option = value` at your `config/*.rb`.
 
