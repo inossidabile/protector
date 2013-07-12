@@ -9,6 +9,7 @@ module Protector
           include Protector::DSL::Base
 
           alias_method_chain :exec_queries, :protector
+          alias_method_chain :new, :protector
 
           # AR 3.2 workaround. Come on, guys... SQL parsing :(
           unless method_defined?(:references_values)
@@ -71,6 +72,11 @@ module Protector
         def exists?(*args)
           return super unless protector_subject?
           merge(protector_meta.relation).unrestrict!.exists? *args
+        end
+
+        def new_with_protector(*args)
+          return new_without_protector unless protector_subject?
+          new_without_protector.restrict!(protector_subject)
         end
 
         # Patches current relation to fulfill restriction and call real `exec_queries`
