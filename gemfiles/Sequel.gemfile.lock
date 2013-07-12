@@ -1,7 +1,7 @@
 PATH
   remote: /Users/inossidabile/Repos/protector
   specs:
-    protector (0.4.1)
+    protector (0.5.0)
       activesupport
       i18n
 

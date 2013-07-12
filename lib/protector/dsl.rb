@@ -239,7 +239,7 @@ module Protector
       # Assigns restriction subject
       #
       # @param [Object] subject         Subject to restrict against
-      def restrict!(subject)
+      def restrict!(subject=nil)
         @protector_subject = subject
         @protector_subject_set = true
         self

@@ -32,12 +32,12 @@ module Protector
           end
 
           unless Protector::Adapters::ActiveRecord.modern?
-            def self.restrict!(subject)
-              scoped.restrict!(subject)
+            def self.restrict!(*args)
+              scoped.restrict! *args
             end
           else
-            def self.restrict!(subject)
-              all.restrict!(subject)
+            def self.restrict!(*args)
+              all.restrict! *args
             end
           end
 

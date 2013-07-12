@@ -74,9 +74,16 @@ module Protector
           merge(protector_meta.relation).unrestrict!.exists? *args
         end
 
-        def new_with_protector(*args)
-          return new_without_protector unless protector_subject?
-          new_without_protector.restrict!(protector_subject)
+        # Forwards protection subject to the new instance
+        def new_with_protector(*args, &block)
+          return new_without_protector(*args, &block) unless protector_subject?
+
+          # strong_parameters workaround
+          if args.first.respond_to?(:permit)
+            ForbiddenAttributesProtection::sanitize! args, true, protector_meta
+          end
+
+          new_without_protector(*args, &block).restrict!(protector_subject)
         end
 
         # Patches current relation to fulfill restriction and call real `exec_queries`

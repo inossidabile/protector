@@ -17,8 +17,8 @@ module Protector
 
         module ClassMethods
           # Gets default restricted `Dataset`
-          def restrict!(subject)
-            dataset.clone.restrict! subject
+          def restrict!(*args)
+            dataset.clone.restrict! *args
           end
         end
 
