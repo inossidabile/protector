@@ -22,6 +22,8 @@ Protector is an extension and therefore hides deeply inside your ORM library mak
 
   * [Protector::SimpleForm](https://github.com/deversus/protector-simple_form)
 
+Protector is clever enough to take care about **strong_parameters** too. For the restricted models you can consider fields listed with `can :update` and `can :create` automatically permitted during updation and creation accordingly.
+
 ## Basics
 
 DSL of Protector is a Ruby block (or several) describing ACL separated into contexts (authorized user is a very typical example of a context). Each time the context of model changes, DSL blocks reevaluate internally to get an actual ACL that is then utilized internally to cut restricted actions.
