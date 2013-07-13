@@ -2,6 +2,7 @@ require 'protector/adapters/active_record/base'
 require 'protector/adapters/active_record/association'
 require 'protector/adapters/active_record/relation'
 require 'protector/adapters/active_record/preloader'
+require 'protector/adapters/active_record/strong_parameters'
 
 module Protector
   module Adapters

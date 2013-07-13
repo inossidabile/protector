@@ -78,9 +78,9 @@ module Protector
         def new_with_protector(*args, &block)
           return new_without_protector(*args, &block) unless protector_subject?
 
-          # strong_parameters workaround
+          # strong_parameters integration
           if args.first.respond_to?(:permit)
-            ForbiddenAttributesProtection::sanitize! args, true, protector_meta
+            Protector::ActiveRecord::StrongParameters::sanitize! args, true, protector_meta
           end
 
           new_without_protector(*args, &block).restrict!(protector_subject)

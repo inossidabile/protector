@@ -20,9 +20,8 @@ We are working hard to extend the list with:
 
 Protector is an extension and therefore hides deeply inside your ORM library making itself compatible to the most gems you use. Sometimes however, you might need additional integration to take the best from it:
 
-  * [Protector::SimpleForm](https://github.com/deversus/protector-simple_form)
-
-Protector is clever enough to take care about **strong_parameters** too. For the restricted models you can consider fields listed with `can :update` and `can :create` automatically permitted during updation and creation accordingly.
+  * [Protector and Strong Parameters](https://github.com/inossidabile/protector/wiki/Protector-and-Strong-Parameters)
+  * [Protector and SimpleForm](https://github.com/inossidabile/protector/wiki/Protector-and-SimpleForm)
 
 ## Basics
 
@@ -209,7 +208,7 @@ Where "ActiveRecord" is the adapter you are about to use. It can be "Sequel", "D
 
 ## Options
 
-Use `Protector.option = value` to assign an option. Available options are:
+Use `Protector.config.option = value` to assign an option. Available options are:
 
   * **paranoid**: makes scope management white-listed. If set to `true` will force Protector to return empty scope when no scope was given within a protection block.
 

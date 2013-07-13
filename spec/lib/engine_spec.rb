@@ -12,16 +12,16 @@ if defined?(Rails)
 
       unless Protector::Adapters::ActiveRecord.modern?
         ActiveRecord::Base.send(:include, ActiveModel::ForbiddenAttributesProtection)
-        ActiveRecord::Base.send(:include, Protector::ForbiddenAttributesProtection)
+        ActiveRecord::Base.send(:include, Protector::ActiveRecord::StrongParameters)
       end
     end
 
     after(:all) do
-      Protector.paranoid = false
+      Protector.config.paranoid = false
     end
 
   	it "inherits Rails config" do
-      Protector.paranoid.should == true
+      Protector.config.paranoid.should == true
     end
 
     describe "strong_parameters" do

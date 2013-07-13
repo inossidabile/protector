@@ -17,7 +17,11 @@ module Protector
       Protector::Adapters::Sequel
     ]
 
-    attr_accessor :paranoid
+    attr_accessor :config
+
+    def paranoid=
+      "`Protector.paranoid = ...` is deprecated! Please change it to `Protector.config.paranoid = ...`"
+    end
 
     # Allows executing any code having Protector globally disabled
     def insecurely(&block)
@@ -31,6 +35,8 @@ module Protector
       ADAPTERS.each{|adapter| adapter.activate!}
     end
   end
+
+  self.config = ActiveSupport::OrderedOptions.new
 end
 
 Protector.activate!
