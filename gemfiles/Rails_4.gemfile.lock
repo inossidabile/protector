@@ -1,4 +1,13 @@
 GIT
+  remote: git://github.com/jruby/activerecord-jdbc-adapter.git
+  revision: cf50772153fbf0db5e8a4a2025da32954e625df1
+  specs:
+    activerecord-jdbc-adapter (1.3.0.beta2)
+    activerecord-jdbcsqlite3-adapter (1.3.0.beta2)
+      activerecord-jdbc-adapter (~> 1.3.0.beta2)
+      jdbc-sqlite3 (~> 3.7.2)
+
+GIT
   remote: git://github.com/pat/combustion.git
   revision: 5141f8412cff75c496692f49755d38d23e587db8
   specs:
@@ -46,6 +55,7 @@ GEM
       rake
     arel (4.0.0)
     atomic (1.1.10)
+    atomic (1.1.10-java)
     builder (3.1.4)
     coderay (1.0.9)
     colored (1.2)
@@ -59,6 +69,7 @@ GEM
     diff-lcs (1.2.4)
     erubis (2.7.0)
     ffi (1.9.0)
+    ffi (1.9.0-java)
     formatador (0.2.4)
     guard (1.8.1)
       formatador (>= 0.2.4)
@@ -71,6 +82,7 @@ GEM
       rspec (~> 2.13)
     hike (1.2.3)
     i18n (0.6.4)
+    jdbc-sqlite3 (3.7.2)
     listen (1.2.2)
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9)
@@ -88,6 +100,11 @@ GEM
       coderay (~> 1.0.5)
       method_source (~> 0.8)
       slop (~> 3.4)
+    pry (0.9.12.2-java)
+      coderay (~> 1.0.5)
+      method_source (~> 0.8)
+      slop (~> 3.4)
+      spoon (~> 0.0)
     rack (1.5.2)
     rack-test (0.6.2)
       rack (>= 1.0)
@@ -126,6 +143,8 @@ GEM
       simplecov-html (~> 0.7.1)
     simplecov-html (0.7.1)
     slop (3.4.5)
+    spoon (0.0.4)
+      ffi
     sprockets (2.10.0)
       hike (~> 1.2)
       multi_json (~> 1.0)
@@ -146,9 +165,11 @@ GEM
     tzinfo (0.3.37)
 
 PLATFORMS
+  java
   ruby
 
 DEPENDENCIES
+  activerecord-jdbcsqlite3-adapter!
   appraisal
   colored
   combustion!

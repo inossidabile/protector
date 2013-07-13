@@ -15,5 +15,6 @@ gem "coveralls", :require=>false
 gem "ruby-prof", :platform=>:ruby
 gem "combustion", :github=>"pat/combustion"
 gem "rails", "4.0.0"
+gem "activerecord-jdbcsqlite3-adapter", :platform=>:jruby, :github=>"jruby/activerecord-jdbc-adapter"
 
 gemspec :path=>"../"

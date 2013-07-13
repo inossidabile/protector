@@ -1,4 +1,4 @@
 test:
-  adapter: sqlite3
+  adapter: <%= "jdbc" if defined? JRUBY_VERSION %>sqlite3
   database: ":memory:"
   verbosity: quiet

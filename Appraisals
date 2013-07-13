@@ -12,11 +12,13 @@ appraise "Rails_3.2" do
   gem "combustion", github: 'pat/combustion'
   gem "rails", "3.2.13"
   gem "strong_parameters"
+  gem "activerecord-jdbcsqlite3-adapter", platform: :jruby, github: "jruby/activerecord-jdbc-adapter"
 end
 
 appraise "Rails_4" do
   gem "combustion", github: 'pat/combustion'
   gem "rails", "4.0.0"
+  gem "activerecord-jdbcsqlite3-adapter", platform: :jruby, github: "jruby/activerecord-jdbc-adapter"
 end
 
 appraise "Sequel" do

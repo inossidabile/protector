@@ -18,6 +18,7 @@ GEM
       bundler
       rake
     atomic (1.1.10)
+    atomic (1.1.10-java)
     coderay (1.0.9)
     colored (1.2)
     colorize (0.5.8)
