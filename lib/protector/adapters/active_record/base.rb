@@ -56,6 +56,15 @@ module Protector
         end
 
         module ClassMethods
+          # Storage of {Protector::DSL::Meta}
+          def protector_meta
+            @protector_meta ||= Protector::DSL::Meta.new(
+              Protector::Adapters::ActiveRecord,
+              self,
+              self.column_names
+            )
+          end
+
           # Wraps every `.field` method with a check against {Protector::DSL::Meta::Box#readable?}
           def define_method_attribute(name)
             super
@@ -79,13 +88,7 @@ module Protector
 
         # Storage for {Protector::DSL::Meta::Box}
         def protector_meta(subject=protector_subject)
-          @protector_meta ||= self.class.protector_meta.evaluate(
-            Protector::Adapters::ActiveRecord,
-            self.class,
-            subject,
-            self.class.column_names,
-            self
-          )
+          @protector_meta ||= self.class.protector_meta.evaluate(subject, self)
         end
 
         # Checks if current model can be selected in the context of current subject

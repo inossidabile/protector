@@ -16,6 +16,15 @@ module Protector
         end
 
         module ClassMethods
+          # Storage of {Protector::DSL::Meta}
+          def protector_meta
+            @protector_meta ||= Protector::DSL::Meta.new(
+              Protector::Adapters::Sequel,
+              self,
+              self.columns
+            )
+          end
+
           # Gets default restricted `Dataset`
           def restrict!(*args)
             dataset.clone.restrict! *args
@@ -24,13 +33,7 @@ module Protector
 
         # Storage for {Protector::DSL::Meta::Box}
         def protector_meta(subject=protector_subject)
-          @protector_meta ||= self.class.protector_meta.evaluate(
-            Protector::Adapters::Sequel,
-            self.class,
-            subject,
-            self.class.columns,
-            self
-          )
+          @protector_meta ||= self.class.protector_meta.evaluate(subject, self)
         end
 
         # Checks if current model can be selected in the context of current subject

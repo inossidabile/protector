@@ -28,12 +28,7 @@ module Protector
 
         # Gets {Protector::DSL::Meta::Box} of this relation
         def protector_meta(subject=protector_subject)
-          # We don't seem to require columns here as well
-          @klass.protector_meta.evaluate(
-            Protector::Adapters::ActiveRecord,
-            @klass,
-            subject
-          )
+          @klass.protector_meta.evaluate(subject)
         end
 
         # @note Unscoped relation drops properties and therefore should be re-restricted
@@ -124,11 +119,7 @@ module Protector
               # AR drops default_scope for eagerly loadable associations
               # https://github.com/inossidabile/protector/issues/3
               # and so should we
-              meta = klass.protector_meta.evaluate(
-                Protector::Adapters::ActiveRecord,
-                klass,
-                subject
-              )
+              meta = klass.protector_meta.evaluate(subject)
 
               if meta.scoped?
                 unscoped = klass.unscoped

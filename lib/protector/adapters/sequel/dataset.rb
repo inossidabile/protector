@@ -32,11 +32,7 @@ module Protector
 
         # Gets {Protector::DSL::Meta::Box} of this dataset
         def protector_meta(subject=protector_subject)
-          model.protector_meta.evaluate(
-            Protector::Adapters::Sequel,
-            model,
-            subject
-          )
+          model.protector_meta.evaluate(subject)
         end
 
         # Substitutes `row_proc` with {Protector} and injects protection scope
@@ -57,11 +53,7 @@ module Protector
           @opts[:eager_graph][:reflections].each do |association, reflection|
             model = reflection[:cache][:class] if reflection[:cache].is_a?(Hash) && reflection[:cache][:class]
             model = reflection[:class_name].constantize unless model
-            meta  = model.protector_meta.evaluate(
-              Protector::Adapters::Sequel,
-              model,
-              subject
-            )
+            meta  = model.protector_meta.evaluate(subject)
 
             relation = relation.instance_eval(&meta.scope_proc) if meta.scoped?
           end

@@ -202,6 +202,12 @@ module Protector
         end
       end
 
+      def initialize(adapter, model, fields)
+        @adapter = adapter
+        @model   = model
+        @fields  = fields
+      end
+
       # Storage for `protect` blocks
       def blocks
         @blocks ||= []
@@ -218,8 +224,8 @@ module Protector
       # @param subject [Object]           Restriction subject
       # @param fields [Array<String>]     All the fields the model has
       # @param entry [Object]             An instance of the model
-      def evaluate(adapter, model, subject, fields=[], entry=nil)
-        Box.new(adapter, model, fields, subject, entry, blocks)
+      def evaluate(subject, entry=nil)
+        Box.new(@adapter, @model, @fields, subject, entry, blocks)
       end
     end
 
@@ -268,11 +274,6 @@ module Protector
         # @yieldparam instance [Object]     Reference to the object being restricted (can be nil)
         def protect(&block)
           protector_meta << block
-        end
-
-        # Storage of {Protector::DSL::Meta}
-        def protector_meta
-          @protector_meta ||= Meta.new
         end
       end
     end
