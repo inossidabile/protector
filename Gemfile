@@ -5,8 +5,6 @@ gem 'rake'
 gem 'colored'
 gem 'pry'
 gem 'rspec'
-gem 'guard'
-gem 'guard-rspec'
 
 gem 'appraisal'
 
