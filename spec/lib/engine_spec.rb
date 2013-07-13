@@ -16,6 +16,10 @@ if defined?(Rails)
       end
     end
 
+    after(:all) do
+      Protector.paranoid = false
+    end
+
   	it "inherits Rails config" do
       Protector.paranoid.should == true
     end
