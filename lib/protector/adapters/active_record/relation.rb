@@ -79,7 +79,7 @@ module Protector
           return new_without_protector(*args, &block) unless protector_subject?
 
           # strong_parameters integration
-          if args.first.respond_to?(:permit)
+          if Protector.config.strong_parameters? && args.first.respond_to?(:permit)
             Protector::ActiveRecord::StrongParameters::sanitize! args, true, protector_meta
           end
 

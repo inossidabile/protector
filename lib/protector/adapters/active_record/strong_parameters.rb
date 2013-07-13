@@ -13,7 +13,9 @@ module Protector
       def sanitize_for_mass_assignment(*args)
         # We check only for updation here since the creation will be handled by relation
         # (see Protector::Adapters::ActiveRecord::Relation#new_with_protector)
-        if args.first.respond_to?(:permit) && !new_record? && protector_subject?
+        if Protector.config.strong_parameters? && args.first.respond_to?(:permit) \
+            && !new_record? && protector_subject?
+
           StrongParameters::sanitize! args, false, protector_meta
         end
 

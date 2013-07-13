@@ -21,7 +21,8 @@ if defined?(Rails)
     end
 
   	it "inherits Rails config" do
-      Protector.config.paranoid.should == true
+      Protector.config.paranoid?.should == true
+      Protector.config.strong_parameters?.should == true
     end
 
     describe "strong_parameters" do

@@ -36,7 +36,17 @@ module Protector
     end
   end
 
-  self.config = ActiveSupport::OrderedOptions.new
+  class Config < ActiveSupport::OrderedOptions
+    def paranoid?
+      !!paranoid
+    end
+
+    def strong_parameters?
+      strong_parameters == nil || !!strong_parameters
+    end
+  end
+
+  self.config = Config.new
 end
 
 Protector.activate!

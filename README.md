@@ -211,6 +211,7 @@ Where "ActiveRecord" is the adapter you are about to use. It can be "Sequel", "D
 Use `Protector.config.option = value` to assign an option. Available options are:
 
   * **paranoid**: makes scope management white-listed. If set to `true` will force Protector to return empty scope when no scope was given within a protection block.
+  * **strong_parameters**: set to `false` to disable built-in [Strong Parameters integration](https://github.com/inossidabile/protector/wiki/Protector-and-Strong-Parameters).
 
 Protector features basic Rails integration so you can assign options using `config.protector.option = value` at your `config/*.rb`.
 

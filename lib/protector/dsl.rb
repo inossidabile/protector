@@ -37,7 +37,7 @@ module Protector
         # Checks whether protection with given subject
         # has the selection scope defined
         def scoped?
-          Protector.config.paranoid || !!@scope_proc
+          Protector.config.paranoid? || !!@scope_proc
         end
 
         # @group Protection DSL
@@ -60,7 +60,7 @@ module Protector
         end
 
         def scope_proc
-          unless Protector.config.paranoid
+          unless Protector.config.paranoid?
             @scope_proc
           else
             @scope_proc || @adapter.null_proc
