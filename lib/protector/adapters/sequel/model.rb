@@ -23,11 +23,11 @@ module Protector
         end
 
         # Storage for {Protector::DSL::Meta::Box}
-        def protector_meta
+        def protector_meta(subject=protector_subject)
           @protector_meta ||= self.class.protector_meta.evaluate(
             Protector::Adapters::Sequel,
             self.class,
-            protector_subject,
+            subject,
             self.class.columns,
             self
           )

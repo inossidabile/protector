@@ -27,12 +27,12 @@ module Protector
         end
 
         # Gets {Protector::DSL::Meta::Box} of this relation
-        def protector_meta
+        def protector_meta(subject=protector_subject)
           # We don't seem to require columns here as well
           @klass.protector_meta.evaluate(
             Protector::Adapters::ActiveRecord,
             @klass,
-            protector_subject
+            subject
           )
         end
 

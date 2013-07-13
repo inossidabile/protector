@@ -31,11 +31,11 @@ module Protector
         end
 
         # Gets {Protector::DSL::Meta::Box} of this dataset
-        def protector_meta
+        def protector_meta(subject=protector_subject)
           model.protector_meta.evaluate(
             Protector::Adapters::Sequel,
             model,
-            protector_subject
+            subject
           )
         end
 
