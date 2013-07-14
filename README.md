@@ -21,6 +21,7 @@ We are working hard to extend the list with:
 Protector is an extension and therefore hides deeply inside your ORM library making itself compatible to the most gems you use. Sometimes however, you might need additional integration to take the best from it:
 
   * [Protector and Strong Parameters](https://github.com/inossidabile/protector/wiki/Protector-and-Strong-Parameters)
+  * [Protector and CanCan](https://github.com/inossidabile/protector/wiki/Protector-and-CanCan)
   * [Protector and SimpleForm](https://github.com/inossidabile/protector/wiki/Protector-and-SimpleForm)
 
 ## Basics
