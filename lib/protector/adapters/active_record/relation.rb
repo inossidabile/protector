@@ -141,8 +141,8 @@ module Protector
           relation
         end
 
-        # Makes Relation duck-type compatible to AR::Base to allow proper protection
-        # block execution with itself
+        # Makes instance of Relation duck-type compatible to AR::Base to allow proper
+        # protection block execution with itself
         def protector_mimic_base!
           return unless Protector::Adapters::ActiveRecord.modern?
 
