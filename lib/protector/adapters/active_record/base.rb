@@ -9,6 +9,9 @@ module Protector
           include Protector::DSL::Base
           include Protector::DSL::Entry
 
+          # We need this to make sure no ActvieRecord classes managed
+          # to cache db scheme and create corresponding methods since
+          # we want to modify the way they get created
           ObjectSpace.each_object(Class).each do |klass|
             klass.undefine_attribute_methods if klass < self
           end
