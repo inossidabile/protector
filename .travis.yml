@@ -1,5 +1,7 @@
 before_install:
   - gem install bundler
+  - bundle install
+  - rake appraisal:install
 rvm:
   - 1.9.3
   - jruby-19mode
