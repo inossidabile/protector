@@ -12,8 +12,13 @@ if defined?(ActiveRecord)
 
         included do |klass|
           protect do |x|
-            scope{ where('1=0') } if x == '-'
-            scope{ where(klass.table_name => {number: 999}) } if x == '+' 
+            if x == '-'
+              scope{ where('1=0') } 
+            elsif x == '+'
+              scope{ where(klass.table_name => {number: 999}) }
+            elsif !Protector.config.paranoid && Protector::Adapters::ActiveRecord.modern?
+              scope { all }
+            end
 
             can :view, :dummy_id unless x == '-'
           end

@@ -111,7 +111,7 @@ module Protector
           @records
         end
 
-        # Swaps `includes` with `preload` whether it's not referenced or merges
+        # Swaps `includes` with `preload` if it's not referenced or merges
         # security scope of proper class otherwise
         def protector_substitute_includes(subject, relation)
           if eager_loading?
@@ -124,15 +124,10 @@ module Protector
               if meta.scoped?
                 unscoped = klass.unscoped
 
-                # AR 4 has awfull inconsistency when it comes to method `all`
-                # We have to mimic base class behaviour for relation we get from `unscoped`
-                if Protector::Adapters::ActiveRecord.modern?
-                  class <<unscoped
-                    def all
-                      self
-                    end
-                  end
-                end
+                # `unscoped` gets us a relation but Protector scope is supposed
+                # to work with AR::Base. Some versions of AR have those uncompatible
+                # so we have to workaround it :(
+                unscoped.protector_mimic_base!
 
                 # Finally we merge unscoped basic relation extended with protection scope
                 relation = relation.merge unscoped.instance_eval(&meta.scope_proc)
@@ -144,6 +139,20 @@ module Protector
           end
 
           relation
+        end
+
+        # Makes Relation duck-type compatible to AR::Base to allow proper protection
+        # block execution with itself
+        def protector_mimic_base!
+          return unless Protector::Adapters::ActiveRecord.modern?
+
+          class <<self
+            # AR 4 has awfull inconsistency when it comes to method `all`
+            # We have to mimic base class behaviour for relation we get from `unscoped`
+            def all
+              self
+            end
+          end
         end
 
         # Indexes `includes` format by actual entity class
