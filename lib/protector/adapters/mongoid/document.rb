@@ -8,9 +8,7 @@ module Protector
           include Protector::DSL::Base
           include Protector::DSL::Entry
 
-          ObjectSpace.each_object(Class).each do |klass|
-            klass.protector_redefine_fields if klass < self
-          end
+          ::Mongoid::Config.models.each &:protector_redefine_fields
 
           validate do
             return unless protector_subject?
@@ -78,6 +76,14 @@ module Protector
           protector_meta.can?(action, field)
         end
 
+        def [](name)
+          if !protector_subject? || name == "id" || name == "_id" || protector_meta.readable?(name)
+            read_attribute(name)
+          else
+            nil
+          end
+        end
+
         # methods of Mongoid::Fields
 
         module ClassMethods
@@ -108,7 +114,7 @@ module Protector
               end
             EVAL
           end
-
+          
           def create_field_getter(name, meth, field)
             super
 

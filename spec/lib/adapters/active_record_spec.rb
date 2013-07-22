@@ -65,6 +65,8 @@ if defined?(ActiveRecord)
       end
 
       let(:id_field) { "id" }
+      let(:first_dummy) { Dummy.first }
+      let(:first_fluffy) { Fluffy.first }
 
       it "includes" do
         Dummy.ancestors.should include(Protector::Adapters::ActiveRecord::Base)

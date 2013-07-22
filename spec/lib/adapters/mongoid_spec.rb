@@ -3,6 +3,9 @@ require 'spec_helpers/boot'
 if defined?(Mongoid::Document)
   load 'spec_helpers/adapters/mongoid.rb'
 
+  dummy1 = nil
+  dummy2 = nil
+
   describe Protector::Adapters::Mongoid do
     before(:all) do
       load 'migrations/mongoid.rb'
@@ -17,7 +20,7 @@ if defined?(Mongoid::Document)
               scope { where('false') } 
             
             when '+'
-              scope { where(klass.collection_name => { number: 999 }) }
+              scope { where(number: 999) }
               can :view, :dummy_id
 
             else
@@ -62,10 +65,21 @@ if defined?(Mongoid::Document)
     #
     describe Protector::Adapters::Mongoid::Document do
       let(:dummy) do
-        Fluffy
+        Class.new do
+          include Mongoid::Document
+
+          store_in collection: "dummies"
+
+          field :string,   type: String
+          field :number,   type: Integer
+          field :text,     type: String
+          field :dummy_id, type: String
+        end
       end
 
       let(:id_field) { "_id" }
+      let(:first_dummy) { Dummy.find(dummy1.id) }
+      let(:first_fluffy) { Fluffy.first }
 
       it "includes" do
         Dummy.ancestors.should include(Protector::Adapters::Mongoid::Document)

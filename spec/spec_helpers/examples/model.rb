@@ -22,7 +22,7 @@ shared_examples_for "a model" do
   end
 
   it "drops meta on restrict" do
-    d = Dummy.first
+    d = first_dummy
 
     d.restrict!('!').protector_meta
     d.instance_variable_get('@protector_meta').should_not == nil
@@ -32,20 +32,20 @@ shared_examples_for "a model" do
 
   describe "visibility" do
     it "marks blocked" do
-      Dummy.first.restrict!('-').visible?.should == false
+      first_dummy.restrict!('-').visible?.should == false
     end
 
     context "adequate", paranoid: false do
       it "marks allowed" do
-        Dummy.first.restrict!('!').visible?.should == true
-        Dummy.first.restrict!('+').visible?.should == true
+        first_dummy.restrict!('!').visible?.should == true
+        first_dummy.restrict!('+').visible?.should == true
       end
     end
 
     context "paranoid", paranoid: true do
       it "marks allowed" do
-        Dummy.first.restrict!('!').visible?.should == false
-        Dummy.first.restrict!('+').visible?.should == true
+        first_dummy.restrict!('!').visible?.should == false
+        first_dummy.restrict!('+').visible?.should == true
       end
     end
   end
@@ -61,7 +61,7 @@ shared_examples_for "a model" do
         end
       end
 
-      d = dummy.first.restrict!('!')
+      d = dummy.find(first_dummy.id).restrict!('!')
       d.number.should == nil
       d[:number].should == nil
       read_attribute(d, :number).should_not == nil
@@ -102,7 +102,6 @@ shared_examples_for "a model" do
 
       it "marks blocked" do
         d = dummy.new(string: 'bam', number: 1)
-        p d.class.protector_meta.instance_variable_get :@fields
         d.restrict!('!').creatable?.should == false
       end
 
@@ -195,13 +194,13 @@ shared_examples_for "a model" do
       end
 
       it "marks blocked" do
-        d = dummy.first
+        d = dummy.find(first_dummy.id)
         assign!(d, string: 'bam', number: 1)
         d.restrict!('!').updatable?.should == false
       end
 
       it "invalidates" do
-        d = dummy.first.restrict!('!')
+        d = dummy.find(first_dummy.id).restrict!('!')
         assign!(d, string: 'bam', number: 1)
         d.should invalidate
       end
@@ -217,25 +216,25 @@ shared_examples_for "a model" do
       end
 
       it "marks blocked" do
-        d = dummy.first
+        d = dummy.find(first_dummy.id)
         assign!(d, string: 'bam', number: 1)
         d.restrict!('!').updatable?.should == false
       end
 
       it "marks allowed" do
-        d = dummy.first
+        d = dummy.find(first_dummy.id)
         assign!(d, string: 'bam')
         d.restrict!('!').updatable?.should == true
       end
 
       it "invalidates" do
-        d = dummy.first.restrict!('!')
+        d = dummy.find(first_dummy.id).restrict!('!')
         assign!(d, string: 'bam', number: 1)
         d.should invalidate
       end
 
       it "validates" do
-        d = dummy.first.restrict!('!')
+        d = dummy.find(first_dummy.id).restrict!('!')
         assign!(d, string: 'bam')
         d.should validate
       end
@@ -251,25 +250,25 @@ shared_examples_for "a model" do
       end
 
       it "marks blocked" do
-        d = dummy.first
+        d = dummy.find(first_dummy.id)
         assign!(d, string: 'bam')
         d.restrict!('!').updatable?.should == false
       end
 
       it "marks allowed" do
-        d = dummy.first
+        d = dummy.find(first_dummy.id)
         assign!(d, string: '12345')
         d.restrict!('!').updatable?.should == true
       end
 
       it "invalidates" do
-        d = dummy.first.restrict!('!')
+        d = dummy.find(first_dummy.id).restrict!('!')
         assign!(d, string: 'bam')
         d.should invalidate
       end
 
       it "validates" do
-        d = dummy.first.restrict!('!')
+        d = dummy.find(first_dummy.id).restrict!('!')
         assign!(d, string: '12345')
         d.should validate
       end
@@ -285,25 +284,25 @@ shared_examples_for "a model" do
       end
 
       it "marks blocked" do
-        d = dummy.first
+        d = dummy.find(first_dummy.id)
         assign!(d, number: 500)
         d.restrict!('!').updatable?.should == false
       end
 
       it "marks allowed" do
-        d = dummy.first
+        d = dummy.find(first_dummy.id)
         assign!(d, number: 2)
         d.restrict!('!').updatable?.should == true
       end
 
       it "invalidates" do
-        d = dummy.first.restrict!('!')
+        d = dummy.find(first_dummy.id).restrict!('!')
         assign!(d, number: 500)
         d.should invalidate
       end
 
       it "validates" do
-        d = dummy.first.restrict!('!')
+        d = dummy.find(first_dummy.id).restrict!('!')
         assign!(d, number: 2)
         d.should validate
       end
@@ -319,7 +318,7 @@ shared_examples_for "a model" do
         protect do; end
       end
 
-      dummy.first.restrict!('!').destroyable?.should == false
+      dummy.find(first_dummy.id).restrict!('!').destroyable?.should == false
     end
 
     it "marks allowed" do
@@ -327,7 +326,7 @@ shared_examples_for "a model" do
         protect do; can :destroy; end
       end
 
-      dummy.first.restrict!('!').destroyable?.should == true
+      dummy.find(first_dummy.id).restrict!('!').destroyable?.should == true
     end
 
     it "invalidates" do
@@ -356,16 +355,16 @@ shared_examples_for "a model" do
     context "(has_many)" do
       context "adequate", paranoid: false do
         it "loads" do
-          Dummy.first.restrict!('!').fluffies.length.should == 2
-          Dummy.first.restrict!('+').fluffies.length.should == 1
-          Dummy.first.restrict!('-').fluffies.empty?.should == true
+          first_dummy.restrict!('!').fluffies.length.should == 2
+          first_dummy.restrict!('+').fluffies.length.should == 1
+          first_dummy.restrict!('-').fluffies.empty?.should == true
         end
       end
       context "paranoid", paranoid: true do
         it "loads" do
-          Dummy.first.restrict!('!').fluffies.empty?.should == true
-          Dummy.first.restrict!('+').fluffies.length.should == 1
-          Dummy.first.restrict!('-').fluffies.empty?.should == true
+          first_dummy.restrict!('!').fluffies.empty?.should == true
+          first_dummy.restrict!('+').fluffies.length.should == 1
+          first_dummy.restrict!('-').fluffies.empty?.should == true
         end
       end
     end
@@ -373,19 +372,19 @@ shared_examples_for "a model" do
     context "(belongs_to)" do
       context "adequate", paranoid: false do
         it "passes subject" do
-          Fluffy.first.restrict!('!').dummy.protector_subject.should == '!'
+          first_fluffy.restrict!('!').dummy.protector_subject.should == '!'
         end
 
         it "loads" do
-          Fluffy.first.restrict!('!').dummy.should be_a_kind_of(Dummy)
-          Fluffy.first.restrict!('-').dummy.should == nil
+          first_fluffy.restrict!('!').dummy.should be_a_kind_of(Dummy)
+          first_fluffy.restrict!('-').dummy.should == nil
         end
       end
 
       context "paranoid", paranoid: true do
         it "loads" do
-          Fluffy.first.restrict!('!').dummy.should == nil
-          Fluffy.first.restrict!('-').dummy.should == nil
+          first_fluffy.restrict!('!').dummy.should == nil
+          first_fluffy.restrict!('-').dummy.should == nil
         end
       end
     end

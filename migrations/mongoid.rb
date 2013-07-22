@@ -13,9 +13,9 @@ Mongoid.configure do |config|
     },
     "database" => "protector_spec"
   })
-end
 
-Mongoid.default_session.collections.each &:drop
+  config.purge!
+end
 
 class Dummy
   include Mongoid::Document

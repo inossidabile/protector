@@ -26,5 +26,5 @@ appraise "Sequel" do
 end
 
 appraise "Mongoid" do
-  gem "mongoid", ">= 3.1.4"
+  gem "mongoid", ">= 3.1.4", :path => "../mongoid_tree"
 end
