@@ -57,6 +57,8 @@ if defined?(Sequel)
         Class.new Sequel::Model(:dummies)
       end
 
+      let(:id_field) { "id" }
+
       it "includes" do
         Dummy.ancestors.should include(Protector::Adapters::Sequel::Model)
       end

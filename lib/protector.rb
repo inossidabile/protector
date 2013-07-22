@@ -5,6 +5,7 @@ require "protector/version"
 require "protector/dsl"
 require "protector/adapters/active_record"
 require "protector/adapters/sequel"
+require "protector/adapters/mongoid"
 
 require "protector/engine" if defined?(Rails)
 
@@ -14,7 +15,8 @@ module Protector
   class << self
     ADAPTERS = [
       Protector::Adapters::ActiveRecord,
-      Protector::Adapters::Sequel
+      Protector::Adapters::Sequel,
+      Protector::Adapters::Mongoid
     ]
 
     attr_accessor :config

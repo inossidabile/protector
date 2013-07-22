@@ -25,6 +25,6 @@ appraise "Sequel" do
   gem "sequel", "3.30.0"
 end
 
-# appraise "Mongoid" do
-#   gem "mongoid", ">= 3.1.4"
-# end
+appraise "Mongoid" do
+  gem "mongoid", ">= 3.1.4"
+end

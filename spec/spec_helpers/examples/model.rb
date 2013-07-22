@@ -13,7 +13,7 @@ shared_examples_for "a model" do
       end
     end
 
-    fields = Hash[*%w(id string number text dummy_id).map{|x| [x, nil]}.flatten]
+    fields = Hash[*[ id_field, "string", "number", "text", "dummy_id" ].map{|x| [x, nil]}.flatten]
     meta   = dummy.new.restrict!('!').protector_meta
 
     meta.access[:view].should   == fields
@@ -102,6 +102,7 @@ shared_examples_for "a model" do
 
       it "marks blocked" do
         d = dummy.new(string: 'bam', number: 1)
+        p d.class.protector_meta.instance_variable_get :@fields
         d.restrict!('!').creatable?.should == false
       end
 
