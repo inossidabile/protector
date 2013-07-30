@@ -180,6 +180,36 @@ shared_examples_for "a model" do
         d.should validate
       end
     end
+
+    context "by direct values" do
+      before(:each) do
+        dummy.instance_eval do
+          protect do
+            can :create, number: 5
+          end
+        end
+      end
+
+      it "marks blocked" do
+        d = dummy.new(number: 500)
+        d.restrict!('!').creatable?.should == false
+      end
+
+      it "marks allowed" do
+        d = dummy.new(number: 5)
+        d.restrict!('!').creatable?.should == true
+      end
+
+      it "invalidates" do
+        d = dummy.new(number: 500).restrict!('!')
+        d.should invalidate
+      end
+
+      it "validates" do
+        d = dummy.new(number: 5).restrict!('!')
+        d.should validate
+      end
+    end
   end
 
   #
@@ -304,6 +334,40 @@ shared_examples_for "a model" do
       it "validates" do
         d = dummy.first.restrict!('!')
         assign!(d, number: 2)
+        d.should validate
+      end
+    end
+
+    context "by direct values" do
+      before(:each) do
+        dummy.instance_eval do
+          protect do
+            can :update, number: 5
+          end
+        end
+      end
+
+      it "marks blocked" do
+        d = dummy.first
+        assign!(d, number: 500)
+        d.restrict!('!').updatable?.should == false
+      end
+
+      it "marks allowed" do
+        d = dummy.first
+        assign!(d, number: 5)
+        d.restrict!('!').updatable?.should == true
+      end
+
+      it "invalidates" do
+        d = dummy.first.restrict!('!')
+        assign!(d, number: 500)
+        d.should invalidate
+      end
+
+      it "validates" do
+        d = dummy.first.restrict!('!')
+        assign!(d, number: 5)
         d.should validate
       end
     end

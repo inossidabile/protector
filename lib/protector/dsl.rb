@@ -194,6 +194,8 @@ module Protector
                 return false unless x.include?(v)
               when Proc
                 return false unless x.call(v)
+              else
+                return false if x != nil && x != v
               end
             end
           end

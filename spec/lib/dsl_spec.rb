@@ -80,7 +80,8 @@ describe Protector::DSL do
           user.should  == 'user' if user
           entry.should == 'entry' if user
 
-          can :update, %w(field1 field2 field3),
+          can :update, %w(field1 field2),
+            field3: 1,
             field4: 0..5,
             field5: l
 
@@ -117,7 +118,7 @@ describe Protector::DSL do
           update: {
             "field1" => nil,
             "field2" => nil,
-            "field3" => nil,
+            "field3" => 1,
             "field4" => 0..5,
             "field5" => l
           },
