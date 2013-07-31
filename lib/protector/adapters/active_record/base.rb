@@ -18,9 +18,11 @@ module Protector
 
           validate do
             return unless protector_subject?
-            if (new_record? && !creatable?) || (!new_record? && !updatable?)
-              errors[:base] << I18n.t('protector.invalid')
-            end
+
+            method = new_record? ? :first_uncreatable_field : :first_unupdatable_field
+            field  = protector_meta.send(method, protector_changed)
+
+            errors[:base] << I18n.t('protector.invalid', field: field) if field
           end
 
           before_destroy do
@@ -89,6 +91,11 @@ module Protector
           end
         end
 
+        # Gathers real changed values bypassing restrictions
+        def protector_changed
+          HashWithIndifferentAccess[changed.map{|field| [field, read_attribute(field)]}]
+        end
+
         # Storage for {Protector::DSL::Meta::Box}
         def protector_meta(subject=protector_subject)
           @protector_meta ||= self.class.protector_meta.evaluate(subject, self)
@@ -105,14 +112,12 @@ module Protector
 
         # Checks if current model can be created in the context of current subject
         def creatable?
-          fields = HashWithIndifferentAccess[changed.map{|field| [field, read_attribute(field)]}]
-          protector_meta.creatable?(fields)
+          protector_meta.creatable? protector_changed
         end
 
         # Checks if current model can be updated in the context of current subject
         def updatable?
-          fields = HashWithIndifferentAccess[changed.map{|field| [field, read_attribute(field)]}]
-          protector_meta.updatable?(fields)
+          protector_meta.updatable? protector_changed
         end
 
         # Checks if current model can be destroyed in the context of current subject

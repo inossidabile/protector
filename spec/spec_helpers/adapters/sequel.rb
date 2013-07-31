@@ -2,7 +2,7 @@ RSpec::Matchers.define :invalidate do
   match do |actual|
     DB.transaction do
       expect{ actual.save }.to raise_error
-      actual.errors.on(:base).should == ["Access denied"]
+      actual.errors.on(:base)[0].starts_with?("Access denied to").should == true
       raise Sequel::Rollback
     end
 

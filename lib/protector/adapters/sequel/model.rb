@@ -31,6 +31,11 @@ module Protector
           end
         end
 
+        # Gathers real values of given fields bypassing restrictions
+        def protector_changed(fields)
+          HashWithIndifferentAccess[fields.map{|x| [x.to_s, @values[x]]}]
+        end
+
         # Storage for {Protector::DSL::Meta::Box}
         def protector_meta(subject=protector_subject)
           @protector_meta ||= self.class.protector_meta.evaluate(subject, self)
@@ -45,13 +50,12 @@ module Protector
         # Checks if current model can be created in the context of current subject
         def creatable?
           fields = HashWithIndifferentAccess[keys.map{|x| [x.to_s, @values[x]]}]
-          protector_meta.creatable?(fields)
+          protector_meta.creatable? protector_changed(keys)
         end
 
         # Checks if current model can be updated in the context of current subject
         def updatable?
-          fields = HashWithIndifferentAccess[changed_columns.map{|x| [x.to_s, @values[x]]}]
-          protector_meta.updatable?(fields)
+          protector_meta.updatable? protector_changed(changed_columns)
         end
 
         # Checks if current model can be destroyed in the context of current subject
@@ -65,10 +69,15 @@ module Protector
 
         # Basic security validations
         def validate
-          super
-          return unless protector_subject?
-          method = new? ? :creatable? : :updatable?
-          errors.add(:base, I18n.t('protector.invalid')) unless __send__(method)
+          super; return unless protector_subject?
+
+          field = if new?
+            protector_meta.first_uncreatable_field protector_changed(keys)
+          else
+            protector_meta.first_unupdatable_field protector_changed(changed_columns)
+          end
+
+          errors.add :base, I18n.t('protector.invalid', field: field) if field
         end
 
         # Destroy availability check

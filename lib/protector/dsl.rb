@@ -159,9 +159,17 @@ module Protector
           modifiable? :create, fields
         end
 
+        def first_uncreatable_field(fields)
+          first_unmodifiable_field :create, fields
+        end
+
         # Checks whether you can update a model with given field in context of current subject
         def updatable?(fields=false)
           modifiable? :update, fields
+        end
+
+        def first_unupdatable_field(fields)
+          first_unmodifiable_field :update, fields
         end
 
         # Checks whether you can destroy a model in context of current subject
@@ -181,25 +189,27 @@ module Protector
 
         private
 
-        def modifiable?(part, fields)
-          keys = @access[part].keys
-          return false unless keys.length > 0
+        def first_unmodifiable_field(part, fields)
+          diff = fields.keys - @access[part].keys
+          return diff.first if diff.length > 0
 
-          if fields
-            return false if (fields.keys - keys).length > 0
-
-            fields.each do |k,v|
-              case x = @access[part][k]
-              when Range
-                return false unless x.include?(v)
-              when Proc
-                return false unless x.call(v)
-              else
-                return false if x != nil && x != v
-              end
+          fields.each do |k,v|
+            case x = @access[part][k]
+            when Range
+              return k unless x.include?(v)
+            when Proc
+              return k unless x.call(v)
+            else
+              return k if x != nil && x != v
             end
           end
 
+          false
+        end
+
+        def modifiable?(part, fields)
+          return false unless @access[part].keys.length > 0
+          return false if fields && first_unmodifiable_field(part, fields)
           true
         end
       end

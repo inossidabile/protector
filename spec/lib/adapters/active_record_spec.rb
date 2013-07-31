@@ -59,6 +59,7 @@ if defined?(ActiveRecord)
     describe Protector::Adapters::ActiveRecord::Base do
       let(:dummy) do
         Class.new(ActiveRecord::Base) do
+          def self.model_name; ActiveModel::Name.new(self, nil, "dummy"); end
           self.table_name = "dummies"
           scope :none, where('1 = 0') unless respond_to?(:none)
         end

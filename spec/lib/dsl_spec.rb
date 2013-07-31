@@ -141,9 +141,19 @@ describe Protector::DSL do
         data.updatable?.should == true
       end
 
+      it "gets first unupdatable field" do
+        data = @meta.evaluate('user', 'entry')
+        data.first_unupdatable_field('field1' => 1, 'field6' => 2, 'field7' => 3).should == 'field6'
+      end
+
       it "marks creatable" do
         data = @meta.evaluate('user', 'entry')
         data.creatable?.should == false
+      end
+
+      it "gets first uncreatable field" do
+        data = @meta.evaluate('user', 'entry')
+        data.first_uncreatable_field('field1' => 1, 'field6' => 2).should == 'field1'
       end
     end
 

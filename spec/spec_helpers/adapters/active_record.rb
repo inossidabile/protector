@@ -1,7 +1,7 @@
 RSpec::Matchers.define :invalidate do
   match do |actual|
     actual.save.should == false
-    actual.errors[:base].should == ["Access denied"]
+    actual.errors[:base][0].starts_with?("Access denied to").should == true
   end
 end
 

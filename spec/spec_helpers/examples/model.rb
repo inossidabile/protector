@@ -101,13 +101,14 @@ shared_examples_for "a model" do
       end
 
       it "marks blocked" do
-        d = dummy.new(string: 'bam', number: 1)
-        d.restrict!('!').creatable?.should == false
+        d = dummy.new(string: 'bam', number: 1).restrict!('!')
+        d.creatable?.should == false
       end
 
       it "marks allowed" do
-        d = dummy.new(string: 'bam')
-        d.restrict!('!').creatable?.should == true
+        d = dummy.new(string: 'bam').restrict!('!')
+        $debug = true
+        d.creatable?.should == true
       end
 
       it "invalidates" do
