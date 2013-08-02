@@ -36,7 +36,14 @@ This example is based on ActiveRecord but the code is mostly identical for any s
 class Article < ActiveRecord::Base          # Fields: title, text, user_id, hidden
   protect do |user|                         # `user` is a context of security
 
-    unless user.admin?
+    if user.admin?
+      scope { all }                         # Admins can retrieve anything
+
+      can :view                             # ... and view anything
+      can :create                           # ... and create anything
+      can :update                           # ... and update anything
+      can :destroy                          # ... and they can delete
+    else
       scope { where(hidden: false) }        # Non-admins can only read insecure data
 
       can :view                             # Allow to read any field
@@ -50,13 +57,6 @@ class Article < ActiveRecord::Base          # Fields: title, text, user_id, hidd
       }
 
       # In this setup non-admins can not destroy or update existing records.
-    else
-      scope { all }                         # Admins can retrieve anything
-
-      can :view                             # ... and view anything
-      can :create                           # ... and create anything
-      can :update                           # ... and update anything
-      can :destroy                          # ... and they can delete
     end
   end
 end
