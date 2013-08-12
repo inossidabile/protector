@@ -232,9 +232,7 @@ module Protector
 
       # Calculate protection at the context of subject
       #
-      # @param model [Class]              The class of protected entity
       # @param subject [Object]           Restriction subject
-      # @param fields [Array<String>]     All the fields the model has
       # @param entry [Object]             An instance of the model
       def evaluate(subject, entry=nil)
         Box.new(@adapter, @model, @fields, subject, entry, blocks)
