@@ -18,11 +18,9 @@ module Protector
         module ClassMethods
           # Storage of {Protector::DSL::Meta}
           def protector_meta
-            @protector_meta ||= Protector::DSL::Meta.new(
-              Protector::Adapters::Sequel,
-              self,
+            @protector_meta ||= Protector::DSL::Meta.new(Protector::Adapters::Sequel, self) do
               self.columns
-            )
+            end
           end
 
           # Gets default restricted `Dataset`

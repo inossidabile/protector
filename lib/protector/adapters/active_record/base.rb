@@ -63,11 +63,9 @@ module Protector
         module ClassMethods
           # Storage of {Protector::DSL::Meta}
           def protector_meta
-            @protector_meta ||= Protector::DSL::Meta.new(
-              Protector::Adapters::ActiveRecord,
-              self,
+            @protector_meta ||= Protector::DSL::Meta.new(Protector::Adapters::ActiveRecord, self) do
               self.column_names
-            )
+            end
           end
 
           # Wraps every `.field` method with a check against {Protector::DSL::Meta::Box#readable?}

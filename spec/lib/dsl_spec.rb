@@ -42,7 +42,7 @@ describe Protector::DSL do
         include Protector::DSL::Entry
 
         def self.protector_meta
-          @protector_meta ||= Protector::DSL::Meta.new nil, nil, []
+          @protector_meta ||= Protector::DSL::Meta.new(nil, nil){[]}
         end
       end
     end
@@ -61,7 +61,7 @@ describe Protector::DSL do
       l = lambda {|x| x > 4 }
 
       before :each do
-        @meta = Protector::DSL::Meta.new nil, nil, %w(field1 field2 field3 field4 field5)
+        @meta = Protector::DSL::Meta.new(nil, nil){%w(field1 field2 field3 field4 field5)}
         @meta << lambda {
           can :view
         }
@@ -159,7 +159,7 @@ describe Protector::DSL do
 
     context "custom methods" do
       before :each do
-        @meta = Protector::DSL::Meta.new nil, nil, %w(field1 field2)
+        @meta = Protector::DSL::Meta.new(nil, nil){%w(field1 field2)}
 
         @meta << lambda {
           can :drink, :field1

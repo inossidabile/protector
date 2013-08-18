@@ -47,3 +47,6 @@ end
 
 class Loony < Sequel::Model
 end
+
+class Rumba < Sequel::Model
+end

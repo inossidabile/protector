@@ -45,3 +45,6 @@ end
 
 class Loony < ActiveRecord::Base
 end
+
+class Rumba < ActiveRecord::Base
+end

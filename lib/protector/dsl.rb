@@ -214,10 +214,14 @@ module Protector
         end
       end
 
-      def initialize(adapter, model, fields)
-        @adapter = adapter
-        @model   = model
-        @fields  = fields
+      def initialize(adapter, model, &fields_proc)
+        @adapter     = adapter
+        @model       = model
+        @fields_proc = fields_proc
+      end
+
+      def fields
+        @fields ||= @fields_proc.call
       end
 
       # Storage for `protect` blocks
@@ -235,7 +239,7 @@ module Protector
       # @param subject [Object]           Restriction subject
       # @param entry [Object]             An instance of the model
       def evaluate(subject, entry=nil)
-        Box.new(@adapter, @model, @fields, subject, entry, blocks)
+        Box.new(@adapter, @model, fields, subject, entry, blocks)
       end
     end
 

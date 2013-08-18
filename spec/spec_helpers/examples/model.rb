@@ -30,6 +30,14 @@ shared_examples_for "a model" do
     d.instance_variable_get('@protector_meta').should == nil
   end
 
+  it "doesn't get stuck with non-existing tables" do
+    Rumba.class_eval do
+      protect do
+        can
+      end
+    end
+  end
+
   describe "visibility" do
     it "marks blocked" do
       Dummy.first.restrict!('-').visible?.should == false
