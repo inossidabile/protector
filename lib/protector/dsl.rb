@@ -17,7 +17,7 @@ module Protector
           @model       = model
           @fields      = fields
           @access      = {update: {}, view: {}, create: {}}
-          @scope_proc  = false
+          @scope_procs = []
           @destroyable = false
 
           Protector.insecurely do
@@ -37,7 +37,7 @@ module Protector
         # Checks whether protection with given subject
         # has the selection scope defined
         def scoped?
-          Protector.config.paranoid? || !!@scope_proc
+          Protector.config.paranoid? || @scope_procs.length > 0
         end
 
         # @group Protection DSL
@@ -53,25 +53,25 @@ module Protector
         #     scope { none }
         #   end
         def scope(&block)
-          @scope_proc = block
-
-          @relation          = false
-          @unscoped_relation = false
+          @scope_procs << block
+          @relation = false
         end
 
-        def scope_proc
-          unless Protector.config.paranoid?
-            @scope_proc
-          else
-            @scope_proc || @adapter.null_proc
-          end
+        def scope_procs
+          return [@adapter.null_proc] if @scope_procs.empty? && Protector.config.paranoid?
+          @scope_procs
         end
 
         def relation
           return false unless scoped?
 
-          @relation ||= @model.instance_eval(&scope_proc)
-          @relation
+          @relation ||= eval_scope_procs @model
+        end
+
+        def eval_scope_procs(instance)
+          return scope_procs.reduce(instance) do |relation, scope_proc|
+            relation.instance_eval(&scope_proc)
+          end
         end
 
         # Enables action for given fields.

@@ -130,7 +130,7 @@ module Protector
                 unscoped.protector_mimic_base!
 
                 # Finally we merge unscoped basic relation extended with protection scope
-                relation = relation.merge unscoped.instance_eval(&meta.scope_proc)
+                relation = relation.merge meta.eval_scope_procs(unscoped)
               end
             end
           else
