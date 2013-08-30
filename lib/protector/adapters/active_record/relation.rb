@@ -114,8 +114,8 @@ module Protector
         # Swaps `includes` with `preload` if it's not referenced or merges
         # security scope of proper class otherwise
         def protector_substitute_includes(subject, relation)
-          if eager_loading?
-            protector_expand_inclusion(includes_values + eager_load_values).each do |klass, path|
+          if relation.eager_loading?
+            protector_expand_inclusion(relation.includes_values + relation.eager_load_values).each do |klass, path|
               # AR drops default_scope for eagerly loadable associations
               # https://github.com/inossidabile/protector/issues/3
               # and so should we
