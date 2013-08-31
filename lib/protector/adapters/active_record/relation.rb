@@ -10,6 +10,8 @@ module Protector
 
           alias_method_chain :exec_queries, :protector
           alias_method_chain :new, :protector
+          alias_method_chain :create, :protector
+          alias_method_chain :create!, :protector
 
           # AR 3.2 workaround. Come on, guys... SQL parsing :(
           unless method_defined?(:references_values)
@@ -79,6 +81,24 @@ module Protector
           end
 
           new_without_protector(*args, &block).restrict!(protector_subject)
+        end
+
+        def create_with_protector(*args, &block)
+          return create_without_protector(*args, &block) unless protector_subject?
+
+          create_without_protector(*args) do |instance|
+            instance.restrict!(protector_subject)
+            block.call(instance) if block
+          end
+        end
+
+        def create_with_protector!(*args, &block)
+          return create_without_protector!(*args, &block) unless protector_subject?
+
+          create_without_protector!(*args) do |instance|
+            instance.restrict!(protector_subject)
+            block.call(instance) if block
+          end
         end
 
         # Patches current relation to fulfill restriction and call real `exec_queries`

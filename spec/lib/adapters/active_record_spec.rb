@@ -76,6 +76,24 @@ if defined?(ActiveRecord)
       end
 
       it_behaves_like "a model"
+
+      it "validates on create" do
+        dummy.instance_eval do
+          protect do; end
+        end
+
+        instance = dummy.restrict!('!').create(string: 'test')
+        instance.errors[:base].should == ["Access denied to 'string'"]
+        instance.delete
+      end
+
+      it "validates on create!" do
+        dummy.instance_eval do
+          protect do; end
+        end
+
+        expect { dummy.restrict!('!').create!(string: 'test').delete }.to raise_error
+      end
     end
 
     #
