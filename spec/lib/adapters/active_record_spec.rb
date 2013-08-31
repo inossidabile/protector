@@ -247,6 +247,25 @@ if defined?(ActiveRecord)
           end
         end
       end
+
+      context "complicated features" do
+        # https://github.com/inossidabile/protector/commit/7ce072aa2074e0f3b48e293b952810f720bc143d
+        it "handles scopes with includes" do
+          fluffy = Class.new(ActiveRecord::Base) do
+            def self.name; 'Fluffy'; end
+            def self.model_name; ActiveModel::Name.new(self, nil, "fluffy"); end
+            self.table_name = "fluffies"
+            scope :none, where('1 = 0') unless respond_to?(:none)
+            belongs_to :dummy, class_name: 'Dummy'
+
+            protect do
+              scope { includes(:dummy).where(dummies: {id: 1}) }
+            end
+          end
+
+          expect { fluffy.restrict!('!').to_a }.to_not raise_error
+        end
+      end
     end
   end
 
