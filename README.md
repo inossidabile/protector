@@ -216,6 +216,11 @@ Use `Protector.config.option = value` to assign an option. Available options are
 
 Protector features basic Rails integration so you can assign options using `config.protector.option = value` at your `config/*.rb`.
 
+## Need help?
+
+  * Use [StackOverflow](http://stackoverflow.com/questions/tagged/protector) Luke! Make sure to use tag `protector`.
+  * You can get help at [irc.freenode.net](http://freenode.net) #protector.rb.
+
 ## Maintainers
 
 * Boris Staal, [@inossidabile](http://staal.io)
