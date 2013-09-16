@@ -263,7 +263,7 @@ module Protector
       # subject on a non-protected model
       def protector_subject
         unless protector_subject?
-          raise "Unprotected entity detected: use `restrict` method to protect it."
+          raise "Unprotected entity detected for '#{self.class}': use `restrict` method to protect it."
         end
 
         @protector_subject

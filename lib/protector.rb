@@ -25,10 +25,17 @@ module Protector
 
     # Allows executing any code having Protector globally disabled
     def insecurely(&block)
+      Thread.current[:protector_disabled_nesting] ||= 0
+      Thread.current[:protector_disabled_nesting] += 1
+
       Thread.current[:protector_disabled] = true
       yield
     ensure
-      Thread.current[:protector_disabled] = false
+      Thread.current[:protector_disabled_nesting] -= 1
+
+      if Thread.current[:protector_disabled_nesting] == 0
+        Thread.current[:protector_disabled] = false
+      end
     end
 
     def activate!

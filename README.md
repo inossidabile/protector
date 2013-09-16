@@ -175,6 +175,8 @@ end
 
 No matter what happens inside, all your entities will act unprotected. So use with **EXTREME** caution.
 
+Please note also that we are talking about "unprotected" and "disabled". It does not make `can?` to always return `true`. Instead `can?` would thrown an exception just like it does for any unprotected model. Any other approach makes logic incostitent, unpredictable and just dangerous. There are different possible strategies to isolate business logic from security domain in tests like direct `can?` mocking or forcing admin role to a test user. Use them whenever you want to abstract from security in a whole and `insecurely` when you want to mock a model to the basic security state.
+
 ## Ideology
 
 Protector is a successor to [Heimdallr](https://github.com/inossidabile/heimdallr). The latter being a proof-of-concept appeared to be way too paranoid and incompatible with the rest of the world. Protector re-implements same idea keeping the Ruby way:

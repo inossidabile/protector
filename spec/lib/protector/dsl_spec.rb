@@ -34,6 +34,28 @@ describe Protector::DSL do
       base.unrestrict!
       expect { base.protector_subject }.to raise_error
     end
+
+    it "respects `insecurely`" do
+      base = @base.new
+      base.restrict!("universe")
+
+      base.protector_subject?.should == true
+      Protector.insecurely do
+        base.protector_subject?.should == false
+      end
+    end
+
+    it "allows nesting of `insecurely`" do
+      base = @base.new
+      base.restrict!("universe")
+
+      base.protector_subject?.should == true
+      Protector.insecurely do
+        Protector.insecurely do
+          base.protector_subject?.should == false
+        end
+      end
+    end
   end
 
   describe Protector::DSL::Entry do
