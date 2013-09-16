@@ -28,8 +28,13 @@ if defined?(Rails)
     describe "strong_parameters" do
       before(:all) do
         load 'migrations/active_record.rb'
+      end
 
-        Dummy.instance_eval do
+      let(:dummy) do
+        Class.new(ActiveRecord::Base) do
+          def self.model_name; ActiveModel::Name.new(self, nil, "dummy"); end
+          self.table_name = "dummies"
+
           protect do
             can :create, :string
             can :update, :number
@@ -42,15 +47,15 @@ if defined?(Rails)
       end
 
       it "creates" do
-        expect{ Dummy.restrict!.new params(string: 'test') }.to_not raise_error
-        expect{ Dummy.restrict!.new params(number: 1) }.to raise_error
+        expect{ dummy.restrict!.new params(string: 'test') }.to_not raise_error
+        expect{ dummy.restrict!.new params(number: 1) }.to raise_error
       end
 
       it "updates" do
-        dummy = Dummy.create!
+        instance = dummy.create!
 
-        expect{ dummy.restrict!.assign_attributes params(string: 'test') }.to raise_error
-        expect{ dummy.restrict!.assign_attributes params(number: 1) }.to_not raise_error
+        expect{ instance.restrict!.assign_attributes params(string: 'test') }.to raise_error
+        expect{ instance.restrict!.assign_attributes params(number: 1) }.to_not raise_error
       end
     end
   end

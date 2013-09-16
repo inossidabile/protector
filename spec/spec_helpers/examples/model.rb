@@ -33,7 +33,6 @@ shared_examples_for "a model" do
   it "doesn't get stuck with non-existing tables" do
     Rumba.class_eval do
       protect do
-        can
       end
     end
   end
