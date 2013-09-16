@@ -126,19 +126,20 @@ describe Protector::DSL do
             "field1" => nil,
             "field2" => nil,
             "field3" => nil
-          },
-          create: {}
+          }
         }
       end
 
       it "marks destroyable" do
         data = @meta.evaluate('user', 'entry')
         data.destroyable?.should == true
+        data.can?(:destroy).should == true
       end
 
       it "marks updatable" do
         data = @meta.evaluate('user', 'entry')
         data.updatable?.should == true
+        data.can?(:update).should == true
       end
 
       it "gets first unupdatable field" do
@@ -149,6 +150,7 @@ describe Protector::DSL do
       it "marks creatable" do
         data = @meta.evaluate('user', 'entry')
         data.creatable?.should == false
+        data.can?(:create).should == false
       end
 
       it "gets first uncreatable field" do

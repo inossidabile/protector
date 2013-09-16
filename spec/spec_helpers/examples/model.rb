@@ -88,6 +88,13 @@ shared_examples_for "a model" do
         end
       end
 
+      it "handles empty creations" do
+        d = dummy.new.restrict!('!')
+        d.can?(:create).should == false
+        d.creatable?.should == false
+        d.should invalidate
+      end
+
       it "marks blocked" do
         d = dummy.new(string: 'bam', number: 1)
         d.restrict!('!').creatable?.should == false

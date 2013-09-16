@@ -16,7 +16,7 @@ module Protector
           @adapter     = adapter
           @model       = model
           @fields      = fields
-          @access      = {update: {}, view: {}, create: {}}
+          @access      = {}
           @scope_procs = []
           @destroyable = false
 
@@ -104,9 +104,10 @@ module Protector
         #   end
         def can(action, *fields)
           return @destroyable = true if action == :destroy
+
           @access[action] = {} unless @access[action]
 
-          if fields.size == 0
+          if fields.length == 0
             @fields.each{|f| @access[action][f.to_s] = nil}
           else
             fields.each do |a|
@@ -132,10 +133,11 @@ module Protector
         # @see #can?
         def cannot(action, *fields)
           return @destroyable = false if action == :destroy
+
           return unless @access[action]
 
-          if fields.size == 0
-            @access[action].clear
+          if fields.length == 0
+            @access.delete(action)
           else
             fields.each do |a|
               if a.is_a?(Array)
@@ -144,6 +146,8 @@ module Protector
                 @access[action].delete(a.to_s)
               end
             end
+
+            @access.delete(action) if @access[action].empty?
           end
         end
 
@@ -151,7 +155,7 @@ module Protector
 
         # Checks whether given field of a model is readable in context of current subject
         def readable?(field)
-          @access[:view].has_key?(field)
+          @access[:view] && @access[:view].has_key?(field)
         end
 
         # Checks whether you can create a model with given field in context of current subject
@@ -182,14 +186,23 @@ module Protector
         # @param [Symbol] action        Action to check against
         # @param [String] field         Field to check against
         def can?(action, field=false)
+          return destroyable? if action == :destroy
+
           return false unless @access[action]
-          return !@access[action].empty? if field === false
+          return !@access[action].empty? unless field
+
           @access[action].has_key?(field.to_s)
+        end
+
+        def cannot?(*args)
+          !can?(*args)
         end
 
         private
 
         def first_unmodifiable_field(part, fields)
+          return (fields.keys.first || '-') unless @access[part]
+
           diff = fields.keys - @access[part].keys
           return diff.first if diff.length > 0
 
@@ -207,8 +220,8 @@ module Protector
           false
         end
 
-        def modifiable?(part, fields)
-          return false unless @access[part].keys.length > 0
+        def modifiable?(part, fields=false)
+          return false unless @access[part]
           return false if fields && first_unmodifiable_field(part, fields)
           true
         end
