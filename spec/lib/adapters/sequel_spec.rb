@@ -89,6 +89,7 @@ if defined?(Sequel)
       end
 
       it "checks creatability" do
+        Dummy.restrict!('!').creatable?.should == false
         Dummy.restrict!('!').where(number: 999).creatable?.should == false
       end
 
