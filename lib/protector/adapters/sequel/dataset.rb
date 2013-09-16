@@ -30,6 +30,10 @@ module Protector
           alias_method_chain :each, :protector
         end
 
+        def creatable?
+          model.new.restrict!(protector_subject).creatable?
+        end
+
         # Gets {Protector::DSL::Meta::Box} of this dataset
         def protector_meta(subject=protector_subject)
           model.protector_meta.evaluate(subject)

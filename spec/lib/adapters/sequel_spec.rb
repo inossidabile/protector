@@ -88,6 +88,10 @@ if defined?(Sequel)
         Dummy.restrict!('!').eager_graph(fluffies: :loony).all.first.fluffies.first.loony.protector_subject.should == '!'
       end
 
+      it "checks creatability" do
+        Dummy.restrict!('!').where(number: 999).creatable?.should == false
+      end
+
       context "with open relation" do
         context "adequate", paranoid: false do
           it "checks existence" do

@@ -28,6 +28,10 @@ module Protector
           end
         end
 
+        def creatable?
+          new.creatable?
+        end
+
         # Gets {Protector::DSL::Meta::Box} of this relation
         def protector_meta(subject=protector_subject)
           @klass.protector_meta.evaluate(subject)
