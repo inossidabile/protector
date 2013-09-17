@@ -16,8 +16,6 @@ if defined?(ActiveRecord)
               scope{ where('1=0') } 
             elsif x == '+'
               scope{ where(klass.table_name => {number: 999}) }
-            elsif !Protector.config.paranoid && Protector::Adapters::ActiveRecord.modern?
-              scope { all }
             end
 
             can :view, :dummy_id unless x == '-'
@@ -123,6 +121,7 @@ if defined?(ActiveRecord)
 
       context "with open relation" do
         context "adequate", paranoid: false do
+
           it "checks existence" do
             Dummy.any?.should == true
             Dummy.restrict!('!').any?.should == true
@@ -130,7 +129,9 @@ if defined?(ActiveRecord)
 
           it "counts" do
             Dummy.count.should == 4
-            Dummy.restrict!('!').count.should == 4
+            dummy = Dummy.restrict!('!')
+            dummy.count.should == 4
+            dummy.protector_subject?.should == true
           end
 
           it "fetches" do
@@ -149,7 +150,9 @@ if defined?(ActiveRecord)
 
           it "counts" do
             Dummy.count.should == 4
-            Dummy.restrict!('!').count.should == 0
+            dummy = Dummy.restrict!('!')
+            dummy.count.should == 0
+            dummy.protector_subject?.should == true
           end
 
           it "fetches" do
@@ -169,7 +172,9 @@ if defined?(ActiveRecord)
 
         it "counts" do
           Dummy.count.should == 4
-          Dummy.restrict!('-').count.should == 0
+          dummy = Dummy.restrict!('-')
+          dummy.count.should == 0
+          dummy.protector_subject?.should == true
         end
 
         it "fetches" do
@@ -193,7 +198,9 @@ if defined?(ActiveRecord)
 
         it "counts" do
           Dummy.count.should == 4
-          Dummy.restrict!('+').count.should == 2
+          dummy = Dummy.restrict!('+')
+          dummy.count.should == 2
+          dummy.protector_subject?.should == true
         end
 
         it "fetches" do

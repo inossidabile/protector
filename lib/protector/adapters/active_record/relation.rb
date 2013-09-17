@@ -37,6 +37,10 @@ module Protector
           @klass.protector_meta.evaluate(subject)
         end
 
+        def protector_relation
+          protector_meta.relation ? merge(protector_meta.relation) : clone
+        end
+
         # @note Unscoped relation drops properties and therefore should be re-restricted
         def unscoped
           return super unless protector_subject?
@@ -66,13 +70,13 @@ module Protector
         # Merges current relation with restriction and calls real `calculate`
         def calculate(*args)
           return super unless protector_subject?
-          merge(protector_meta.relation).unrestrict!.calculate *args
+          protector_relation.unrestrict!.calculate *args
         end
 
         # Merges current relation with restriction and calls real `exists?`
         def exists?(*args)
           return super unless protector_subject?
-          merge(protector_meta.relation).unrestrict!.exists? *args
+          protector_relation.unrestrict!.exists? *args
         end
 
         # Forwards protection subject to the new instance
@@ -117,7 +121,7 @@ module Protector
           return exec_queries_without_protector unless protector_subject?
 
           subject  = protector_subject
-          relation = merge(protector_meta.relation).unrestrict!
+          relation = protector_relation.unrestrict!
           relation = protector_substitute_includes(subject, relation)
 
           # Preserve associations from internal loading. We are going to handle that
