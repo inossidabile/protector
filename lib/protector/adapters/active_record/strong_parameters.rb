@@ -3,9 +3,9 @@ module Protector
     module StrongParameters
       def self.sanitize!(args, is_new, meta)
         if is_new
-          args[0] = args[0].permit *meta.access[:create].keys
+          args[0] = args[0].permit *meta.access[:create].keys if meta.access.include? :create
         else
-          args[0] = args[0].permit *meta.access[:update].keys
+          args[0] = args[0].permit *meta.access[:update].keys if meta.access.include? :update
         end
       end
 
