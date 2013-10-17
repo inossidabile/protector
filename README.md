@@ -3,6 +3,7 @@
 [![Gem Version](https://badge.fury.io/rb/protector.png)](http://badge.fury.io/rb/protector)
 [![Build Status](https://travis-ci.org/inossidabile/protector.png?branch=master)](https://travis-ci.org/inossidabile/protector)
 [![Code Climate](https://codeclimate.com/github/inossidabile/protector.png)](https://codeclimate.com/github/inossidabile/protector)
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/inossidabile/protector/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 Protector is a Ruby ORM extension for managing security restrictions on a field level. The gem favors white-listing over black-listing (everything is disallowed by default), convention over configuration and is duck-type compatible with most of existing code.
 
