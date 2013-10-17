@@ -34,6 +34,10 @@ module Protector
           model.new.restrict!(protector_subject).creatable?
         end
 
+        def can?(action, field=false)
+          protector_meta.can?(action, field)
+        end
+
         # Gets {Protector::DSL::Meta::Box} of this dataset
         def protector_meta(subject=protector_subject)
           model.protector_meta.evaluate(subject)
