@@ -1,3 +1,9 @@
+AllCops:
+  Excludes:
+    - spec/**
+    - perf/**
+    - migrations/**
+
 LineLength:
   Enabled: false
 
