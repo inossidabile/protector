@@ -19,7 +19,7 @@ module Protector
           # @param entity [Object]          Entity coming from Dataset
           def call(entity)
             entity = mutator.call(entity) if mutator
-            return entity if !entity.respond_to?(:restrict!)
+            return entity unless entity.respond_to?(:restrict!)
             entity.restrict!(@subject)
           end
         end

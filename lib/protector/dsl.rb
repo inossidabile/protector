@@ -24,11 +24,11 @@ module Protector
             blocks.each do |b|
               case b.arity
               when 2
-                instance_exec subject, entry, &b
+                instance_exec(subject, entry, &b)
               when 1
-                instance_exec subject, &b
+                instance_exec(subject, &b)
               else
-                instance_exec &b
+                instance_exec(&b)
               end
             end
           end
@@ -69,7 +69,7 @@ module Protector
         end
 
         def eval_scope_procs(instance)
-          return scope_procs.reduce(instance) do |relation, scope_proc|
+          scope_procs.reduce(instance) do |relation, scope_proc|
             relation.instance_eval(&scope_proc)
           end
         end
@@ -108,11 +108,11 @@ module Protector
           @access[action] = {} unless @access[action]
 
           if fields.length == 0
-            @fields.each{|f| @access[action][f.to_s] = nil}
+            @fields.each { |f| @access[action][f.to_s] = nil }
           else
             fields.each do |a|
               if a.is_a?(Array)
-                a.each{|f| @access[action][f.to_s] = nil}
+                a.each { |f| @access[action][f.to_s] = nil }
               elsif a.is_a?(Hash)
                 @access[action].merge!(a.stringify_keys)
               else
@@ -141,7 +141,7 @@ module Protector
           else
             fields.each do |a|
               if a.is_a?(Array)
-                a.each{|f| @access[action].delete(f.to_s)}
+                a.each { |f| @access[action].delete(f.to_s) }
               else
                 @access[action].delete(a.to_s)
               end
@@ -155,7 +155,7 @@ module Protector
 
         # Checks whether given field of a model is readable in context of current subject
         def readable?(field)
-          @access[:view] && @access[:view].has_key?(field)
+          @access[:view] && @access[:view].key?(field)
         end
 
         # Checks whether you can create a model with given field in context of current subject
@@ -191,7 +191,7 @@ module Protector
           return false unless @access[action]
           return !@access[action].empty? unless field
 
-          @access[action].has_key?(field.to_s)
+          @access[action].key?(field.to_s)
         end
 
         def cannot?(*args)
@@ -206,14 +206,14 @@ module Protector
           diff = fields.keys - @access[part].keys
           return diff.first if diff.length > 0
 
-          fields.each do |k,v|
+          fields.each do |k, v|
             case x = @access[part][k]
             when Range
               return k unless x.include?(v)
             when Proc
               return k unless x.call(v)
             else
-              return k if x != nil && x != v
+              return k if !x.nil? && x != v
             end
           end
 
@@ -263,7 +263,7 @@ module Protector
       # subject on a non-protected model
       def protector_subject
         unless protector_subject?
-          raise "Unprotected entity detected for '#{self.class}': use `restrict` method to protect it."
+          fail "Unprotected entity detected for '#{self.class}': use `restrict` method to protect it."
         end
 
         @protector_subject

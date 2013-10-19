@@ -1,12 +1,12 @@
-require "active_support/all"
-require "i18n"
+require 'active_support/all'
+require 'i18n'
 
-require "protector/version"
-require "protector/dsl"
-require "protector/adapters/active_record"
-require "protector/adapters/sequel"
+require 'protector/version'
+require 'protector/dsl'
+require 'protector/adapters/active_record'
+require 'protector/adapters/sequel'
 
-require "protector/engine" if defined?(Rails)
+require 'protector/engine' if defined?(Rails)
 
 I18n.load_path += Dir[File.expand_path File.join('..', 'locales', '*.yml'), File.dirname(__FILE__)]
 
@@ -20,7 +20,7 @@ module Protector
     attr_accessor :config
 
     def paranoid=
-      "`Protector.paranoid = ...` is deprecated! Please change it to `Protector.config.paranoid = ...`"
+      '`Protector.paranoid = ...` is deprecated! Please change it to `Protector.config.paranoid = ...`'
     end
 
     # Allows executing any code having Protector globally disabled
@@ -39,17 +39,18 @@ module Protector
     end
 
     def activate!
-      ADAPTERS.each{|adapter| adapter.activate!}
+      ADAPTERS.each { |adapter| adapter.activate! }
     end
   end
 
+  # Internal protector config holder
   class Config < ActiveSupport::OrderedOptions
     def paranoid?
       !!paranoid
     end
 
     def strong_parameters?
-      strong_parameters == nil || !!strong_parameters
+      strong_parameters.nil? || !!strong_parameters
     end
   end
 

@@ -21,7 +21,7 @@ module Protector
       end
 
       def self.null_proc
-        @null_proc ||= Proc.new{ where("1=0") }
+        @null_proc ||= proc { where('1=0') }
       end
     end
   end

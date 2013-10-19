@@ -30,11 +30,13 @@ module Protector
       end
 
       def self.null_proc
+        # rubocop:disable IndentationWidth, EndAlignment
         @null_proc ||= if modern?
-          Proc.new{ none }
+          proc { none }
         else
-          Proc.new{ where("1=0") }
+          proc { where('1=0') }
         end
+        # rubocop:enable IndentationWidth, EndAlignment
       end
     end
   end

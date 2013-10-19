@@ -74,13 +74,13 @@ module Protector
         # Merges current relation with restriction and calls real `calculate`
         def calculate(*args)
           return super unless protector_subject?
-          protector_relation.unrestrict!.calculate *args
+          protector_relation.unrestrict!.calculate(*args)
         end
 
         # Merges current relation with restriction and calls real `exists?`
         def exists?(*args)
           return super unless protector_subject?
-          protector_relation.unrestrict!.exists? *args
+          protector_relation.unrestrict!.exists?(*args)
         end
 
         # Forwards protection subject to the new instance
@@ -89,7 +89,7 @@ module Protector
 
           # strong_parameters integration
           if Protector.config.strong_parameters? && args.first.respond_to?(:permit)
-            Protector::ActiveRecord::StrongParameters::sanitize! args, true, protector_meta
+            Protector::ActiveRecord::StrongParameters.sanitize! args, true, protector_meta
           end
 
           new_without_protector(*args, &block).restrict!(protector_subject)
@@ -132,7 +132,7 @@ module Protector
           # ourselves respecting security scopes FTW!
           associations, relation.preload_values = relation.preload_values, []
 
-          @records = relation.send(:exec_queries).each{|record| record.restrict!(subject)}
+          @records = relation.send(:exec_queries).each { |record| record.restrict!(subject) }
 
           # Now we have @records restricted properly so let's preload associations!
           associations.each do |association|
@@ -214,13 +214,13 @@ module Protector
           results
         end
 
-      private
+        private
 
         def protector_expand_inclusion_hash(inclusion, results=[], base=[], klass=@klass)
           inclusion.each do |key, value|
             model = klass.reflect_on_association(key.to_sym).klass
             value = [value] unless value.is_a?(Array)
-            nest  = [key]+base
+            nest  = [key] + base
 
             value.each do |v|
               if v.is_a?(Hash)
@@ -228,12 +228,12 @@ module Protector
               else
                 results << [
                   model.reflect_on_association(v.to_sym).klass,
-                  nest.inject(v){|a, n| { n => a } }
+                  nest.reduce(v) { |a, n| { n => a } }
                 ]
               end
             end
 
-            results << [model, base.inject(key){|a, n| { n => a } }]
+            results << [model, base.reduce(key) { |a, n| { n => a } }]
           end
         end
       end

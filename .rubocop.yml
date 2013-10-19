@@ -1,0 +1,20 @@
+LineLength:
+  Enabled: false
+
+SpaceAroundEqualsInParameterDefault:
+  Enabled: false
+
+Documentation:
+  Enabled: false
+
+MethodLength:
+  Enabled: false
+
+ClassLength:
+  Enabled: false
+
+TrivialAccessors:
+  ExactNameMatch: true
+
+ParameterLists:
+  Max: 6

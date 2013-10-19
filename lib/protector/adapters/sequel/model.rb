@@ -19,19 +19,19 @@ module Protector
           # Storage of {Protector::DSL::Meta}
           def protector_meta
             @protector_meta ||= Protector::DSL::Meta.new(Protector::Adapters::Sequel, self) do
-              self.columns
+              columns
             end
           end
 
           # Gets default restricted `Dataset`
           def restrict!(*args)
-            dataset.clone.restrict! *args
+            dataset.clone.restrict!(*args)
           end
         end
 
         # Gathers real values of given fields bypassing restrictions
         def protector_changed(fields)
-          HashWithIndifferentAccess[fields.map{|x| [x.to_s, @values[x]]}]
+          HashWithIndifferentAccess[fields.map { |x| [x.to_s, @values[x]] }]
         end
 
         # Storage for {Protector::DSL::Meta::Box}
@@ -47,7 +47,6 @@ module Protector
 
         # Checks if current model can be created in the context of current subject
         def creatable?
-          fields = HashWithIndifferentAccess[keys.map{|x| [x.to_s, @values[x]]}]
           protector_meta.creatable? protector_changed(keys)
         end
 
@@ -67,13 +66,16 @@ module Protector
 
         # Basic security validations
         def validate
-          super; return unless protector_subject?
+          super
+          return unless protector_subject?
 
+          # rubocop:disable IndentationWidth, EndAlignment
           field = if new?
             protector_meta.first_uncreatable_field protector_changed(keys)
           else
             protector_meta.first_unupdatable_field protector_changed(changed_columns)
           end
+          # rubocop:enable IndentationWidth, EndAlignment
 
           errors.add :base, I18n.t('protector.invalid', field: field) if field
         end
@@ -88,8 +90,9 @@ module Protector
         #
         # @param name [Symbol]          Name of attribute to read
         def [](name)
+          # rubocop:disable ParenthesesAroundCondition
           if (
-            !protector_subject? || 
+            !protector_subject? ||
             name == self.class.primary_key ||
             (self.class.primary_key.is_a?(Array) && self.class.primary_key.include?(name)) ||
             protector_meta.readable?(name.to_s)
@@ -98,6 +101,7 @@ module Protector
           else
             nil
           end
+          # rubocop:enable ParenthesesAroundCondition
         end
 
         # This is used whenever we fetch data

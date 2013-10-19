@@ -10,8 +10,8 @@ module Protector
           if method_defined?(:scope)
             alias_method_chain :scope, :protector
           else
-            alias_method "scope_without_protector", "scoped"
-            alias_method "scoped", "scope_with_protector"
+            alias_method 'scope_without_protector', 'scoped'
+            alias_method 'scoped', 'scope_with_protector'
           end
         end
 

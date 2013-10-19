@@ -36,19 +36,20 @@ module Protector
             super
           end
 
-          unless Protector::Adapters::ActiveRecord.modern?
+          if !Protector::Adapters::ActiveRecord.modern?
             def self.restrict!(*args)
-              scoped.restrict! *args
+              scoped.restrict!(*args)
             end
           else
             def self.restrict!(*args)
-              all.restrict! *args
+              all.restrict!(*args)
             end
           end
 
           def [](name)
+            # rubocop:disable ParenthesesAroundCondition
             if (
-              !protector_subject? || 
+              !protector_subject? ||
               name == self.class.primary_key ||
               (self.class.primary_key.is_a?(Array) && self.class.primary_key.include?(name)) ||
               protector_meta.readable?(name)
@@ -57,6 +58,7 @@ module Protector
             else
               nil
             end
+            # rubocop:enable ParenthesesAroundCondition
           end
         end
 
@@ -64,7 +66,7 @@ module Protector
           # Storage of {Protector::DSL::Meta}
           def protector_meta
             @protector_meta ||= Protector::DSL::Meta.new(Protector::Adapters::ActiveRecord, self) do
-              self.column_names
+              column_names
             end
           end
 
@@ -73,7 +75,7 @@ module Protector
             super
 
             # Show some <3 to composite primary keys
-            unless (primary_key == name || Array(primary_key).include?(name))
+            unless primary_key == name || Array(primary_key).include?(name)
               generated_attribute_methods.module_eval <<-STR, __FILE__, __LINE__ + 1
                 alias_method #{"#{name}_unprotected".inspect}, #{name.inspect}
 
@@ -91,7 +93,7 @@ module Protector
 
         # Gathers real changed values bypassing restrictions
         def protector_changed
-          HashWithIndifferentAccess[changed.map{|field| [field, read_attribute(field)]}]
+          HashWithIndifferentAccess[changed.map { |field| [field, read_attribute(field)] }]
         end
 
         # Storage for {Protector::DSL::Meta::Box}
