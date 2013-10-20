@@ -76,7 +76,7 @@ module Protector
 
         # Enables action for given fields.
         #
-        # Built-in possible actions are: `:view`, `:update`, `:create`.
+        # Built-in possible actions are: `:read`, `:update`, `:create`.
         # You can pass any other actions you want to use with {#can?} afterwards.
         #
         # **The method enables action for every field if `fields` splat is empty.**
@@ -94,15 +94,17 @@ module Protector
         #
         # @example
         #   protect do
-        #     can :view               # Can view any field
-        #     can :view, 'f1'         # Can view `f1` field
-        #     can :view, %w(f2 f3)    # Can view `f2`, `f3` fields
+        #     can :read               # Can read any field
+        #     can :read, 'f1'         # Can read `f1` field
+        #     can :read, %w(f2 f3)    # Can read `f2`, `f3` fields
         #     can :update, f1: 1..2   # Can update f1 field with values between 1 and 2
         #
         #     # Can create f1 field with value equal to 'olo'
         #     can :create, f1: lambda{|x| x == 'olo'}
         #   end
         def can(action, *fields)
+          action = deprecate_actions(action)
+
           return @destroyable = true if action == :destroy
 
           @access[action] = {} unless @access[action]
@@ -132,6 +134,8 @@ module Protector
         # @see #can
         # @see #can?
         def cannot(action, *fields)
+          action = deprecate_actions(action)
+
           return @destroyable = false if action == :destroy
 
           return unless @access[action]
@@ -155,7 +159,7 @@ module Protector
 
         # Checks whether given field of a model is readable in context of current subject
         def readable?(field)
-          @access[:view] && @access[:view].key?(field)
+          @access[:read] && @access[:read].key?(field)
         end
 
         # Checks whether you can create a model with given field in context of current subject
@@ -224,6 +228,17 @@ module Protector
           return false unless @access[part]
           return false if fields && first_unmodifiable_field(part, fields)
           true
+        end
+
+        def deprecate_actions(action)
+          if action == :view
+            ActiveSupport::Deprecation.warn ":view rule has been deprecated and replaced with :read! "+
+              "Starting from version 1.0 :view will be treated as a custom rule."
+
+            :read
+          else
+            action
+          end
         end
       end
 

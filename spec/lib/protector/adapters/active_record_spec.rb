@@ -18,7 +18,7 @@ if defined?(ActiveRecord)
               scope{ where(klass.table_name => {number: 999}) }
             end
 
-            can :view, :dummy_id unless x == '-'
+            can :read, :dummy_id unless x == '-'
           end
         end
       end

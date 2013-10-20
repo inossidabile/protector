@@ -16,14 +16,14 @@ activate do
   Dummy.instance_eval do
     protect do
       scope { where }
-      can :view, :string
+      can :read, :string
     end
   end
 
   Fluffy.instance_eval do
     protect do
       scope { where }
-      can :view
+      can :read
     end
   end
 

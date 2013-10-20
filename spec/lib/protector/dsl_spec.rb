@@ -85,7 +85,7 @@ describe Protector::DSL do
       before :each do
         @meta = Protector::DSL::Meta.new(nil, nil){%w(field1 field2 field3 field4 field5)}
         @meta << lambda {
-          can :view
+          can :read
         }
 
         @meta << lambda {|user|
@@ -95,7 +95,7 @@ describe Protector::DSL do
         @meta << lambda {|user|
           user.should  == 'user' if user
 
-          cannot :view, %w(field5), :field4
+          cannot :read, %w(field5), :field4
         }
 
         @meta << lambda {|user, entry|
@@ -144,7 +144,7 @@ describe Protector::DSL do
             "field4" => 0..5,
             "field5" => l
           },
-          view: {
+          read: {
             "field1" => nil,
             "field2" => nil,
             "field3" => nil
@@ -178,6 +178,24 @@ describe Protector::DSL do
       it "gets first uncreatable field" do
         data = @meta.evaluate('user', 'entry')
         data.first_uncreatable_field('field1' => 1, 'field6' => 2).should == 'field1'
+      end
+    end
+
+    context "deprecated methods" do
+      before :each do
+        @meta = Protector::DSL::Meta.new(nil, nil){%w(field1 field2 field3)}
+
+        @meta << lambda {
+          can :view
+          cannot :view, :field2
+        }
+      end
+
+      it "evaluates" do
+        data = ActiveSupport::Deprecation.silence { @meta.evaluate('user', 'entry') }
+        data.can?(:read).should == true
+        data.can?(:read, :field1).should == true
+        data.can?(:read, :field2).should == false
       end
     end
 

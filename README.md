@@ -40,16 +40,16 @@ class Article < ActiveRecord::Base          # Fields: title, text, user_id, hidd
     if user.admin?
       scope { all }                         # Admins can retrieve anything
 
-      can :view                             # ... and view anything
+      can :read                             # ... and view anything
       can :create                           # ... and create anything
       can :update                           # ... and update anything
       can :destroy                          # ... and they can delete
     else
       scope { where(hidden: false) }        # Non-admins can only read insecure data
 
-      can :view                             # Allow to read any field
+      can :read                             # Allow to read any field
       if user.nil?                          # User is unknown and therefore not authenticated
-        cannot :view, :text                 # Guests can't read the text
+        cannot :read, :text                 # Guests can't read the text
       end
 
       can :create, %w(title text)           # Non-admins can't set `hidden` flag
@@ -146,7 +146,7 @@ Each restricted model responds to the following methods:
 * `updatable?` – determines if you pass validation on update with the fields you changed
 * `destroyable?` – determines if you can destroy the model
 
-In fact Protector does not limit you to `:view`, `:update` and `:create` actions. They are just used internally. You however can define any other to make custom roles and restrictions. All of them are able to work on a field level.
+In fact Protector does not limit you to `:read`, `:update` and `:create` actions. They are just used internally. You however can define any other to make custom roles and restrictions. All of them are able to work on a field level.
 
 ```ruby
 protect do

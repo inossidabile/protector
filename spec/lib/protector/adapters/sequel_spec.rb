@@ -15,7 +15,7 @@ if defined?(Sequel)
             scope{ where('1=0') } if x == '-'
             scope{ where("#{klass.table_name}__number".to_sym => 999) } if x == '+' 
 
-            can :view, :dummy_id unless x == '-'
+            can :read, :dummy_id unless x == '-'
           end
         end
       end
