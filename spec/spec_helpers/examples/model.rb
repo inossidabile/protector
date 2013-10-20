@@ -7,7 +7,7 @@ shared_examples_for "a model" do
 
         scope { limit(5) }
 
-        can :view
+        can :read
         can :create
         can :update
       end
@@ -16,7 +16,7 @@ shared_examples_for "a model" do
     fields = Hash[*%w(id string number text dummy_id).map{|x| [x, nil]}.flatten]
     meta   = dummy.new.restrict!('!').protector_meta
 
-    meta.access[:view].should   == fields
+    meta.access[:read].should   == fields
     meta.access[:create].should == fields
     meta.access[:update].should == fields
   end
@@ -64,7 +64,7 @@ shared_examples_for "a model" do
     it "hides fields" do
       dummy.instance_eval do
         protect do
-          can :view, :string
+          can :read, :string
         end
       end
 
