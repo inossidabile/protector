@@ -17,12 +17,12 @@ module Protector
           end
 
           validate do
-            return unless protector_subject?
+            if protector_subject?
+              method = new_record? ? :first_uncreatable_field : :first_unupdatable_field
+              field  = protector_meta.send(method, protector_changed)
 
-            method = new_record? ? :first_uncreatable_field : :first_unupdatable_field
-            field  = protector_meta.send(method, protector_changed)
-
-            errors[:base] << I18n.t('protector.invalid', field: field) if field
+              errors[:base] << I18n.t('protector.invalid', field: field) if field
+            end
           end
 
           before_destroy do

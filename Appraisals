@@ -4,7 +4,14 @@ appraise "AR_3.2" do
 end
 
 appraise "AR_4" do
-  gem "activerecord", "4.0.0", require: "active_record"
+  gem "activerecord", "4.0", require: "active_record"
+  gem "activerecord-jdbcsqlite3-adapter", platform: :jruby, github: "jruby/activerecord-jdbc-adapter"
+end
+
+appraise "AR_edge" do
+  gem "activerecord", require: "active_record", github: "rails/rails"
+  gem "activemodel", github: "rails/rails"
+  gem "activesupport", github: "rails/rails"
   gem "activerecord-jdbcsqlite3-adapter", platform: :jruby, github: "jruby/activerecord-jdbc-adapter"
 end
 

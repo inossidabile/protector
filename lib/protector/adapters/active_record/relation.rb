@@ -42,7 +42,9 @@ module Protector
         end
 
         def protector_relation
-          protector_meta.relation ? merge(protector_meta.relation) : clone
+          result = self.clone
+          result = protector_meta.eval_scope_procs(result) if protector_meta.relation
+          result
         end
 
         # @note Unscoped relation drops properties and therefore should be re-restricted
@@ -136,7 +138,11 @@ module Protector
 
           # Now we have @records restricted properly so let's preload associations!
           associations.each do |association|
-            ::ActiveRecord::Associations::Preloader.new(@records, association).run
+            if ::ActiveRecord::Associations::Preloader.method_defined? :preload
+              ::ActiveRecord::Associations::Preloader.new.preload(@records, association)
+            else
+              ::ActiveRecord::Associations::Preloader.new(@records, association).run
+            end
           end
 
           @loaded = true

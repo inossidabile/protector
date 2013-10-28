@@ -92,6 +92,17 @@ if defined?(ActiveRecord)
 
         expect { dummy.restrict!('!').create!(string: 'test').delete }.to raise_error
       end
+
+      it "finds with scope on id column" do
+        dummy.instance_eval do
+          protect do
+            scope { where(id: 1) }
+          end
+        end
+
+        expect { dummy.restrict!('!').find(1) }.to_not raise_error
+        expect { dummy.restrict!('!').find(2) }.to raise_error
+      end
     end
 
     #

@@ -8,7 +8,7 @@ gem 'rspec'
 gem 'simplecov', require: false
 gem 'simplecov-summary'
 
-gem 'appraisal'
+gem 'appraisal', github: 'thoughtbot/appraisal'
 
 gem 'sqlite3', platform: :ruby
 gem 'jdbc-sqlite3', platform: :jruby, require: 'jdbc/sqlite3'
