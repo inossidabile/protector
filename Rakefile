@@ -8,8 +8,8 @@ RSpec::Core::RakeTask.new(:spec)
 task :default => :all
 
 desc 'Test the plugin under all supported Rails versions.'
-task :all => ["appraisal:install"] do |t|
-  exec('rake appraisal spec')
+task :all do |t|
+  exec('appraisal rspec')
 end
 
 task :perf do
