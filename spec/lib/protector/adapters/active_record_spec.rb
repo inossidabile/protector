@@ -123,6 +123,7 @@ if defined?(ActiveRecord)
         Dummy.restrict!('!').where(number: 999).first.protector_subject.should == '!'
         Dummy.restrict!('!').where(number: 999).to_a.first.protector_subject.should == '!'
         Dummy.restrict!('!').new.protector_subject.should == '!'
+        Dummy.restrict!('!').first.fluffies.new.protector_subject.should == '!'
       end
 
       it "checks creatability" do

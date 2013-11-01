@@ -13,6 +13,8 @@ module Protector
             alias_method 'scope_without_protector', 'scoped'
             alias_method 'scoped', 'scope_with_protector'
           end
+
+          alias_method_chain :build, :protector
         end
 
         # Wraps every association with current subject
@@ -20,6 +22,12 @@ module Protector
           scope = scope_without_protector(*args)
           scope = scope.restrict!(owner.protector_subject) if owner.protector_subject?
           scope
+        end
+
+        # Forwards protection subject to the new instance
+        def build_with_protector(*args, &block)
+          return build_without_protector(*args, &block) unless owner.protector_subject?
+          build_without_protector(*args, &block).restrict!(owner.protector_subject)
         end
       end
     end
