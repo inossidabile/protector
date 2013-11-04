@@ -80,7 +80,7 @@ describe Protector::DSL do
 
   describe Protector::DSL::Meta do
     context "basic methods" do
-      l = lambda {|x| x > 4 }
+      l = lambda {|x| x > 4}
 
       before :each do
         @meta = Protector::DSL::Meta.new(nil, nil){%w(field1 field2 field3 field4 field5)}
@@ -129,55 +129,59 @@ describe Protector::DSL do
         end
       end
 
-      it "sets relation" do
-        data = @meta.evaluate('user', 'entry')
-        data.relation.should == 'relation'
-      end
+      context "evaluated" do
+        let(:data) { @meta.evaluate('user', 'entry') }
 
-      it "sets access" do
-        data = @meta.evaluate('user', 'entry')
-        data.access.should == {
-          update: {
-            "field1" => nil,
-            "field2" => nil,
-            "field3" => 1,
-            "field4" => 0..5,
-            "field5" => l
-          },
-          read: {
-            "field1" => nil,
-            "field2" => nil,
-            "field3" => nil
+        it "sets relation" do
+          data.relation.should == 'relation'
+        end
+
+        it "sets access" do
+          data.access.should == {
+            update: {
+              "field1" => nil,
+              "field2" => nil,
+              "field3" => 1,
+              "field4" => 0..5,
+              "field5" => l
+            },
+            read: {
+              "field1" => nil,
+              "field2" => nil,
+              "field3" => nil
+            }
           }
-        }
-      end
+        end
 
-      it "marks destroyable" do
-        data = @meta.evaluate('user', 'entry')
-        data.destroyable?.should == true
-        data.can?(:destroy).should == true
-      end
+        it "marks destroyable" do
+          data.destroyable?.should == true
+          data.can?(:destroy).should == true
+        end
 
-      it "marks updatable" do
-        data = @meta.evaluate('user', 'entry')
-        data.updatable?.should == true
-        data.can?(:update).should == true
-      end
+        context "marks updatable" do
+          it "with defaults" do
+            data.updatable?.should == true
+            data.can?(:update).should == true
+          end
 
-      it "gets first unupdatable field" do
-        data = @meta.evaluate('user', 'entry')
-        data.first_unupdatable_field('field1' => 1, 'field6' => 2, 'field7' => 3).should == 'field6'
-      end
+          it "respecting lambda", dev: true do
+            data.updatable?('field5' => 5).should == true
+            data.updatable?('field5' => 3).should == false
+          end
+        end
 
-      it "marks creatable" do
-        data = @meta.evaluate('user', 'entry')
-        data.creatable?.should == false
-        data.can?(:create).should == false
-      end
+        it "gets first unupdatable field" do
+          data.first_unupdatable_field('field1' => 1, 'field6' => 2, 'field7' => 3).should == 'field6'
+        end
 
-      it "gets first uncreatable field" do
-        data = @meta.evaluate('user', 'entry')
-        data.first_uncreatable_field('field1' => 1, 'field6' => 2).should == 'field1'
+        it "marks creatable" do
+          data.creatable?.should == false
+          data.can?(:create).should == false
+        end
+
+        it "gets first uncreatable field" do
+          data.first_uncreatable_field('field1' => 1, 'field6' => 2).should == 'field1'
+        end
       end
     end
 
@@ -221,6 +225,18 @@ describe Protector::DSL do
         box.can?(:eat, :field1).should == false
         box.can?(:eat).should == true
       end
+    end
+
+    it "avoids lambdas recursion" do
+      base = Class.new{ include Protector::DSL::Base }
+      meta = Protector::DSL::Meta.new(nil, nil){%w(field1)}
+
+      meta << lambda {
+        can :create, field1: lambda {|x| x.protector_subject?.should == false}
+      }
+
+      box = meta.evaluate('context', 'instance')
+      box.creatable?('field1' => base.new.restrict!(nil))
     end
   end
 end

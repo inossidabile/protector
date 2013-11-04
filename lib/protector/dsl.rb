@@ -215,7 +215,7 @@ module Protector
             when Range
               return k unless x.include?(v)
             when Proc
-              return k unless x.call(v)
+              return k unless Protector.insecurely{ x.call(v) }
             else
               return k if !x.nil? && x != v
             end
