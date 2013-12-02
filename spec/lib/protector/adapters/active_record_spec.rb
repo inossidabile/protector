@@ -57,6 +57,7 @@ if defined?(ActiveRecord)
     describe Protector::Adapters::ActiveRecord::Base do
       let(:dummy) do
         Class.new(ActiveRecord::Base) do
+          def self.name; 'Dummy'; end
           def self.model_name; ActiveModel::Name.new(self, nil, "dummy"); end
           self.table_name = "dummies"
           scope :none, where('1 = 0') unless respond_to?(:none)
@@ -91,6 +92,18 @@ if defined?(ActiveRecord)
         end
 
         expect { dummy.restrict!('!').create!(string: 'test').delete }.to raise_error
+      end
+
+      it "validates on new{}" do
+        dummy.instance_eval do
+          protect do; end
+        end
+
+        result = dummy.restrict!('!').new do |instance|
+          instance.protector_subject.should == '!'
+        end
+
+        result.protector_subject.should == '!'
       end
 
       it "finds with scope on id column" do

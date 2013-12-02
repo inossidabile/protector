@@ -94,7 +94,13 @@ module Protector
             Protector::ActiveRecord::StrongParameters.sanitize! args, true, protector_meta
           end
 
-          new_without_protector(*args, &block).restrict!(protector_subject)
+          unless block_given?
+            new_without_protector(*args).restrict!(protector_subject)
+          else
+            new_without_protector(*args) do |instance|
+              block.call instance.restrict!(protector_subject)
+            end
+          end
         end
 
         def create_with_protector(*args, &block)
