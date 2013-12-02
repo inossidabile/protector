@@ -12,6 +12,7 @@ appraise "AR_edge" do
   gem "activerecord", require: "active_record", github: "rails/rails"
   gem "activemodel", github: "rails/rails"
   gem "activesupport", github: "rails/rails"
+  gem "arel", github: "rails/arel"
   gem "activerecord-jdbcsqlite3-adapter", platform: :jruby, github: "jruby/activerecord-jdbc-adapter"
 end
 
