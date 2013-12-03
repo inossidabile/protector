@@ -60,6 +60,11 @@ module Protector
             end
             # rubocop:enable ParenthesesAroundCondition
           end
+
+          def association(*params)
+            return super unless protector_subject?
+            super.restrict!(protector_subject)
+          end
         end
 
         module ClassMethods

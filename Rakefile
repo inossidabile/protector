@@ -9,7 +9,7 @@ task :default => :all
 
 desc 'Test the plugin under all supported Rails versions.'
 task :all do |t|
-  exec('bundle exec appraisal install; bundle exec appraisal rspec')
+  exec('bundle exec appraisal rspec')
 end
 
 task :perf do

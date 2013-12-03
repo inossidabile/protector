@@ -137,6 +137,7 @@ if defined?(ActiveRecord)
         Dummy.restrict!('!').where(number: 999).to_a.first.protector_subject.should == '!'
         Dummy.restrict!('!').new.protector_subject.should == '!'
         Dummy.restrict!('!').first.fluffies.new.protector_subject.should == '!'
+        Dummy.first.fluffies.restrict!('!').new.protector_subject.should == '!'
       end
 
       it "checks creatability" do
@@ -238,6 +239,149 @@ if defined?(ActiveRecord)
         it "keeps security scope when unscoped" do
           Dummy.unscoped.restrict!('+').count.should == 2
           Dummy.restrict!('+').unscoped.count.should == 2
+        end
+      end
+    end
+
+    #
+    # Model scope
+    #
+    describe Protector::Adapters::ActiveRecord::Association do
+      describe "validates on create! within association" do
+        it "when restricted from entity" do
+          expect { Dummy.first.restrict!('-').fluffies.create!(string: 'test').delete }.to raise_error
+        end
+
+        it "when restricted from association" do
+          expect { Dummy.first.fluffies.restrict!('-').create!(string: 'test').delete }.to raise_error
+        end
+      end
+
+      context "singular association" do
+        it "forwards subject" do
+          Fluffy.restrict!('!').first.dummy.protector_subject.should == '!'
+          Fluffy.first.restrict!('!').dummy.protector_subject.should == '!'
+        end
+
+        it "forwards cached subject" do
+          Dummy.first.fluffies.restrict!('!').first.dummy.protector_subject.should == '!'
+        end
+      end
+
+      context "collection association" do
+        it "forwards subject" do
+          Dummy.restrict!('!').first.fluffies.protector_subject.should == '!'
+          Dummy.first.restrict!('!').fluffies.protector_subject.should == '!'
+          Dummy.restrict!('!').first.fluffies.new.protector_subject.should == '!'
+          Dummy.first.restrict!('!').fluffies.new.protector_subject.should == '!'
+          Dummy.first.fluffies.restrict!('!').new.protector_subject.should == '!'
+        end
+
+        context "with open relation" do
+          context "adequate", paranoid: false do
+
+            it "checks existence" do
+              Dummy.first.fluffies.any?.should == true
+              Dummy.first.restrict!('!').fluffies.any?.should == true
+              Dummy.first.fluffies.restrict!('!').any?.should == true
+            end
+
+            it "counts" do
+              Dummy.first.fluffies.count.should == 2
+
+              fluffies = Dummy.first.restrict!('!').fluffies
+              fluffies.count.should == 2
+              fluffies.protector_subject?.should == true
+
+              fluffies = Dummy.first.fluffies.restrict!('!')
+              fluffies.count.should == 2
+              fluffies.protector_subject?.should == true
+            end
+
+            it "fetches" do
+              Dummy.first.fluffies.count.should == 2
+              Dummy.first.restrict!('!').fluffies.length.should == 2
+              Dummy.first.fluffies.restrict!('!').length.should == 2
+            end
+          end
+
+          context "paranoid", paranoid: true do
+            it "checks existence" do
+              Dummy.first.fluffies.any?.should == true
+              Dummy.first.restrict!('!').fluffies.any?.should == false
+              Dummy.first.fluffies.restrict!('!').any?.should == false
+            end
+
+            it "counts" do
+              Dummy.first.fluffies.count.should == 2
+
+              fluffies = Dummy.first.restrict!('!').fluffies
+              fluffies.count.should == 0
+              fluffies.protector_subject?.should == true
+
+              fluffies = Dummy.first.fluffies.restrict!('!')
+              fluffies.count.should == 0
+              fluffies.protector_subject?.should == true
+            end
+
+            it "fetches" do
+              Dummy.first.fluffies.count.should == 2
+              Dummy.first.restrict!('!').fluffies.length.should == 0
+              Dummy.first.fluffies.restrict!('!').length.should == 0
+            end
+          end
+        end
+      end
+
+      context "with null relation" do
+        it "checks existence" do
+          Dummy.first.fluffies.any?.should == true
+          Dummy.first.restrict!('-').fluffies.any?.should == false
+          Dummy.first.fluffies.restrict!('-').any?.should == false
+        end
+
+        it "counts" do
+          Dummy.first.fluffies.count.should == 2
+
+          fluffies = Dummy.first.restrict!('-').fluffies
+          fluffies.count.should == 0
+          fluffies.protector_subject?.should == true
+
+          fluffies = Dummy.first.fluffies.restrict!('-')
+          fluffies.count.should == 0
+          fluffies.protector_subject?.should == true
+        end
+
+        it "fetches" do
+          Dummy.first.fluffies.count.should == 2
+          Dummy.first.restrict!('-').fluffies.length.should == 0
+          Dummy.first.fluffies.restrict!('-').length.should == 0
+        end
+      end
+
+      context "with active relation" do
+        it "checks existence" do
+          Dummy.first.fluffies.any?.should == true
+          Dummy.first.restrict!('+').fluffies.any?.should == true
+          Dummy.first.fluffies.restrict!('+').any?.should == true
+        end
+
+        it "counts" do
+          Dummy.first.fluffies.count.should == 2
+
+          fluffies = Dummy.first.restrict!('+').fluffies
+          fluffies.count.should == 1
+          fluffies.protector_subject?.should == true
+
+          fluffies = Dummy.first.fluffies.restrict!('+')
+          fluffies.count.should == 1
+          fluffies.protector_subject?.should == true
+        end
+
+        it "fetches" do
+          Dummy.first.fluffies.count.should == 2
+          Dummy.first.restrict!('+').fluffies.length.should == 1
+          Dummy.first.fluffies.restrict!('+').length.should == 1
         end
       end
     end
