@@ -9,6 +9,8 @@ module Protector
           include Protector::DSL::Base
           include Protector::DSL::Entry
 
+          before_destroy :protector_ensure_destroyable
+
           # We need this to make sure no ActiveRecord classes managed
           # to cache db scheme and create corresponding methods since
           # we want to modify the way they get created
@@ -23,11 +25,6 @@ module Protector
 
               errors[:base] << I18n.t('protector.invalid', field: field) if field
             end
-          end
-
-          before_destroy do
-            return true unless protector_subject?
-            destroyable?
           end
 
           # Drops {Protector::DSL::Meta::Box} cache when subject changes
@@ -132,6 +129,12 @@ module Protector
 
         def can?(action, field=false)
           protector_meta.can?(action, field)
+        end
+
+        private
+        def protector_ensure_destroyable
+          return true unless protector_subject?
+          destroyable?
         end
       end
     end
