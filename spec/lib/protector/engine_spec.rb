@@ -48,6 +48,7 @@ if defined?(Rails)
 
       it "creates" do
         expect{ dummy.restrict!.new params(string: 'test') }.to_not raise_error
+        expect{ dummy.restrict!.create(params(string: 'test')).delete }.to_not raise_error
         expect{ dummy.restrict!.new params(number: 1) }.to raise_error
       end
 

@@ -106,6 +106,11 @@ module Protector
         def create_with_protector(*args, &block)
           return create_without_protector(*args, &block) unless protector_subject?
 
+          # strong_parameters integration
+          if Protector.config.strong_parameters? && args.first.respond_to?(:permit)
+            Protector::ActiveRecord::StrongParameters.sanitize! args, true, protector_meta
+          end
+
           create_without_protector(*args) do |instance|
             instance.restrict!(protector_subject)
             block.call(instance) if block

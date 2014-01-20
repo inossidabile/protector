@@ -13,7 +13,8 @@ module Protector
       # strong_parameters integration
       def sanitize_for_mass_assignment(*args)
         # We check only for updation here since the creation will be handled by relation
-        # (see Protector::Adapters::ActiveRecord::Relation#new_with_protector)
+        # (see Protector::Adapters::ActiveRecord::Relation#new_with_protector and
+        # Protector::Adapters::ActiveRecord::Relation#create_with_protector)
         if Protector.config.strong_parameters? && args.first.respond_to?(:permit) \
             && !new_record? && protector_subject?
 
