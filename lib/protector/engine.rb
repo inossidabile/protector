@@ -6,7 +6,7 @@ module Protector
       app.config.protector.each { |k, v| Protector.config[k] = v }
 
       if Protector::Adapters::ActiveRecord.modern?
-        ::ActiveRecord::Base.send(:include, Protector::ActiveRecord::StrongParameters)
+        ::ActiveRecord::Base.send(:include, Protector::ActiveRecord::Adapters::StrongParameters)
       end
     end
   end

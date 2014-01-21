@@ -18,15 +18,6 @@ module Protector
             klass.undefine_attribute_methods if klass < self
           end
 
-          validate do
-            if protector_subject?
-              method = new_record? ? :first_uncreatable_field : :first_unupdatable_field
-              field  = protector_meta.send(method, protector_changed)
-
-              errors[:base] << I18n.t('protector.invalid', field: field) if field
-            end
-          end
-
           # Drops {Protector::DSL::Meta::Box} cache when subject changes
           def restrict!(*args)
             @protector_meta = nil

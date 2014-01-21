@@ -116,6 +116,17 @@ if defined?(ActiveRecord)
         expect { dummy.restrict!('!').find(1) }.to_not raise_error
         expect { dummy.restrict!('!').find(2) }.to raise_error
       end
+
+      it "allows for validations" do
+        dummy.instance_eval do
+          validates :string, presence: true
+          protect do; can :create; end
+        end
+
+        instance = dummy.restrict!('!').new(string: 'test')
+        instance.save.should == true
+        instance.delete
+      end
     end
 
     #

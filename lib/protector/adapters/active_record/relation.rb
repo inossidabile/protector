@@ -91,7 +91,7 @@ module Protector
 
           # strong_parameters integration
           if Protector.config.strong_parameters? && args.first.respond_to?(:permit)
-            Protector::ActiveRecord::StrongParameters.sanitize! args, true, protector_meta
+            Protector::ActiveRecord::Adapters::StrongParameters.sanitize! args, true, protector_meta
           end
 
           unless block_given?
@@ -108,7 +108,7 @@ module Protector
 
           # strong_parameters integration
           if Protector.config.strong_parameters? && args.first.respond_to?(:permit)
-            Protector::ActiveRecord::StrongParameters.sanitize! args, true, protector_meta
+            Protector::ActiveRecord::Adapters::StrongParameters.sanitize! args, true, protector_meta
           end
 
           create_without_protector(*args) do |instance|

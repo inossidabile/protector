@@ -5,6 +5,7 @@ require 'protector/adapters/active_record/relation'
 require 'protector/adapters/active_record/collection_proxy'
 require 'protector/adapters/active_record/preloader'
 require 'protector/adapters/active_record/strong_parameters'
+require 'protector/adapters/active_record/validations'
 
 module Protector
   module Adapters
@@ -15,6 +16,7 @@ module Protector
         return false unless defined?(::ActiveRecord)
 
         ::ActiveRecord::Base.send :include, Protector::Adapters::ActiveRecord::Base
+        ::ActiveRecord::Base.send :include, Protector::Adapters::ActiveRecord::Validations
         ::ActiveRecord::Relation.send :include, Protector::Adapters::ActiveRecord::Relation
         ::ActiveRecord::Associations::SingularAssociation.send :include, Protector::Adapters::ActiveRecord::Association
         ::ActiveRecord::Associations::SingularAssociation.send :include, Protector::Adapters::ActiveRecord::SingularAssociation

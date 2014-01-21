@@ -12,7 +12,7 @@ if defined?(Rails)
 
       unless Protector::Adapters::ActiveRecord.modern?
         ActiveRecord::Base.send(:include, ActiveModel::ForbiddenAttributesProtection)
-        ActiveRecord::Base.send(:include, Protector::ActiveRecord::StrongParameters)
+        ActiveRecord::Base.send(:include, Protector::ActiveRecord::Adapters::StrongParameters)
       end
     end
 
