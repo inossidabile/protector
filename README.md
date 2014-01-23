@@ -99,7 +99,7 @@ Article.restrict!(current_user).where(...)
 Article.where(...).restrict!(current_user)
 ```
 
-Be aware that if you already make the database query the scope has no effect on the already fatched data. This is because Protector is working on two levels: first during retrieval (scops are applied here) and after that on the level of fields. So for example `find` and `restrict!` calls are not commutative:
+Be aware that if you already made the database query the scope has no effect on the already fatched data. This is because Protector is working on two levels: first during retrieval (scops are applied here) and after that on the level of fields. So for example `find` and `restrict!` calls are not commutative:
 ```ruby
 # Should be used if you are using scops for visibility restriction 
 Article.restrict!(current_user).find(3)
@@ -109,7 +109,7 @@ Article.restrict!(current_user).find(3)
 Article.find(3).restrict!(current_user)
 ```
 
-Note that you don't need to explicitly restrict models you get from a restricted scope – they born restricted.
+Note also that you don't need to explicitly restrict models you get from a restricted scope – they born restricted.
 
 **Important**: unlike fields, scopes follow black-list approach by default. It means that you will NOT restrict selection in any way if no scope was set within protection block! This arguably is the best default strategy. But it's not the only one – see `paranoid` at the [list of available options](https://github.com/inossidabile/protector#options) for details.
 
