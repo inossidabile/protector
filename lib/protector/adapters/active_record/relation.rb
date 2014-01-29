@@ -89,10 +89,7 @@ module Protector
         def new_with_protector(*args, &block)
           return new_without_protector(*args, &block) unless protector_subject?
 
-          # strong_parameters integration
-          if Protector.config.strong_parameters? && args.first.respond_to?(:permit)
-            Protector::ActiveRecord::Adapters::StrongParameters.sanitize! args, true, protector_meta
-          end
+          protector_permit_strong_params(args)
 
           unless block_given?
             new_without_protector(*args).restrict!(protector_subject)
@@ -106,10 +103,7 @@ module Protector
         def create_with_protector(*args, &block)
           return create_without_protector(*args, &block) unless protector_subject?
 
-          # strong_parameters integration
-          if Protector.config.strong_parameters? && args.first.respond_to?(:permit)
-            Protector::ActiveRecord::Adapters::StrongParameters.sanitize! args, true, protector_meta
-          end
+          protector_permit_strong_params(args)
 
           create_without_protector(*args) do |instance|
             instance.restrict!(protector_subject)
@@ -119,6 +113,8 @@ module Protector
 
         def create_with_protector!(*args, &block)
           return create_without_protector!(*args, &block) unless protector_subject?
+
+          protector_permit_strong_params(args)
 
           create_without_protector!(*args) do |instance|
             instance.restrict!(protector_subject)
@@ -232,6 +228,14 @@ module Protector
         end
 
         private
+
+        def protector_permit_strong_params(args)
+          # strong_parameters integration
+          if Protector.config.strong_parameters? && args.first.respond_to?(:permit)
+            Protector::ActiveRecord::Adapters::StrongParameters.sanitize! args, true, protector_meta
+          end
+        end
+
 
         def protector_expand_inclusion_hash(inclusion, results=[], base=[], klass=@klass)
           inclusion.each do |key, value|
