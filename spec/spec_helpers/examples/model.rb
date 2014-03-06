@@ -74,6 +74,20 @@ shared_examples_for "a model" do
       read_attribute(d, :number).should_not == nil
       d.string.should == 'zomgstring'
     end
+
+    it "shows fields" do
+      dummy.instance_eval do
+        protect do
+          can :read, :number
+        end
+      end
+
+      d = dummy.first.restrict!('!')
+      d.number.should_not == nil
+      d[:number].should_not == nil
+      d['number'].should_not == nil
+      read_attribute(d, :number).should_not == nil
+    end
   end
 
   #

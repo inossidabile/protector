@@ -97,7 +97,7 @@ module Protector
             (self.class.primary_key.is_a?(Array) && self.class.primary_key.include?(name)) ||
             protector_meta.readable?(name.to_s)
           )
-            @values[name]
+            @values[name.to_sym]
           else
             nil
           end

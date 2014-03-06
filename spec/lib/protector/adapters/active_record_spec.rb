@@ -40,6 +40,15 @@ if defined?(ActiveRecord)
       Fluffy.all.each{|f| Loony.create! fluffy_id: f.id, string: 'zomgstring' }
     end
 
+    let(:dummy) do
+      Class.new(ActiveRecord::Base) do
+        def self.name; 'Dummy'; end
+        def self.model_name; ActiveModel::Name.new(self, nil, "dummy"); end
+        self.table_name = "dummies"
+        scope :none, where('1 = 0') unless respond_to?(:none)
+      end
+    end
+
     describe Protector::Adapters::ActiveRecord do
       it "finds out whether object is AR relation" do
         Protector::Adapters::ActiveRecord.is?(Dummy).should == true
@@ -55,15 +64,6 @@ if defined?(ActiveRecord)
     # Model instance
     #
     describe Protector::Adapters::ActiveRecord::Base do
-      let(:dummy) do
-        Class.new(ActiveRecord::Base) do
-          def self.name; 'Dummy'; end
-          def self.model_name; ActiveModel::Name.new(self, nil, "dummy"); end
-          self.table_name = "dummies"
-          scope :none, where('1 = 0') unless respond_to?(:none)
-        end
-      end
-
       it "includes" do
         Dummy.ancestors.should include(Protector::Adapters::ActiveRecord::Base)
       end
@@ -456,6 +456,37 @@ if defined?(ActiveRecord)
           end
 
           expect { fluffy.restrict!('!').to_a }.to_not raise_error
+        end
+
+        # https://github.com/inossidabile/protector/issues/42
+        if ActiveRecord::Base.respond_to?(:enum)
+          context "enums" do
+            before(:each) do
+              dummy.instance_eval do
+                enum number: [ :active, :archived ]
+              end
+            end
+
+            it "can be read" do
+              dummy.instance_eval do
+                protect do
+                  can :read, :number
+                  can :create, :number
+                  can :update, :number
+                end
+              end
+
+              d = dummy.new.restrict!('!')
+
+              expect { d.active! }.to_not raise_error
+
+              d.number.should == 'active'
+              d.active?.should == true
+              d.archived?.should == false
+
+              d.delete
+            end
+          end
         end
       end
     end
