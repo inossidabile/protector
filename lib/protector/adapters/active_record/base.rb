@@ -58,7 +58,7 @@ module Protector
         module ClassMethods
           # Storage of {Protector::DSL::Meta}
           def protector_meta
-            @protector_meta ||= Protector::DSL::Meta.new(Protector::Adapters::ActiveRecord, self) do
+            ensure_protector_meta!(Protector::Adapters::ActiveRecord) do
               column_names
             end
           end

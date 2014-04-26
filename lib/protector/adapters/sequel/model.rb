@@ -18,7 +18,7 @@ module Protector
         module ClassMethods
           # Storage of {Protector::DSL::Meta}
           def protector_meta
-            @protector_meta ||= Protector::DSL::Meta.new(Protector::Adapters::Sequel, self) do
+            ensure_protector_meta!(Protector::Adapters::Sequel) do
               columns
             end
           end

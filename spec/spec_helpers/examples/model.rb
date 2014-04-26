@@ -21,6 +21,23 @@ shared_examples_for "a model" do
     meta.access[:update].should == fields
   end
 
+  it "respects inheritance" do
+    dummy.instance_eval do
+      protect do
+        can :read, :test
+      end
+    end
+
+    attempt = Class.new(dummy) do
+      protect do
+        can :create, :test
+      end
+    end
+
+    dummy.protector_meta.evaluate(nil, nil).access.should == {read: {"test"=>nil}}
+    attempt.protector_meta.evaluate(nil, nil).access.should == {read: {"test"=>nil}, create: {"test"=>nil}}
+  end
+
   it "drops meta on restrict" do
     d = Dummy.first
 
