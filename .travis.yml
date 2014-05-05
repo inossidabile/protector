@@ -3,6 +3,10 @@ rvm:
   - jruby-19mode
   - 2.0.0
 
+matrix:
+  allow_failures:
+    - gemfile: gemfiles/AR_edge.gemfile
+
 gemfile:
   - gemfiles/AR_3.2.gemfile
   - gemfiles/AR_4.gemfile
