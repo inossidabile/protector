@@ -212,7 +212,7 @@ module Protector
 
           fields.each do |k, v|
             case x = @access[part][k]
-            when Range
+            when Enumerable
               return k unless x.include?(v)
             when Proc
               return k unless Protector.insecurely{ x.call(v) }
