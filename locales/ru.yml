@@ -1,0 +1,3 @@
+ru:
+  protector:
+    invalid: "Нет прав доступа к полю '%{field}'"
