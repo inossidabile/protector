@@ -17,10 +17,14 @@ matrix:
 
 gemfile:
   - gemfiles/AR_3.2.gemfile
-  - gemfiles/AR_4.gemfile
+  - gemfiles/AR_4.0.gemfile
+  - gemfiles/AR_4.1.gemfile
+  - gemfiles/AR_4.2.gemfile
   - gemfiles/AR_edge.gemfile
   - gemfiles/Rails_3.2.gemfile
-  - gemfiles/Rails_4.gemfile
+  - gemfiles/Rails_4.0.gemfile
+  - gemfiles/Rails_4.1.gemfile
+  - gemfiles/Rails_4.2.gemfile
   - gemfiles/Sequel.gemfile
 
 script: bundle exec rspec
