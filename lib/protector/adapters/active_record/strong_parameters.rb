@@ -5,9 +5,22 @@ module Protector
         def self.sanitize!(args, is_new, meta)
           return if args[0].permitted?
           if is_new
-            args[0] = args[0].permit(*meta.access[:create].keys) if meta.access.include? :create
+            if meta.access.include? :create
+              args[0] = args[0].permit(*mapped_permissions(meta.access[:create]))
+            end
           else
-            args[0] = args[0].permit(*meta.access[:update].keys) if meta.access.include? :update
+            if meta.access.include? :update
+              args[0] = args[0].permit(*mapped_permissions(meta.access[:update]))
+            end
+          end
+        end
+
+        # Permit nested array of scalar values.
+        #
+        # can :create, :name, {nicknames: []}, :address
+        def self.mapped_permissions(access)
+          access.map do |key, value|
+            value.nil? ? key : { key => value }
           end
         end
 
