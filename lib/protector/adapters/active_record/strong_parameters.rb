@@ -20,7 +20,7 @@ module Protector
         # can :create, :name, {nicknames: []}, :address
         def self.mapped_permissions(access)
           access.map do |key, value|
-            value.nil? ? key : { key => value }
+            value.nil? || value.is_a?(Proc) ? key : { key => value }
           end
         end
 
