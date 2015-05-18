@@ -1,0 +1,3 @@
+en:
+  protector:
+    invalid: "Zugriff auf '%{field}' verweigert"
