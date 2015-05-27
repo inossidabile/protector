@@ -159,7 +159,7 @@ module Protector
 
         # Checks whether given field of a model is readable in context of current subject
         def readable?(field)
-          @access[:read] && @access[:read].key?(field.to_s)
+          Array.wrap(field).all? { |f| @access[:read] && @access[:read].key?(f.to_s) }
         end
 
         # Checks whether you can create a model with given field in context of current subject
