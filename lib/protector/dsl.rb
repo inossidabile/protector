@@ -138,25 +138,30 @@ module Protector
         #
         # @see #can
         # @see #can?
-        def cannot(action, *fields)
-          action = deprecate_actions(action)
+        def cannot(actions, *fields)
+          Array.wrap(actions).each do |action|
+            action = deprecate_actions(action)
 
-          return @destroyable = false if action == :destroy
-
-          return unless @access[action]
-
-          if fields.length == 0
-            @access.delete(action)
-          else
-            fields.each do |a|
-              if a.is_a?(Array)
-                a.each { |f| @access[action].delete(f.to_s) }
-              else
-                @access[action].delete(a.to_s)
-              end
+            if action == :destroy
+              @destroyable = false
+              next
             end
 
-            @access.delete(action) if @access[action].empty?
+            next unless @access[action]
+
+            if fields.length == 0
+              @access.delete(action)
+            else
+              fields.each do |a|
+                if a.is_a?(Array)
+                  a.each { |f| @access[action].delete(f.to_s) }
+                else
+                  @access[action].delete(a.to_s)
+                end
+              end
+
+              @access.delete(action) if @access[action].empty?
+            end
           end
         end
 
