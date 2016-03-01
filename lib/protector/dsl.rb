@@ -102,23 +102,28 @@ module Protector
         #     # Can create f1 field with value equal to 'olo'
         #     can :create, f1: lambda{|x| x == 'olo'}
         #   end
-        def can(action, *fields)
-          action = deprecate_actions(action)
+        def can(actions, *fields)
+          Array.wrap(actions).each do |action|
+            action = deprecate_actions(action)
 
-          return @destroyable = true if action == :destroy
+            if action == :destroy
+              @destroyable = true
+              next
+            end
 
-          @access[action] = {} unless @access[action]
+            @access[action] = {} unless @access[action]
 
-          if fields.length == 0
-            @fields.each { |f| @access[action][f.to_s] = nil }
-          else
-            fields.each do |a|
-              if a.is_a?(Array)
-                a.each { |f| @access[action][f.to_s] = nil }
-              elsif a.is_a?(Hash)
-                @access[action].merge!(a.stringify_keys)
-              else
-                @access[action][a.to_s] = nil
+            if fields.length == 0
+              @fields.each { |f| @access[action][f.to_s] = nil }
+            else
+              fields.each do |a|
+                if a.is_a?(Array)
+                  a.each { |f| @access[action][f.to_s] = nil }
+                elsif a.is_a?(Hash)
+                  @access[action].merge!(a.stringify_keys)
+                else
+                  @access[action][a.to_s] = nil
+                end
               end
             end
           end
@@ -133,25 +138,30 @@ module Protector
         #
         # @see #can
         # @see #can?
-        def cannot(action, *fields)
-          action = deprecate_actions(action)
+        def cannot(actions, *fields)
+          Array.wrap(actions).each do |action|
+            action = deprecate_actions(action)
 
-          return @destroyable = false if action == :destroy
-
-          return unless @access[action]
-
-          if fields.length == 0
-            @access.delete(action)
-          else
-            fields.each do |a|
-              if a.is_a?(Array)
-                a.each { |f| @access[action].delete(f.to_s) }
-              else
-                @access[action].delete(a.to_s)
-              end
+            if action == :destroy
+              @destroyable = false
+              next
             end
 
-            @access.delete(action) if @access[action].empty?
+            next unless @access[action]
+
+            if fields.length == 0
+              @access.delete(action)
+            else
+              fields.each do |a|
+                if a.is_a?(Array)
+                  a.each { |f| @access[action].delete(f.to_s) }
+                else
+                  @access[action].delete(a.to_s)
+                end
+              end
+
+              @access.delete(action) if @access[action].empty?
+            end
           end
         end
 
