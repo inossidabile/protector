@@ -231,9 +231,7 @@ module Protector
 
         def protector_permit_strong_params(args)
           # strong_parameters integration
-          if Protector.config.strong_parameters? && args.first.respond_to?(:permit)
-            Protector::ActiveRecord::Adapters::StrongParameters.sanitize! args, true, protector_meta
-          end
+          Protector::ActiveRecord::Adapters::StrongParameters.sanitize! args, true, protector_meta
         end
 
 

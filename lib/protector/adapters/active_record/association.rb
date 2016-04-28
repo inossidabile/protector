@@ -29,7 +29,19 @@ module Protector
         # Forwards protection subject to the new instance
         def build_record_with_protector(*args)
           return build_record_without_protector(*args) unless protector_subject?
+
+          protector_permit_strong_params(args)
           build_record_without_protector(*args).restrict!(protector_subject)
+        end
+
+        private
+
+        def protector_meta(subject=protector_subject)
+          klass.protector_meta.evaluate(subject)
+        end
+
+        def protector_permit_strong_params(args)
+          Protector::ActiveRecord::Adapters::StrongParameters.sanitize! args, true, protector_meta
         end
       end
     end
