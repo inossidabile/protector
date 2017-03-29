@@ -13,7 +13,7 @@ if defined?(ActiveRecord)
         included do |klass|
           protect do |x|
             if x == '-'
-              scope{ where('1=0') } 
+              scope{ where('1=0') }
             elsif x == '+'
               scope{ where(klass.table_name => {number: 999}) }
             end
@@ -162,6 +162,8 @@ if defined?(ActiveRecord)
           it "checks existence" do
             Dummy.any?.should == true
             Dummy.restrict!('!').any?.should == true
+            Dummy.exists?.should == true
+            Dummy.restrict!('!').exists?.should == true
           end
 
           it "counts" do
@@ -183,6 +185,8 @@ if defined?(ActiveRecord)
           it "checks existence" do
             Dummy.any?.should == true
             Dummy.restrict!('!').any?.should == false
+            Dummy.exists?.should == true
+            Dummy.restrict!('!').exists?.should == false
           end
 
           it "counts" do
@@ -205,6 +209,8 @@ if defined?(ActiveRecord)
         it "checks existence" do
           Dummy.any?.should == true
           Dummy.restrict!('-').any?.should == false
+          Dummy.exists?.should == true
+          Dummy.restrict!('-').exists?.should == false
         end
 
         it "counts" do
@@ -231,6 +237,8 @@ if defined?(ActiveRecord)
         it "checks existence" do
           Dummy.any?.should == true
           Dummy.restrict!('+').any?.should == true
+          Dummy.exists?.should == true
+          Dummy.restrict!('+').exists?.should == true
         end
 
         it "counts" do
@@ -295,6 +303,8 @@ if defined?(ActiveRecord)
               Dummy.first.fluffies.any?.should == true
               Dummy.first.restrict!('!').fluffies.any?.should == true
               Dummy.first.fluffies.restrict!('!').any?.should == true
+              Dummy.first.restrict!('!').fluffies.exists?.should == true
+              Dummy.first.fluffies.restrict!('!').exists?.should == true
             end
 
             it "counts" do
@@ -321,6 +331,8 @@ if defined?(ActiveRecord)
               Dummy.first.fluffies.any?.should == true
               Dummy.first.restrict!('!').fluffies.any?.should == false
               Dummy.first.fluffies.restrict!('!').any?.should == false
+              Dummy.first.restrict!('!').fluffies.exists?.should == false
+              Dummy.first.fluffies.restrict!('!').exists?.should == false
             end
 
             it "counts" do
@@ -347,8 +359,11 @@ if defined?(ActiveRecord)
       context "with null relation" do
         it "checks existence" do
           Dummy.first.fluffies.any?.should == true
+          Dummy.first.fluffies.exists?.should == true
           Dummy.first.restrict!('-').fluffies.any?.should == false
           Dummy.first.fluffies.restrict!('-').any?.should == false
+          Dummy.first.restrict!('-').fluffies.exists?.should == false
+          Dummy.first.fluffies.restrict!('-').exists?.should == false
         end
 
         it "counts" do
@@ -373,8 +388,11 @@ if defined?(ActiveRecord)
       context "with active relation" do
         it "checks existence" do
           Dummy.first.fluffies.any?.should == true
+          Dummy.first.fluffies.exists?.should == true
           Dummy.first.restrict!('+').fluffies.any?.should == true
           Dummy.first.fluffies.restrict!('+').any?.should == true
+          Dummy.first.restrict!('+').fluffies.exists?.should == true
+          Dummy.first.fluffies.restrict!('+').exists?.should == true
         end
 
         it "counts" do
