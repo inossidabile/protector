@@ -10,6 +10,11 @@ module Protector
           @association.restrict!(*args)
           self
         end
+
+        def unrestrict!(*args)
+          @association.unrestrict!(*args)
+          self
+        end
       end
     end
   end
