@@ -6,7 +6,8 @@ module Protector
         extend ActiveSupport::Concern
 
         included do
-          alias_method_chain :reader, :protector
+          alias_method :reader_without_protector, :reader
+          alias_method :reader, :reader_with_protector
         end
 
         # Reader has to be explicitly overrided for cases when the
