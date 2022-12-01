@@ -8,8 +8,9 @@ module Protector
         module Association extend ActiveSupport::Concern
           included do
             # AR 4 has renamed `scoped` to `scope`
-            if method_defined?(:scope)
-              alias_method_chain :scope, :protector
+            if method_defined?(:scope) || private_method_defined?(:scope)
+              alias_method :scope_without_protector, :scope
+              alias_method :scope, :scope_with_protector
             else
               alias_method 'scope_without_protector', 'scoped'
               alias_method 'scoped', 'scope_with_protector'

@@ -8,10 +8,17 @@ module Protector
         included do
           include Protector::DSL::Base
 
-          alias_method_chain :exec_queries, :protector
-          alias_method_chain :new, :protector
-          alias_method_chain :create, :protector
-          alias_method_chain :create!, :protector
+          alias_method :exec_queries_without_protector, :exec_queries
+          alias_method :exec_queries, :exec_queries_with_protector
+
+          alias_method :new_without_protector, :new
+          alias_method :new, :new_with_protector
+
+          alias_method :create_without_protector, :create
+          alias_method :create, :create_with_protector
+
+          alias_method :create_without_protector!, :create!
+          alias_method :create!, :create_with_protector!
 
           # AR 3.2 workaround. Come on, guys... SQL parsing :(
           unless method_defined?(:references_values)

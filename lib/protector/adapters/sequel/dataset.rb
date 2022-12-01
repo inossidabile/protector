@@ -27,7 +27,8 @@ module Protector
         included do |klass|
           include Protector::DSL::Base
 
-          alias_method_chain :each, :protector
+          alias_method :each_without_protector, :each
+          alias_method :each, :each_with_protector
         end
 
         def creatable?
